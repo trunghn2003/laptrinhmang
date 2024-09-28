@@ -1,3 +1,7 @@
+package server.controller;
+
+import server.model.User;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -12,8 +16,10 @@ public class ServerControl {
     private Connection con;
     private ServerSocket myServer;
     private int serverPort = 8888;
+    private LoginServerController loginController;
     public ServerControl(){
         getDBConnection("thuchanh1", "root", "trunghn2003");
+        loginController = new LoginServerController(con);
         openServer(serverPort);
         while(true){
             listenning();
@@ -42,43 +48,27 @@ public class ServerControl {
         }
     }
 
-    private void listenning(){
+    private void listenning() {
         try {
             Socket clientSocket = myServer.accept();
-            ObjectInputStream ois = new
-                    ObjectInputStream(clientSocket.getInputStream());
-            ObjectOutputStream oos = new
-                    ObjectOutputStream(clientSocket.getOutputStream());
-            Object o = ois.readObject();
-            if(o instanceof User){
-                User user = (User)o;
-                if(checkUser(user)){
-                    oos.writeObject("ok");
-                }
-                else
-                    oos.writeObject("false");
+            ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
+            ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
 
+            Object o = ois.readObject();
+            if (o instanceof User) {
+                User user = (User) o;
+
+
+                boolean isAuthenticated = loginController.authenticate(user);
+
+                if (isAuthenticated) {
+                    oos.writeObject("ok");
+                } else {
+                    oos.writeObject("false");
+                }
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private boolean checkUser(User user) throws Exception {
-        String query = "Select * FROM users WHERE username ='"
-
-                + user.getUserName()
-
-                + "' AND password ='" + user.getPassword() + "'";
-        try {
-            Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery(query);
-            if (rs.next()) {
-                return true;
-            }
-        }catch(Exception e) {
-            throw e;
-        }
-        return false;
     }
 }

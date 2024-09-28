@@ -1,3 +1,7 @@
+package server.view;
+
+import server.controller.ServerControl;
+
 public class ServerView {
     public ServerView(){
         new ServerControl();

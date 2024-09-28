@@ -1,3 +1,5 @@
+package server.model;
+
 import java.io.Serializable;
 public class User implements Serializable{
     private String userName
@@ -33,4 +35,5 @@ public class User implements Serializable{
                 .userName = userName;
 
     }
+
 }
