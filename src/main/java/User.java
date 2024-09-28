@@ -21,7 +21,7 @@ public class User implements Serializable{
     public void setPassword(String password) {
         this
                 .password = password;
-
+        System.out.println("test");
     }
     public String getUserName() {
         return userName
