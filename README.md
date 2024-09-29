@@ -4,3 +4,6 @@
 3. Run the SQL file
 4. Update the database configuration in the ServerControl file
 5. Run ServerRun, then run ClientRun
+
+ **Client Diagram** 
+![Client Diagram](/ClientDiagram.jpg)
