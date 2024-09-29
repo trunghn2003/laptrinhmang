@@ -1,5 +1,6 @@
 package client.controller;
 
+import client.model.ResponseResult;
 import server.model.User;
 
 import java.sql.Connection;
@@ -13,7 +14,7 @@ public class LoginController {
         this.clientControl = clientControl;
     }
 
-    public boolean login(String username, String password) {
+    public ResponseResult login(String username, String password) {
         User user = new User(username, password, "login");
         clientControl.openConnection();
         System.out.println("Connected to server");
@@ -21,7 +22,13 @@ public class LoginController {
         String result = clientControl.receiveData();
         System.out.println("Result: " + result);
         clientControl.closeConnection();
-        return "ok".equals(result);  //
+        if ("ok".equals(result)) {
+            return new ResponseResult(true, result);
+
+        }
+        else {
+            return new ResponseResult(false, result);
+        }
     }
 }
 

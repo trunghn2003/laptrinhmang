@@ -1,5 +1,7 @@
 package server.controller;
 
+
+import server.model.ResponseResult;
 import server.model.User;
 
 import java.sql.Connection;
@@ -15,16 +17,22 @@ public class LoginServerController {
     }
 
 
-    public boolean authenticate(User user) {
+    public ResponseResult authenticate(User user) {
         String query = "SELECT * FROM users WHERE username = ? AND password = ?";
         try (PreparedStatement stmt = con.prepareStatement(query)) {
             stmt.setString(1, user.getUserName());
             stmt.setString(2, user.getPassword());
             ResultSet rs = stmt.executeQuery();
-            return rs.next();  // Trả về true nếu người dùng tồn tại
+
+
+            if (rs.next()) {
+                return new ResponseResult(true, "Login successful!");
+            } else {
+                return new ResponseResult(false, "Invalid username or password.");
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return new ResponseResult(false, "Database error occurred.");
         }
     }
 }

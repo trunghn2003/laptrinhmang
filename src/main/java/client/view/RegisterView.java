@@ -1,6 +1,7 @@
 package client.view;
 
 import client.controller.RegisterController;
+import client.model.ResponseResult;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -15,6 +16,7 @@ public class RegisterView extends JFrame implements ActionListener {
     public RegisterView(RegisterController controller) {
         this.registerController = controller;
         this.setTitle("Register");
+
         txtUsername = new JTextField(15);
         txtPassword = new JPasswordField(15);
         btnRegister = new JButton("Register");
@@ -29,16 +31,18 @@ public class RegisterView extends JFrame implements ActionListener {
         btnRegister.addActionListener(this);
         this.setContentPane(content);
         this.pack();
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setLocationRelativeTo(null);
     }
 
     public void actionPerformed(ActionEvent e) {
         String username = txtUsername.getText();
         String password = new String(txtPassword.getPassword());
-        String result = String.valueOf(registerController.register(username, password));
-        if (registerController.register(username, password)) {
-            JOptionPane.showMessageDialog(this, "Registration successful!");
+        ResponseResult result = registerController.register(username, password);
+        if (result.isSuccess()) {
+            JOptionPane.showMessageDialog(this, result.getMessage());
         } else {
-            JOptionPane.showMessageDialog(this, result);
+            JOptionPane.showMessageDialog(this, result.getMessage());
         }
     }
 }

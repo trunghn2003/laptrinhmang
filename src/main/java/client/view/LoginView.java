@@ -1,6 +1,7 @@
 package client.view;
 
 import client.controller.LoginController;
+import client.model.ResponseResult;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -38,10 +39,14 @@ public class LoginView extends JFrame implements ActionListener {
         String username = txtUsername.getText();
         String password = new String(txtPassword.getPassword());
 
-        if (loginController.login(username, password)) {
-            JOptionPane.showMessageDialog(this, "Login successful!");
+
+        ResponseResult result = loginController.login(username, password);
+        System.out.println(result);
+
+        if (result.isSuccess()) {
+            JOptionPane.showMessageDialog(this, "Login successful! " + result.getMessage());
         } else {
-            JOptionPane.showMessageDialog(this, "Login failed!");
+            JOptionPane.showMessageDialog(this, result.getMessage());
         }
     }
 }

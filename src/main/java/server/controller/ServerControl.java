@@ -1,5 +1,7 @@
 package server.controller;
 
+
+import server.model.ResponseResult;
 import server.model.User;
 
 import java.io.IOException;
@@ -9,8 +11,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+
 
 public class ServerControl {
     private Connection con;
@@ -60,24 +61,24 @@ public class ServerControl {
             if (o instanceof User) {
                 User user = (User) o;
                 if("login".equals(user.getActionType())){
-                    boolean isAuthenticated = loginController.authenticate(user);
+//                    boolean isAuthenticated = loginController.authenticate(user);
+                    ResponseResult result = loginController.authenticate(user);
 
-                    if (isAuthenticated) {
-                        oos.writeObject("ok");
+                    if (!result.isSuccess()) {
+                        oos.writeObject(result.getMessage());
                     } else {
-                        oos.writeObject("false");
+                        oos.writeObject("ok");
                     }
                 }
                 else {
-                    boolean isRegistered = registerController.register(user);
-                    if (!isRegistered) {
-                        oos.writeObject("Username already exists.");
+                    ResponseResult result = registerController.register(user);
+                    if (!result.isSuccess()) {
+                        oos.writeObject(result.getMessage());
                     } else {
                         oos.writeObject("ok");
                     }
 
                 }
-
 
 
             }

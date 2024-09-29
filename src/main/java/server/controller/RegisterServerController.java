@@ -1,7 +1,8 @@
 package server.controller;
 
-import server.model.User;
 
+import server.model.ResponseResult;
+import server.model.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,15 +11,15 @@ import java.sql.SQLException;
 public class RegisterServerController {
     private Connection con;
 
+
     public RegisterServerController(Connection con) {
         this.con = con;
     }
 
-    public boolean register(User user) {
+    public ResponseResult register(User user) {
 
         if (isUsernameTaken(user.getUserName())) {
-            System.out.println("Username already exists.");
-            return false;
+            return (new ResponseResult(false, "Username already exists."));
         }
 
         String query = "INSERT INTO users (username, password) VALUES (?, ?)";
@@ -26,11 +27,17 @@ public class RegisterServerController {
             stmt.setString(1, user.getUserName());
             stmt.setString(2, user.getPassword());
             int rowsAffected = stmt.executeUpdate();
-            return rowsAffected > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            if (rowsAffected > 0) {
+                new ResponseResult(true, "Registration successful!");
+            } else {
+                new ResponseResult(false, "Failed to register user.");
+            }
         }
+        catch (SQLException e) {
+            e.printStackTrace();
+            return new ResponseResult(false, "Database error occurred.");
+        }
+        return (new ResponseResult(true, "User registered successfully!"));
     }
 
     private boolean isUsernameTaken(String username) {
