@@ -17,9 +17,11 @@ public class ServerControl {
     private ServerSocket myServer;
     private int serverPort = 8888;
     private LoginServerController loginController;
+    private RegisterServerController  registerController;
     public ServerControl(){
         getDBConnection("thuchanh1", "root", "trunghn2003");
         loginController = new LoginServerController(con);
+        registerController = new RegisterServerController(con);
         openServer(serverPort);
         while(true){
             listenning();
@@ -57,15 +59,27 @@ public class ServerControl {
             Object o = ois.readObject();
             if (o instanceof User) {
                 User user = (User) o;
+                if("login".equals(user.getActionType())){
+                    boolean isAuthenticated = loginController.authenticate(user);
 
-
-                boolean isAuthenticated = loginController.authenticate(user);
-
-                if (isAuthenticated) {
-                    oos.writeObject("ok");
-                } else {
-                    oos.writeObject("false");
+                    if (isAuthenticated) {
+                        oos.writeObject("ok");
+                    } else {
+                        oos.writeObject("false");
+                    }
                 }
+                else {
+                    boolean isRegistered = registerController.register(user);
+                    if (!isRegistered) {
+                        oos.writeObject("Username already exists.");
+                    } else {
+                        oos.writeObject("ok");
+                    }
+
+                }
+
+
+
             }
         } catch (Exception e) {
             e.printStackTrace();

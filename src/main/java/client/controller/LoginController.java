@@ -14,7 +14,7 @@ public class LoginController {
     }
 
     public boolean login(String username, String password) {
-        User user = new User(username, password);
+        User user = new User(username, password, "login");
         clientControl.openConnection();
         System.out.println("Connected to server");
         clientControl.sendData(user);

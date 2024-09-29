@@ -6,15 +6,16 @@ public class User implements Serializable{
             ;
     private String password
             ;
+    private String actionType;
 
     public User(){ }
-    public User(String username, String password){
-        this
-                .userName = username;
-        this
-                .password = password;
 
+    public User(String userName, String password, String actionType) {
+        this.userName = userName;
+        this.password = password;
+        this.actionType = actionType;
     }
+
     public String getPassword() {
         return password
                 ;
@@ -36,4 +37,11 @@ public class User implements Serializable{
 
     }
 
+    public String getActionType() {
+        return actionType;
+    }
+
+    public void setActionType(String actionType) {
+        this.actionType = actionType;
+    }
 }

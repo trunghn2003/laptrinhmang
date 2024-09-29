@@ -2,6 +2,7 @@ package client.view;
 
 import client.controller.ClientControl;
 import client.controller.LoginController;
+import client.controller.RegisterController;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -36,11 +37,12 @@ public class MainView extends JFrame implements ActionListener {
             LoginView loginView = new LoginView(loginController);
             loginView.setVisible(true);
         }
-//        else if (e.getSource().equals(btnRegister)) {
-//            ClientControl clientControl = new ClientControl();
-//            RegisterView registerView = new RegisterView(clientControl);
-//            registerView.setVisible(true);
-//        }
+        else if (e.getSource().equals(btnRegister)) {
+            ClientControl clientControl = new ClientControl();
+            RegisterController registerController = new RegisterController(clientControl);
+            RegisterView registerView = new RegisterView(registerController);
+            registerView.setVisible(true);
+        }
     }
 
     public static void main(String[] args) {
