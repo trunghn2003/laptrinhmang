@@ -7,3 +7,5 @@
 
  **Client Diagram** 
 ![Client Diagram](/ClientDiagram.jpg)
+**Server Diagram**
+![Server Diagram](./ServerSide.jpg)
