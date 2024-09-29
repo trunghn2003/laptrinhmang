@@ -33,7 +33,7 @@ public class MainView extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(btnLogin)) {
             ClientControl clientControl = new ClientControl();
-            LoginController loginController = new LoginController(clientControl);  // Truyền ClientControl vào LoginController
+            LoginController loginController = new LoginController(clientControl);
             LoginView loginView = new LoginView(loginController);
             loginView.setVisible(true);
         }
@@ -45,8 +45,5 @@ public class MainView extends JFrame implements ActionListener {
         }
     }
 
-    public static void main(String[] args) {
-        MainView mainView = new MainView();
-        mainView.setVisible(true);
-    }
+
 }
