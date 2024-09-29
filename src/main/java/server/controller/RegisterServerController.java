@@ -3,6 +3,8 @@ package server.controller;
 
 import server.model.ResponseResult;
 import server.model.User;
+import utils.PasswordUtils;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,11 +23,11 @@ public class RegisterServerController {
         if (isUsernameTaken(user.getUserName())) {
             return (new ResponseResult(false, "Username already exists."));
         }
-
+        String hashedPassword = PasswordUtils.hashPassword(user.getPassword());
         String query = "INSERT INTO users (username, password) VALUES (?, ?)";
         try (PreparedStatement stmt = con.prepareStatement(query)) {
             stmt.setString(1, user.getUserName());
-            stmt.setString(2, user.getPassword());
+            stmt.setString(2, hashedPassword);
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected > 0) {
                 new ResponseResult(true, "Registration successful!");

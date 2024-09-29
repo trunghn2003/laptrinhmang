@@ -3,6 +3,7 @@ package server.controller;
 
 import server.model.ResponseResult;
 import server.model.User;
+import utils.PasswordUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,10 +19,11 @@ public class LoginServerController {
 
 
     public ResponseResult authenticate(User user) {
+        String hashedPassword = PasswordUtils.hashPassword(user.getPassword());
         String query = "SELECT * FROM users WHERE username = ? AND password = ?";
         try (PreparedStatement stmt = con.prepareStatement(query)) {
             stmt.setString(1, user.getUserName());
-            stmt.setString(2, user.getPassword());
+            stmt.setString(2, hashedPassword);
             ResultSet rs = stmt.executeQuery();
 
 
