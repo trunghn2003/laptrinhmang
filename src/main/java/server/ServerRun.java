@@ -2,8 +2,11 @@ package server;
 
 import server.view.ServerView;
 
+import javax.swing.*;
+
 public class ServerRun {
     public static void main(String[] args) {
-        ServerView view = new ServerView();
+        SwingUtilities.invokeLater(() -> new ServerView());
+
     }
 }
