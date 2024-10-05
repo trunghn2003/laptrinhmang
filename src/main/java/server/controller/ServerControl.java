@@ -1,5 +1,7 @@
 package server.controller;
 
+import server.controller.handle.ClientHandler;
+import server.controller.handle.IClientHandler;
 import server.view.ServerView;
 
 import java.io.IOException;
@@ -58,8 +60,10 @@ public class ServerControl {
             try {
                 Socket clientSocket = myServer.accept();
                 serverView.showMessage("Client connected: " + clientSocket.getInetAddress());
-                ClientHandler clientHandler = new ClientHandler(clientSocket, loginController, registerController, userController, serverView, clientIdCounter);
-                new Thread(clientHandler).start();
+                IClientHandler clientHandler = new ClientHandler(
+                        clientSocket, loginController, registerController, userController, serverView, clientIdCounter
+                );
+                new Thread((Runnable) clientHandler).start();
 
             } catch (IOException e) {
                 serverView.showMessage("Error accepting client connection: " + e.getMessage());
