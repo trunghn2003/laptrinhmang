@@ -17,7 +17,7 @@ public class RegisterController {
         User newUser = new User(username, password, "register");
         clientControl.openConnection();
         clientControl.sendData(newUser);
-        String result = clientControl.receiveData();
+        String result = (String) clientControl.receiveData();
         clientControl.closeConnection();
 //        System.out.println(result);
 
