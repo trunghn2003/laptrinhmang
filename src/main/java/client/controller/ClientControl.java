@@ -7,12 +7,14 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import io.github.cdimascio.dotenv.Dotenv;
+
 
 public class ClientControl {
+    Dotenv dotenv = Dotenv.load();
     private Socket mySocket;
-    private String serverHost = "localhost";
-    private int serverPort = 8888;
-
+    private String serverHost = dotenv.get("SERVER_HOST");
+    private int serverPort = Integer.parseInt(dotenv.get("SERVER_PORT"));
     public ClientControl() {
     }
 
