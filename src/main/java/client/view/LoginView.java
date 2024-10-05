@@ -2,10 +2,12 @@ package client.view;
 
 import client.controller.LoginController;
 import client.model.ResponseResult;
+import server.model.User;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 public class LoginView extends JFrame implements ActionListener {
     private JTextField txtUsername;
@@ -36,17 +38,28 @@ public class LoginView extends JFrame implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
+
         String username = txtUsername.getText();
         String password = new String(txtPassword.getPassword());
-
-
         ResponseResult result = loginController.login(username, password);
-        System.out.println(result);
 
         if (result.isSuccess()) {
             JOptionPane.showMessageDialog(this, "Login successful! " + result.getMessage());
+
+
+            List<User> data = result.getData();
+
+
+            if (data != null && !data.isEmpty()) {
+                new UserListView(data);
+            } else {
+                JOptionPane.showMessageDialog(this, "No users found.");
+            }
         } else {
+
             JOptionPane.showMessageDialog(this, result.getMessage());
         }
     }
+
+
 }

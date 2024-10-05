@@ -5,6 +5,9 @@ import server.model.User;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+
 public class ClientControl {
     private Socket mySocket;
     private String serverHost = "localhost";
@@ -41,12 +44,20 @@ public class ClientControl {
         return true;
     }
 
-    public String receiveData() {
-        String result = null;
+    public Object receiveData() {
+        Object result = null;
         try {
             ObjectInputStream ois =
                     new ObjectInputStream(mySocket.getInputStream());
             Object o = ois.readObject();
+
+
+            if (o instanceof ArrayList<?>) {
+                ArrayList<?> list = (ArrayList<?>) o;
+                if (!list.isEmpty() && list.get(0) instanceof User) {
+                    result = list;
+                }
+            }
             if (o instanceof String) {
                 result = (String) o;
             }
@@ -58,6 +69,7 @@ public class ClientControl {
 
         return result;
     }
+
 
     public boolean closeConnection() {
         try {
