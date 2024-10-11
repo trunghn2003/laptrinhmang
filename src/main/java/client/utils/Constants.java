@@ -1,11 +1,6 @@
-package server.utils;
+package client.utils;
 
 public class Constants {
-    // Trạng thái người chơi
-    public static final int STATUS_OFFLINE = 0;
-    public static final int STATUS_ONLINE = 1;
-    public static final int STATUS_PLAYING = 2;
-
     // Các hành động
     public static final String ACTION_LOGIN = "login";
     public static final String ACTION_REGISTER = "register";

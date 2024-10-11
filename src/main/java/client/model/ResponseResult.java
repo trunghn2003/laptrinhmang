@@ -1,18 +1,20 @@
 package client.model;
 
-import server.model.User;
+import java.io.Serializable;
 
-import java.util.List;
-
-public class ResponseResult {
+public class ResponseResult implements Serializable {
     private boolean success;
     private String message;
-    private List<User> data;
+    private Object data;
+
+    public ResponseResult() { }
 
     public ResponseResult(boolean success, String message) {
         this.success = success;
         this.message = message;
     }
+
+    // Getter và Setter
 
     public boolean isSuccess() {
         return success;
@@ -22,11 +24,19 @@ public class ResponseResult {
         return message;
     }
 
-    public List<User> getData() {
+    public Object getData() {
         return data;
     }
 
-    public void setData(List<User> data) {
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public void setData(Object data) {
         this.data = data;
     }
 }
