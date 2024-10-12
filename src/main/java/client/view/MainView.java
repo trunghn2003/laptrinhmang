@@ -58,7 +58,9 @@ public class MainView extends JFrame {
     public void updateUserList(List<User> users) {
         userListModel.clear();
         for (User user : users) {
-            userListModel.addElement(user);  // Thêm trực tiếp đối tượng User vào model
+            if(!user.getUserName().equals(clientControl.getCurrentUser().getUserName())) {
+                userListModel.addElement(user);
+            }
         }
     }
 
@@ -153,9 +155,26 @@ class UserListCellRenderer extends DefaultListCellRenderer {
             User user = (User) value;
             // Hiển thị tên người dùng và trạng thái
             String statusText = user.getStatus() == 1 ? "Online" : user.getStatus() == 2 ? "Playing" : "Offline";
-            label.setText(user.getUserName() + " (" + statusText + ")");
+            label.setText("<html><b>" + user.getUserName() + "</b> (" + statusText + ")</html>");
+
+            // Tùy chỉnh màu sắc dựa trên trạng thái người dùng
+            if (user.getStatus() == 1) {
+                label.setForeground(new Color(0, 128, 0));  // Xanh lá cho Online
+            } else if (user.getStatus() == 2) {
+                label.setForeground(new Color(0, 0, 255));  // Xanh dương cho Playing
+            } else {
+                label.setForeground(new Color(128, 128, 128));  // Xám cho Offline
+            }
+
+            // Thêm khoảng cách giữa các mục
+            label.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        }
+
+        if (isSelected) {
+            label.setBackground(new Color(200, 230, 255));  // Màu nền khi được chọn
         }
 
         return label;
     }
 }
+

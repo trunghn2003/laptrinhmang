@@ -20,7 +20,7 @@ public class ClientControl {
     private ObjectOutputStream oos;
     private String serverHost = dotenv.get("SERVER_HOST");
     private int serverPort = Integer.parseInt(dotenv.get("SERVER_PORT"));
-
+    private User currentUser;
     public ClientControl() {
     }
 
@@ -134,6 +134,8 @@ public class ClientControl {
         if (response instanceof String) {
             String message = (String) response;
             if (message.equals(Constants.LOGIN_SUCCESS)) {
+                currentUser = user;
+                System.out.println(user);
                 // Nhận danh sách người chơi online
                 Object userList = receiveData();
                 if (userList instanceof java.util.List) {
@@ -185,6 +187,16 @@ public class ClientControl {
         return new ResponseResult(false, "Unknown error occurred.");
     }
 
+    public User getCurrentUser() {
+        return currentUser;
+    }
+
+
+    public void setCurrentUser(User currentUser) {
+        this.currentUser = currentUser;
+    }
+
+
     /**
      * Nhận luồng đầu vào.
      *
@@ -203,3 +215,5 @@ public class ClientControl {
         return oos;
     }
 }
+
+
