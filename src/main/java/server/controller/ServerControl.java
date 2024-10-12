@@ -10,12 +10,14 @@ import java.net.Socket;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import io.github.cdimascio.dotenv.Dotenv;
+
 public class ServerControl {
     private Connection con;
-    Dotenv dotenv = Dotenv.load();
+    private Dotenv dotenv;
     private ServerSocket myServer;
-    private int serverPort = Integer.parseInt(dotenv.get("SERVER_PORT"));
+    private int serverPort;
     private LoginServerController loginController;
     private RegisterServerController registerController;
     private UserServerController userController;
@@ -24,6 +26,8 @@ public class ServerControl {
 
     public ServerControl(ServerView serverView) throws Exception {
         this.serverView = serverView;
+        this.dotenv = Dotenv.load();
+        this.serverPort = Integer.parseInt(dotenv.get("SERVER_PORT"));
         getDBConnection(dotenv.get("DB_DATABASE"), dotenv.get("DB_USERNAME"), dotenv.get("DB_PASSWORD"));
         loginController = new LoginServerController(con);
         registerController = new RegisterServerController(con);
@@ -32,8 +36,8 @@ public class ServerControl {
     }
 
     private void getDBConnection(String dbName, String username, String password) throws Exception {
-        String dbUrl = "jdbc:mysql://localhost:"+ dotenv.get("DB_PORT") +"/" + dbName;
-        String dbClass = "com.mysql.jdbc.Driver";
+        String dbUrl = "jdbc:mysql://localhost:" + dotenv.get("DB_PORT") + "/" + dbName;
+        String dbClass = "com.mysql.cj.jdbc.Driver";
         try {
             Class.forName(dbClass);
             con = DriverManager.getConnection(dbUrl, username, password);
@@ -48,14 +52,14 @@ public class ServerControl {
         try {
             myServer = new ServerSocket(portNumber);
             serverView.showMessage("Server started on port " + portNumber);
-            listenning();
+            listenForClients();
         } catch (IOException e) {
             serverView.showMessage("Error starting server: " + e.getMessage());
             throw new Exception("Server start error", e);
         }
     }
 
-    private void listenning() {
+    private void listenForClients() {
         while (true) {
             try {
                 Socket clientSocket = myServer.accept();

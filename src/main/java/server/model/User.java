@@ -13,6 +13,8 @@ public class User implements Serializable {
     private int id;
     private int clientId = -1;
 
+    // Thêm thuộc tính clientHandler để quản lý kết nối
+    private transient Object clientHandler;
 
     public User() { }
 
@@ -86,6 +88,13 @@ public class User implements Serializable {
         this.id = id;
     }
 
+    public Object getClientHandler() {
+        return clientHandler;
+    }
+
+    public void setClientHandler(Object clientHandler) {
+        this.clientHandler = clientHandler;
+    }
 
     @Override
     public String toString() {
