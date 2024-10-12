@@ -8,7 +8,9 @@ import server.model.User;
 import server.utils.Constants;
 import server.view.ServerView;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -24,6 +26,7 @@ public class ClientHandler implements Runnable, IClientHandler {
     private User user;
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
+    private boolean gameStartedWithOpponent = false;
 
     // Danh sách các client đang kết nối
     private static List<ClientHandler> clientHandlers = new CopyOnWriteArrayList<>();
@@ -185,58 +188,97 @@ public class ClientHandler implements Runnable, IClientHandler {
         }
     }
 
-    // Xử lý lời mời chơi game
     private void handleInvite(String message) {
+        System.out.println("Handling invite with message: " + message);
+        serverView.showMessage("Handling invite with message: " + message);
+
         String[] parts = message.split(":");
         if (parts.length >= 2) {
             String recipientUsername = parts[1];
+
+            System.out.println("Invite recipient: " + recipientUsername);
+            serverView.showMessage("Invite recipient: " + recipientUsername);
+
             // Kiểm tra xem người nhận có online không
             int recipientStatus = userController.getUserStatus(recipientUsername);
+            System.out.println("Recipient status: " + (recipientStatus == 1 ? "Online" : "Offline"));
+            serverView.showMessage("Recipient status: " + (recipientStatus == Constants.STATUS_ONLINE ? "Online" : "Offline"));
+
             if (recipientStatus == Constants.STATUS_ONLINE) {
-                // Tìm ClientHandler của người nhận
                 ClientHandler recipientHandler = getClientHandler(recipientUsername);
-                if (recipientHandler != null) {
-                    // Gửi lời mời tới người nhận
+                if (recipientHandler != null && !recipientHandler.gameStartedWithOpponent) {
                     recipientHandler.sendMessage(Constants.RESPONSE_INVITE + ":" + user.getUserName());
                     serverView.showMessage(user.getUserName() + " has sent an invite to " + recipientUsername);
+                    System.out.println(user.getUserName() + " has sent an invite to " + recipientUsername);
                 } else {
-                    sendMessage("INVITE_ERROR:" + recipientUsername + " is not available.");
+                    sendMessage("INVITE_ERROR:" + recipientUsername + " is not available or game already started.");
+                    System.out.println("Error: ClientHandler for " + recipientUsername + " not found or game already started.");
+                    serverView.showMessage("Error: ClientHandler for " + recipientUsername + " not found or game already started.");
                 }
             } else {
                 sendMessage("INVITE_ERROR:" + recipientUsername + " is not available.");
+                System.out.println("Error: " + recipientUsername + " is not online.");
+                serverView.showMessage("Error: " + recipientUsername + " is not online.");
             }
+        } else {
+            System.out.println("Error: Invalid message format.");
+            serverView.showMessage("Error: Invalid message format.");
         }
     }
 
-    // Xử lý phản hồi lời mời
+    // Phương thức xử lý phản hồi lời mời
     private void handleInviteResponse(String message) {
+        System.out.println("Handling invite response with message: " + message);
+        serverView.showMessage("Handling invite response with message: " + message);
+
         String[] parts = message.split(":");
         if (parts.length >= 3) {
             String senderUsername = parts[1];
             String response = parts[2];
 
-            // Tìm ClientHandler của người gửi lời mời
+            System.out.println("Invite response from " + user.getUserName() + ": " + response);
+            serverView.showMessage("Invite response from " + user.getUserName() + ": " + response);
+
             ClientHandler senderHandler = getClientHandler(senderUsername);
             if (senderHandler != null) {
                 senderHandler.sendMessage(Constants.RESPONSE_INVITE_RESPONSE + ":" + user.getUserName() + ":" + response);
+
                 if (response.equals("ACCEPT")) {
-                    // Cập nhật trạng thái người chơi thành đang chơi
-                    userController.updateUserStatus(user.getUserName(), Constants.STATUS_PLAYING);
-                    userController.updateUserStatus(senderUsername, Constants.STATUS_PLAYING);
-                    // Gửi thông báo bắt đầu trận đấu
-                    senderHandler.sendMessage(Constants.RESPONSE_GAME_START + ":" + user.getUserName());
-                    sendMessage(Constants.RESPONSE_GAME_START + ":" + senderUsername);
-                    serverView.showMessage("Game started between " + user.getUserName() + " and " + senderUsername);
-                    // Phát sóng danh sách người chơi online
-                    broadcastOnlineUsers();
+                    if (!gameStartedWithOpponent && !senderHandler.gameStartedWithOpponent) {
+                        userController.updateUserStatus(user.getUserName(), Constants.STATUS_PLAYING);
+                        userController.updateUserStatus(senderUsername, Constants.STATUS_PLAYING);
+
+                        System.out.println("Updated status to PLAYING for both " + user.getUserName() + " and " + senderUsername);
+                        serverView.showMessage("Updated status to PLAYING for both " + user.getUserName() + " and " + senderUsername);
+
+                        senderHandler.sendMessage(Constants.RESPONSE_GAME_START + ":" + user.getUserName());
+                        sendMessage(Constants.RESPONSE_GAME_START + ":" + senderUsername);
+
+                        System.out.println("Game started between " + user.getUserName() + " and " + senderUsername);
+                        serverView.showMessage("Game started between " + user.getUserName() + " and " + senderUsername);
+
+                        gameStartedWithOpponent = true;
+                        senderHandler.gameStartedWithOpponent = true;
+
+                        broadcastOnlineUsers();
+                    } else {
+                        System.out.println("Game already started, ignoring duplicate invite response.");
+                    }
                 } else {
+                    System.out.println(user.getUserName() + " has declined the invite from " + senderUsername);
                     serverView.showMessage(user.getUserName() + " has declined the invite from " + senderUsername);
                 }
             } else {
+                System.out.println("Error: ClientHandler for " + senderUsername + " not found.");
+                serverView.showMessage("Error: ClientHandler for " + senderUsername + " not found.");
                 sendMessage("INVITE_ERROR:" + senderUsername + " is not available.");
             }
+        } else {
+            System.out.println("Error: Invalid invite response format.");
+            serverView.showMessage("Error: Invalid invite response format.");
         }
     }
+
 
     // Gửi tin nhắn tới client
     public void sendMessage(String message) {

@@ -7,24 +7,24 @@ import client.utils.Constants;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.util.List;
 
 public class MainView extends JFrame {
     private ClientControl clientControl;
     private GameController gameController;
-    private DefaultListModel<String> userListModel;
-    private JList<String> userList;
+    private DefaultListModel<User> userListModel;
+    private JList<User> userList;  // JList giờ sẽ chứa đối tượng User, không chỉ tên người dùng
     private JButton inviteButton;
 
     public MainView(ClientControl clientControl, Object userData) {
         this.clientControl = clientControl;
         this.gameController = new GameController(clientControl);
         setupUI();
-        updateUserList((List<User>) userData);
-        listenFromServer();
+        updateUserList((List<User>) userData);  // Cập nhật danh sách người chơi ban đầu
+        listenFromServer();  // Bắt đầu lắng nghe các tin nhắn từ server
     }
 
+    // Tạo giao diện chính
     private void setupUI() {
         setTitle("Online Players");
         setSize(400, 600);
@@ -32,13 +32,17 @@ public class MainView extends JFrame {
 
         userListModel = new DefaultListModel<>();
         userList = new JList<>(userListModel);
+
+        // Sử dụng renderer tùy chỉnh để hiển thị tên và trạng thái người chơi
+        userList.setCellRenderer(new UserListCellRenderer());
+
         JScrollPane userScrollPane = new JScrollPane(userList);
 
         inviteButton = new JButton("Invite to Play");
         inviteButton.addActionListener(e -> {
-            String selectedUser = userList.getSelectedValue();
+            User selectedUser = userList.getSelectedValue();  // Lấy đối tượng User thay vì chỉ tên người dùng
             if (selectedUser != null) {
-                sendInvite(selectedUser);
+                sendInvite(selectedUser.getUserName());  // Gửi lời mời tới người chơi được chọn
             } else {
                 JOptionPane.showMessageDialog(null, "Please select a player to invite.");
             }
@@ -50,20 +54,21 @@ public class MainView extends JFrame {
         setVisible(true);
     }
 
+    // Cập nhật danh sách người chơi
     public void updateUserList(List<User> users) {
         userListModel.clear();
         for (User user : users) {
-            if (user.getStatus() == 1) {
-                userListModel.addElement(user.getUserName());
-            }
+            userListModel.addElement(user);  // Thêm trực tiếp đối tượng User vào model
         }
     }
 
+    // Gửi lời mời chơi
     private void sendInvite(String recipient) {
         String message = Constants.ACTION_INVITE + ":" + recipient;
         clientControl.sendMessage(message);
     }
 
+    // Lắng nghe từ server
     private void listenFromServer() {
         new Thread(() -> {
             try {
@@ -93,13 +98,31 @@ public class MainView extends JFrame {
         }).start();
     }
 
+    // Xử lý khi nhận được lời mời chơi từ người khác
     private void handleInvite(String message) {
-        String sender = message.split(":")[1];
-        int response = JOptionPane.showConfirmDialog(null, sender + " invites you to a game. Do you accept?", "Game Invitation", JOptionPane.YES_NO_OPTION);
-        String responseMessage = Constants.ACTION_INVITE_RESPONSE + ":" + sender + ":" + (response == JOptionPane.YES_OPTION ? "ACCEPT" : "DECLINE");
-        clientControl.sendMessage(responseMessage);
+        String[] parts = message.split(":");
+
+        if (parts.length >= 3) {
+            String recipient = parts[1]; // Tên người nhận (người gửi phản hồi)
+            String response = parts[2];  // Phản hồi (ACCEPT hoặc DECLINE)
+
+            // Xử lý phản hồi dựa trên nội dung
+            if (response.equalsIgnoreCase("ACCEPT")) {
+                JOptionPane.showMessageDialog(null, recipient + " has accepted your invitation. The game will start!");
+                gameController.startGame(recipient); // Bắt đầu trò chơi
+            } else if (response.equalsIgnoreCase("DECLINE")) {
+                JOptionPane.showMessageDialog(null, recipient + " has declined your invitation.");
+            }
+        } else {
+            // Log lỗi nếu thông điệp không đủ phần tử sau khi tách
+            String sender = message.split(":")[1];
+            int response = JOptionPane.showConfirmDialog(null, sender + " invites you to a game. Do you accept?", "Game Invitation", JOptionPane.YES_NO_OPTION);
+            String responseMessage = Constants.ACTION_INVITE_RESPONSE + ":" + sender + ":" + (response == JOptionPane.YES_OPTION ? "ACCEPT" : "DECLINE");
+            clientControl.sendMessage(responseMessage);
+        }
     }
 
+    // Xử lý phản hồi lời mời
     private void handleInviteResponse(String message) {
         String[] parts = message.split(":");
         String recipient = parts[1];
@@ -112,9 +135,27 @@ public class MainView extends JFrame {
         }
     }
 
+    // Xử lý khi trò chơi bắt đầu
     private void handleGameStart(String message) {
         String opponent = message.split(":")[1];
         JOptionPane.showMessageDialog(null, "Starting game with " + opponent + "!");
         gameController.startGame(opponent);
+    }
+}
+
+// Renderer tùy chỉnh để hiển thị tên và trạng thái người dùng
+class UserListCellRenderer extends DefaultListCellRenderer {
+    @Override
+    public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+
+        if (value instanceof User) {
+            User user = (User) value;
+            // Hiển thị tên người dùng và trạng thái
+            String statusText = user.getStatus() == 1 ? "Online" : user.getStatus() == 2 ? "Playing" : "Offline";
+            label.setText(user.getUserName() + " (" + statusText + ")");
+        }
+
+        return label;
     }
 }
