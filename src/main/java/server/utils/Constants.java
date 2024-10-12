@@ -1,0 +1,28 @@
+package server.utils;
+
+public class Constants {
+    // Trạng thái người chơi
+    public static final int STATUS_OFFLINE = 0;
+    public static final int STATUS_ONLINE = 1;
+    public static final int STATUS_PLAYING = 2;
+
+    // Các hành động
+    public static final String ACTION_LOGIN = "login";
+    public static final String ACTION_REGISTER = "register";
+    public static final String ACTION_INVITE = "invite";
+    public static final String ACTION_INVITE_RESPONSE = "invite_response";
+    public static final String ACTION_GAME_MOVE = "game_move";
+
+    // Phản hồi
+    public static final String RESPONSE_INVITE = "response_invite";
+    public static final String RESPONSE_INVITE_RESPONSE = "response_invite_response";
+    public static final String RESPONSE_GAME_START = "response_game_start";
+    public static final String RESPONSE_GAME_MOVE = "response_game_move";
+    public static final String RESPONSE_GAME_RESULT = "response_game_result";
+
+    // Thông báo đăng nhập và đăng ký
+    public static final String LOGIN_SUCCESS = "Login successful!";
+    public static final String LOGIN_FAILURE = "Login failed";
+    public static final String REGISTER_SUCCESS = "Registration successful!";
+    public static final String REGISTER_FAILURE = "Registration failed";
+}

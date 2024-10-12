@@ -1,10 +1,10 @@
 package client;
 
-import client.view.MainView;
+import client.view.LoginView;
 
 public class ClientRun {
     public static void main(String[] args) {
-        MainView mainView = new MainView();
-        mainView.setVisible(true);
+        LoginView loginView = new LoginView();
+        loginView.setVisible(true);
     }
 }
