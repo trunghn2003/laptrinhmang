@@ -7,6 +7,8 @@ public class Constants {
     public static final String ACTION_INVITE = "invite";
     public static final String ACTION_INVITE_RESPONSE = "invite_response";
     public static final String ACTION_GAME_MOVE = "game_move";
+    public static final String ACTION_SEND_COLORS = "send_colors";
+    public static final String ACTION_EXIT_MID_GAME = "exit_mid_game";
 
     // Phản hồi
     public static final String RESPONSE_INVITE = "response_invite";
@@ -14,6 +16,7 @@ public class Constants {
     public static final String RESPONSE_GAME_START = "response_game_start";
     public static final String RESPONSE_GAME_MOVE = "response_game_move";
     public static final String RESPONSE_GAME_RESULT = "response_game_result";
+    public static final String RESPONSE_RANDOM_COLORS = "response_random_colors";
 
     // Thông báo đăng nhập và đăng ký
     public static final String LOGIN_SUCCESS = "Login successful!";

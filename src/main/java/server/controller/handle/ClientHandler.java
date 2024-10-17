@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,6 +27,7 @@ public class ClientHandler implements Runnable, IClientHandler {
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
     private boolean gameStartedWithOpponent = false;
+    private final ArrayList<String> colors = new ArrayList<>(Arrays.asList("red", "green", "blue", "yellow", "orange", "purple", "black", "white"));
 
     // Danh sách các client đang kết nối
     private static List<ClientHandler> clientHandlers = new CopyOnWriteArrayList<>();
@@ -298,6 +299,100 @@ public class ClientHandler implements Runnable, IClientHandler {
             }
         }
         return null;
+    }
+
+    // Phương thức tạo màu ngẫu nhiên
+    public String random3Color() {
+        ArrayList<String> colors = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            int randomIndex = (int) (Math.random() * colors.size());
+            colors.add(this.colors.get(randomIndex));
+        }
+        return String.join(",", colors);
+    }
+
+    // Phương thức kiểm tra màu
+    public boolean checkColors(ArrayList<String> colors) {
+        return colors.size() == 3 && this.colors.containsAll(colors);
+    }
+
+    public void sendColorsToClient() {
+
+        System.out.println("Sending colors to client: " + user.getUserName());
+        serverView.showMessage("Sending colors to client: " + user.getUserName());
+
+        try {
+            System.out.println("Random 3 colors for " + user.getUserName());
+            serverView.showMessage("Random 3 colors for " + user.getUserName());
+            String randomColors = random3Color();
+
+            oos.writeObject(Constants.RESPONSE_RANDOM_COLORS + ":" + randomColors);
+            oos.flush();
+
+            Thread.sleep(3000);
+
+            oos.writeObject(null);
+            oos.flush();
+
+        } catch (IOException | InterruptedException e) {
+            serverView.showMessage("Error sending message to client: " + e.getMessage());
+        }
+    }
+
+    public void sendResultToClient(String message, String username, int score) {
+        try {
+            ClientHandler client = getClientHandler(username);
+            String result = message.split(":")[1];
+            ArrayList<String> resultColors = new ArrayList<>(Arrays.asList(result.split(",")));
+            boolean check = checkColors(resultColors);
+            if(client != null) {
+                oos.writeObject(
+                        Constants.RESPONSE_GAME_RESULT
+                                + ":"
+                                + client.user.getUserName()
+                                + ":"
+                                + check
+                                + ":"
+                                + (check ? score + 1 : score));
+                oos.flush();
+            } else {
+                serverView.showMessage("Can not find client");
+            }
+        } catch (IOException e) {
+            serverView.showMessage("Error sending message to client: " + e.getMessage());
+        }
+    }
+
+    public void exitMidGame(String message) {
+        try {
+            ArrayList<String> parts = new ArrayList<>(Arrays.asList(message.split(":")));
+            String opponent = parts.get(1);
+            ClientHandler client = getClientHandler(opponent);
+            if(client != null) {
+                oos.writeObject(Constants.RESPONSE_GAME_RESULT + ":" + user.getUserName() + ":" + "LOSE");
+                client.sendMessage(Constants.RESPONSE_GAME_RESULT + ":" + opponent + ":" + "WIN");
+            } else {
+                serverView.showMessage("Can not find client");
+            }
+            userController.updateUserStatus(user.getUserName(), Constants.STATUS_ONLINE);
+            User opponentUser = userController.getUserByUsername(opponent);
+            opponentUser.setStatus(Constants.STATUS_ONLINE);
+            gameStartedWithOpponent = false;
+            broadcastOnlineUsers();
+        } catch (Exception e) {
+            serverView.showMessage("Error exiting mid-game: " + e.getMessage());
+        }
+    }
+
+    public void getGameResult(String message) {
+        try {
+            ArrayList<String> parts = new ArrayList<>(Arrays.asList(message.split(":")));
+            String opponent = parts.get(1);
+            oos.writeObject(Constants.ACTION_GAME_RESULT);
+            oos.flush();
+        } catch (IOException e) {
+            serverView.showMessage("Error sending message to client: " + e.getMessage());
+        }
     }
 
     @Override
