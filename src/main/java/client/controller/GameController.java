@@ -25,6 +25,8 @@ public class GameController {
     public void startGame(String opponent) {
         gameView.setOpponent(opponent);
         gameView.setVisible(true);
+        clientControl.sendMessage(Constants.ACTION_START_GAME);
+        receivedColors(clientControl.receiveData().toString());
     }
 
     public void sendGameMove(String move) {

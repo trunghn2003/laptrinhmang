@@ -9,6 +9,7 @@ public class Constants {
     public static final String ACTION_GAME_MOVE = "game_move";
     public static final String ACTION_SEND_COLORS = "send_colors";
     public static final String ACTION_EXIT_MID_GAME = "exit_mid_game";
+    public static final String ACTION_START_GAME = "start_game";
 
     // Phản hồi
     public static final String RESPONSE_INVITE = "response_invite";

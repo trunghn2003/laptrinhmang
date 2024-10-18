@@ -91,6 +91,13 @@ public class ClientHandler implements Runnable, IClientHandler {
                     handleRegisterRequest(user, oos);
                     break;
 
+                case Constants.RESPONSE_GAME_RESULT:
+                    getGameResult(user.getActionType());
+                    break;
+
+                case Constants.ACTION_START_GAME:
+                    sendColorsToClient();
+
                 default:
                     handleUnknownRequest(user, oos);
                     break;
