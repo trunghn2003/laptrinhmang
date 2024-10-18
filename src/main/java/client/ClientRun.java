@@ -1,10 +1,10 @@
 package client;
 
 import client.view.LoginView;
+import javafx.application.Application;
 
 public class ClientRun {
     public static void main(String[] args) {
-        LoginView loginView = new LoginView();
-        loginView.setVisible(true);
+        Application.launch(LoginView.class, args);
     }
 }

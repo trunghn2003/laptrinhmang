@@ -1,0 +1,53 @@
+/* styles.css */
+@font-face {
+    font-family: "SVN-Bango";
+    src: url("/fonts/SVN-Bango.otf");
+}
+
+.root {
+    -fx-background-color: linear-gradient(to bottom right, #1A1E29, #1A1E29);
+}
+
+.label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #fff;
+}
+
+#title-label {
+    -fx-font-size: 24px;
+    -fx-text-fill: #fff;
+    -fx-font-family: "SVN-Bango";
+}
+
+.text-field, .password-field {
+    -fx-background-radius: 25;
+    -fx-padding: 10;
+    -fx-border-radius: 25;
+    -fx-border-color: #232937;
+    -fx-background-color: #232937;
+    -fx-text-fill: #fff;
+}
+
+.button {
+    -fx-background-color: #586AFA;
+    -fx-text-fill: white;
+    -fx-padding: 8 15;
+    -fx-background-radius: 25;
+}
+
+.button:hover {
+    -fx-background-color: #263ef9;
+}
+
+.hyperlink {
+    -fx-text-fill: #CF9C40;
+}
+
+.hyperlink:hover {
+    -fx-text-fill: #E47200;
+}
+
+.text-field, .password-field, .button {
+    -fx-max-width: 250px;
+    -fx-min-width: 250px;
+}
