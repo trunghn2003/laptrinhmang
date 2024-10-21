@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.sql.SQLOutput;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -55,8 +56,10 @@ public class ClientHandler implements Runnable, IClientHandler {
             Object receivedObject = ois.readObject();
             if (receivedObject instanceof User) {
                 user = (User) receivedObject;
+                System.out.println("user da gui len server" + user.toString());
                 handleUserRequest(user, oos);
-            } else {
+            }
+            else {
                 serverView.showMessage("Invalid object received from client.");
                 oos.writeObject("Invalid object received.");
             }
@@ -82,6 +85,7 @@ public class ClientHandler implements Runnable, IClientHandler {
     @Override
     public void handleUserRequest(User user, ObjectOutputStream oos) {
         try {
+            System.out.println("Processing user request: " + user.getActionType());
             switch (user.getActionType().toLowerCase()) {
                 case Constants.ACTION_LOGIN:
                     handleLoginRequest(user, oos);
@@ -161,7 +165,20 @@ public class ClientHandler implements Runnable, IClientHandler {
                         handleInvite(message);
                     } else if (message.startsWith(Constants.ACTION_INVITE_RESPONSE + ":")) {
                         handleInviteResponse(message);
-                    } else {
+                    }
+                    else if(message.startsWith(Constants.ACTION_START_GAME)){
+                        System.out.println("log: " + message);
+                    }
+                    else if (message.startsWith(Constants.ACTION_SEND_COLORS)){
+                        System.out.println("log: " + message);
+                    }
+                    else if (message.startsWith(Constants.ACTION_GAME_MOVE)){
+                        System.out.println("log: " + message);
+                    }
+                    else if (message.startsWith(Constants.ACTION_EXIT_MID_GAME)){
+                        System.out.println("log: " + message);
+                    }
+                    else {
                         serverView.showMessage("Received unknown message: " + message);
                     }
                 } else {
@@ -349,8 +366,14 @@ public class ClientHandler implements Runnable, IClientHandler {
     public void sendResultToClient(String message, String username, int score) {
         try {
             ClientHandler client = getClientHandler(username);
+            System.out.println("Sending result to client: " + username);
+            System.out.println("Message: " + message);
             String result = message.split(":")[1];
             ArrayList<String> resultColors = new ArrayList<>(Arrays.asList(result.split(",")));
+            for(String color : resultColors) {
+                System.out.print(color +"\t");
+            }
+            System.out.println();
             boolean check = checkColors(resultColors);
             if(client != null) {
                 oos.writeObject(
