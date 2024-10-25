@@ -6,8 +6,11 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 /**
@@ -23,31 +26,57 @@ public class LoginView extends Application {
     public void start(Stage primaryStage) {
         loginController = new LoginController();
 
-        // Tiêu đề
-        Label titleLabel = new Label("Login");
-        titleLabel.setFont(Font.font(42));
+        // Tải font chữ
+        Font.loadFont(getClass().getResourceAsStream("/fonts/SVN-Bango.otf"), 52);
+
+        // Tiêu đề với stroke
+        Text titleTextStroke = new Text("SIGN IN");
+        titleTextStroke.setFont(Font.font("SVN-Bango", 52));
+        titleTextStroke.setFill(Color.web("#714F20")); // Màu stroke
+        titleTextStroke.setStroke(Color.web("#714F20")); // Màu stroke
+        titleTextStroke.setStrokeWidth(6); // Độ dày stroke
+
+        Text titleText = new Text("SIGN IN");
+        titleText.setFont(Font.font("SVN-Bango", 52));
+        titleText.setFill(Color.WHITE); // Màu chữ chính
+
+        // Thêm hiệu ứng drop shadow cho chữ chính
+        DropShadow dropShadow = new DropShadow();
+        dropShadow.setColor(Color.web("#9B6B27"));
+        dropShadow.setOffsetX(0);
+        dropShadow.setOffsetY(8);
+        dropShadow.setRadius(0); // Đặt độ mờ (blur) thành 0
+        titleTextStroke.setEffect(dropShadow);
+
+        // Sử dụng StackPane để chồng hai Text
+        StackPane titleStack = new StackPane();
+        titleStack.getChildren().addAll(titleTextStroke, titleText);
+        titleStack.setAlignment(Pos.CENTER);
 
         // Trường nhập với PromptText
         usernameField = new TextField();
-        usernameField.setPromptText("Username");
-        usernameField.setPrefWidth(250); // Đặt chiều rộng cho trường nhập
+        usernameField.setPromptText("Tên đăng nhập");
+        usernameField.setPrefWidth(600); // Đặt chiều rộng cho trường nhập
+        usernameField.setPrefHeight(60); // Đặt chiều cao cho trường nhập
 
         passwordField = new PasswordField();
-        passwordField.setPromptText("Password");
-        passwordField.setPrefWidth(250);
+        passwordField.setPromptText("Mật khẩu");
+        passwordField.setPrefWidth(600);
+        passwordField.setPrefHeight(60); // Đặt chiều cao cho trường nhập
 
         // Nút đăng nhập
-        loginButton = new Button("Login");
-        loginButton.setPrefWidth(250); // Đặt chiều rộng cho nút bằng với trường nhập
+        loginButton = new Button("Đăng nhập");
+        loginButton.setPrefWidth(600); // Đặt chiều rộng cho nút bằng với trường nhập
+        loginButton.setPrefHeight(60); // Đặt chiều cao cho nút
 
         // Sự kiện cho nút đăng nhập
         loginButton.setOnAction(e -> login());
 
-        // Dòng chữ "Don't have an account? Sign up"
-        Label promptLabel = new Label("Don't have an account? ");
-        Hyperlink signUpLink = new Hyperlink("Sign up");
+        // Dòng chữ "Chưa có tài khoản? Đăng ký ngay!"
+        Label promptLabel = new Label("Chưa có tài khoản? ");
+        Hyperlink signUpLink = new Hyperlink("Đăng ký ngay!");
 
-        // Sự kiện cho liên kết "Sign up"
+        // Sự kiện cho liên kết "Đăng ký"
         signUpLink.setOnAction(e -> openRegisterView());
 
         // HBox chứa dòng chữ và liên kết
@@ -55,11 +84,11 @@ public class LoginView extends Application {
         signUpBox.setAlignment(Pos.CENTER);
 
         // VBox chứa các thành phần giao diện theo chiều dọc
-        VBox vbox = new VBox(15);
+        VBox vbox = new VBox(40); // Tăng khoảng cách giữa các phần tử
         vbox.setAlignment(Pos.CENTER);
         vbox.setPadding(new Insets(20));
         vbox.getChildren().addAll(
-                titleLabel,
+                titleStack, // Thay thế titleLabel bằng titleStack
                 usernameField,
                 passwordField,
                 loginButton,
@@ -67,12 +96,10 @@ public class LoginView extends Application {
         );
 
         // Thêm phong cách CSS
-        Scene scene = new Scene(vbox, 400, 300);
+        Scene scene = new Scene(vbox, 1280, 720);
         scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
 
-        titleLabel.setId("title-label");
-
-        primaryStage.setTitle("Login");
+        primaryStage.setTitle("Đăng nhập");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -86,7 +113,7 @@ public class LoginView extends Application {
     private void openRegisterView() {
         // Mở giao diện đăng ký
         // Bạn cần chuyển đổi lớp RegisterView sang JavaFX tương tự
-         new RegisterView(); // Ví dụ
+        new RegisterView(); // Ví dụ
     }
 
     public static void main(String[] args) {
