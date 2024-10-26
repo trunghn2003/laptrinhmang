@@ -2,179 +2,137 @@ package client.view;
 
 import client.controller.ClientControl;
 import client.controller.GameController;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.layout.*;
 import server.model.User;
 import client.utils.Constants;
+import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
 
-import javax.swing.*;
-import java.awt.*;
 import java.util.List;
 
-public class MainView extends JFrame {
+public class MainView extends Application {
     private ClientControl clientControl;
     private GameController gameController;
-    private DefaultListModel<User> userListModel;
-    private JList<User> userList;  // JList giờ sẽ chứa đối tượng User, không chỉ tên người dùng
-    private JButton inviteButton;
+    private ObservableList<User> userListModel;
+    private ListView<User> userList;  // Sử dụng ListView thay vì JList
+    private Button playButton;
 
     public MainView(ClientControl clientControl, Object userData) {
         this.clientControl = clientControl;
         this.gameController = new GameController(clientControl);
+        this.userListModel = FXCollections.observableArrayList();
         setupUI();
-        updateUserList((List<User>) userData);  // Cập nhật danh sách người chơi ban đầu
-        listenFromServer();  // Bắt đầu lắng nghe các tin nhắn từ server
     }
 
     // Tạo giao diện chính
     private void setupUI() {
-        setTitle("Online Players");
-        setSize(400, 600);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        Stage stage = new Stage();
+        stage.setTitle("Đoán Màu");
 
-        userListModel = new DefaultListModel<>();
-        userList = new JList<>(userListModel);
+        BorderPane root = new BorderPane();
 
-        // Sử dụng renderer tùy chỉnh để hiển thị tên và trạng thái người chơi
-        userList.setCellRenderer(new UserListCellRenderer());
+        // Cột 1 và 2 gộp thành 1
+        VBox leftColumn = new VBox();
+        leftColumn.setSpacing(20); // Khoảng cách giữa các phần tử
+        leftColumn.setAlignment(javafx.geometry.Pos.CENTER);
 
-        JScrollPane userScrollPane = new JScrollPane(userList);
+        // Thêm logo
+        Image logoImage = new Image("/assets/home-logo.png"); // Đường dẫn đến hình ảnh logo
+        ImageView logo = new ImageView(logoImage);
+        logo.setFitWidth(650); // Đặt chiều rộng cho logo
+        logo.setPreserveRatio(true); // Giữ tỷ lệ cho logo
 
-        inviteButton = new JButton("Invite to Play");
-        inviteButton.addActionListener(e -> {
-            User selectedUser = userList.getSelectedValue();  // Lấy đối tượng User thay vì chỉ tên người dùng
-            if (selectedUser != null) {
-                sendInvite(selectedUser.getUserName());  // Gửi lời mời tới người chơi được chọn
-            } else {
-                JOptionPane.showMessageDialog(null, "Please select a player to invite.");
-            }
+        Region spacer = new Region();
+        spacer.setPrefHeight(100);
+
+        // Thêm nút
+        playButton = new Button("Play Now");
+        playButton.setPrefWidth(250);
+        playButton.setPrefHeight(60);
+        playButton.setOnAction(e -> {
+            // Logic cho nút mời
+            showAlert("Play button clicked!");
         });
 
-        add(userScrollPane, BorderLayout.CENTER);
-        add(inviteButton, BorderLayout.SOUTH);
+        leftColumn.getChildren().addAll(logo, spacer, playButton);
 
-        setVisible(true);
+        // Cột 3
+        VBox rightColumn = new VBox();
+        rightColumn.setSpacing(20); // Khoảng cách giữa các phần tử
+//        rightColumn.setAlignment(Pos.CENTER);
+
+        // Thêm hình ảnh từ asset
+        Image leaderboardHeader = new Image("/assets/leaderboard.png");
+        ImageView leaderboardHeaderImage = new ImageView(leaderboardHeader);
+
+        userList = new ListView<>(userListModel);
+        userList.setCellFactory(param -> new UserListCellRenderer()); // Sử dụng renderer tùy chỉnh
+        userList.setPrefWidth(300);
+
+        rightColumn.getChildren().addAll(leaderboardHeaderImage, userList);
+        rightColumn.setStyle("-fx-background-color: #453221;");
+        rightColumn.setPrefWidth(300);
+        rightColumn.setPadding(new Insets(30, 20, 10, 20));
+
+        //add id cho rightColumn
+        rightColumn.setId("rightColumn");
+
+
+        // Thêm các cột vào root
+        HBox hbox = new HBox();
+        Region leftSpacer = new Region();
+        Region rightSpacer = new Region();
+        HBox.setHgrow(leftSpacer, Priority.ALWAYS);
+        HBox.setHgrow(rightSpacer, Priority.ALWAYS);
+
+        hbox.getChildren().addAll(leftSpacer, leftColumn, rightColumn, rightSpacer); // Thêm các phần tử vào HBox
+        hbox.setSpacing(20); // Khoảng cách giữa các phần tử
+        hbox.setStyle("-fx-padding: 20;");
+        root.setCenter(hbox); // Đặt HBox vào giữa
+
+        Scene scene = new Scene(root, 1280, 720);
+        scene.getStylesheets().add(getClass().getResource("/home-styles.css").toExternalForm());
+        stage.setScene(scene);
+        stage.show();
     }
 
-    // Cập nhật danh sách người chơi
-    public void updateUserList(List<User> users) {
-        userListModel.clear();
-        for (User user : users) {
-            if(!user.getUserName().equals(clientControl.getCurrentUser().getUserName())) {
-                userListModel.addElement(user);
-            }
-        }
+    // Hiển thị thông báo
+    private void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
-    // Gửi lời mời chơi
-    private void sendInvite(String recipient) {
-        String message = Constants.ACTION_INVITE + ":" + recipient;
-        clientControl.sendMessage(message);
-    }
-
-    // Lắng nghe từ server
-    private void listenFromServer() {
-        new Thread(() -> {
-            try {
-                while (true) {
-                    Object obj = clientControl.receiveData();
-                    if (obj instanceof String) {
-                        String message = (String) obj;
-                        if (message.startsWith(Constants.RESPONSE_INVITE)) {
-                            handleInvite(message);
-                        } else if (message.startsWith(Constants.RESPONSE_INVITE_RESPONSE)) {
-                            handleInviteResponse(message);
-                        } else if (message.startsWith(Constants.RESPONSE_GAME_START)) {
-                            handleGameStart(message);
-                        } else {
-                            // Xử lý các tin nhắn khác
-                        }
-                    } else if (obj instanceof List) {
-                        // Cập nhật danh sách người chơi online
-                        @SuppressWarnings("unchecked")
-                        List<User> users = (List<User>) obj;
-                        updateUserList(users);
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
-    }
-
-    // Xử lý khi nhận được lời mời chơi từ người khác
-    private void handleInvite(String message) {
-        String[] parts = message.split(":");
-
-        if (parts.length >= 3) {
-            String recipient = parts[1]; // Tên người nhận (người gửi phản hồi)
-            String response = parts[2];  // Phản hồi (ACCEPT hoặc DECLINE)
-
-            // Xử lý phản hồi dựa trên nội dung
-            if (response.equalsIgnoreCase("ACCEPT")) {
-                JOptionPane.showMessageDialog(null, recipient + " has accepted your invitation. The game will start!");
-                gameController.startGame(recipient); // Bắt đầu trò chơi
-            } else if (response.equalsIgnoreCase("DECLINE")) {
-                JOptionPane.showMessageDialog(null, recipient + " has declined your invitation.");
-            }
-        } else {
-            // Log lỗi nếu thông điệp không đủ phần tử sau khi tách
-            String sender = message.split(":")[1];
-            int response = JOptionPane.showConfirmDialog(null, sender + " invites you to a game. Do you accept?", "Game Invitation", JOptionPane.YES_NO_OPTION);
-            String responseMessage = Constants.ACTION_INVITE_RESPONSE + ":" + sender + ":" + (response == JOptionPane.YES_OPTION ? "ACCEPT" : "DECLINE");
-            clientControl.sendMessage(responseMessage);
-        }
-    }
-
-    // Xử lý phản hồi lời mời
-    private void handleInviteResponse(String message) {
-        String[] parts = message.split(":");
-        String recipient = parts[1];
-        String response = parts[2];
-        if (response.equals("ACCEPT")) {
-            JOptionPane.showMessageDialog(null, recipient + " has accepted your invitation. The game will start!");
-            gameController.startGame(recipient);
-        } else {
-            JOptionPane.showMessageDialog(null, recipient + " has declined your invitation.");
-        }
-    }
-
-    // Xử lý khi trò chơi bắt đầu
-    private void handleGameStart(String message) {
-        String opponent = message.split(":")[1];
-        JOptionPane.showMessageDialog(null, "Starting game with " + opponent + "!");
-        gameController.startGame(opponent);
-    }
-}
-
-// Renderer tùy chỉnh để hiển thị tên và trạng thái người dùng
-class UserListCellRenderer extends DefaultListCellRenderer {
     @Override
-    public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+    public void start(Stage primaryStage) {
+        // Chỉ để thực hiện ứng dụng JavaFX, không sử dụng trong MainView
+    }
 
-        if (value instanceof User) {
-            User user = (User) value;
-            // Hiển thị tên người dùng và trạng thái
-            String statusText = user.getStatus() == 1 ? "Online" : user.getStatus() == 2 ? "Playing" : "Offline";
-            label.setText("<html><b>" + user.getUserName() + "</b> (" + statusText + ")</html>");
+    public static void main(String[] args) {
+        launch(args);
+    }
 
-            // Tùy chỉnh màu sắc dựa trên trạng thái người dùng
-            if (user.getStatus() == 1) {
-                label.setForeground(new Color(0, 128, 0));  // Xanh lá cho Online
-            } else if (user.getStatus() == 2) {
-                label.setForeground(new Color(0, 0, 255));  // Xanh dương cho Playing
+    // Renderer tùy chỉnh để hiển thị tên và trạng thái người dùng
+    private class UserListCellRenderer extends ListCell<User> {
+        @Override
+        protected void updateItem(User user, boolean empty) {
+            super.updateItem(user, empty);
+            if (empty || user == null) {
+                setText(null);
+                setGraphic(null);
             } else {
-                label.setForeground(new Color(128, 128, 128));  // Xám cho Offline
+                String statusText = user.getStatus() == 1 ? "Online" : user.getStatus() == 2 ? "Playing" : "Offline";
+                setText(user.getUserName() + " (" + statusText + ")");
+                setStyle(user.getStatus() == 1 ? "-fx-text-fill: green;" : user.getStatus() == 2 ? "-fx-text-fill: blue;" : "-fx-text-fill: gray;");
             }
-
-            // Thêm khoảng cách giữa các mục
-            label.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         }
-
-        if (isSelected) {
-            label.setBackground(new Color(200, 230, 255));  // Màu nền khi được chọn
-        }
-
-        return label;
     }
 }
-
