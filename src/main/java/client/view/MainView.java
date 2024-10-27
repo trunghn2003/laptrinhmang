@@ -5,6 +5,7 @@ import client.controller.GameController;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import server.model.User;
 import client.utils.Constants;
 import javafx.application.Application;
@@ -29,6 +30,7 @@ public class MainView extends Application {
         this.clientControl = clientControl;
         this.gameController = new GameController(clientControl);
         this.userListModel = FXCollections.observableArrayList();
+        updateUserList((List<User>) userData);
         setupUI();
     }
 
@@ -76,6 +78,7 @@ public class MainView extends Application {
         userList = new ListView<>(userListModel);
         userList.setCellFactory(param -> new UserListCellRenderer()); // Sử dụng renderer tùy chỉnh
         userList.setPrefWidth(300);
+        userList.setBackground(new Background(new BackgroundFill(Color.web("#ADD8E6"), CornerRadii.EMPTY, Insets.EMPTY)));
 
         rightColumn.getChildren().addAll(leaderboardHeaderImage, userList);
         rightColumn.setStyle("-fx-background-color: #453221;");
@@ -129,9 +132,52 @@ public class MainView extends Application {
                 setText(null);
                 setGraphic(null);
             } else {
-                String statusText = user.getStatus() == 1 ? "Online" : user.getStatus() == 2 ? "Playing" : "Offline";
-                setText(user.getUserName() + " (" + statusText + ")");
-                setStyle(user.getStatus() == 1 ? "-fx-text-fill: green;" : user.getStatus() == 2 ? "-fx-text-fill: blue;" : "-fx-text-fill: gray;");
+                // Create an HBox to contain avatar, name, spacer, and score
+                HBox hbox = new HBox();
+                hbox.setSpacing(10); // Spacing between elements
+                hbox.setAlignment(Pos.CENTER_LEFT); // Center vertically, align left horizontally
+
+                // Add avatar
+                ImageView avatar = new ImageView(new Image("/assets/avatar/avt1.png")); // Path to avatar
+                avatar.setFitWidth(40); // Set width for avatar
+                avatar.setFitHeight(40); // Set height for avatar
+
+                //Space
+                Region space = new Region();
+                space.setPrefWidth(10);
+
+                // Create Label for the username
+                Label userInfo = new Label(user.getUserName());
+                userInfo.setStyle("-fx-text-fill: white;"); // Set text color
+
+                // Create a spacer Region
+                Region spacer = new Region();
+                HBox.setHgrow(spacer, Priority.ALWAYS); // Make spacer grow horizontally
+
+                // Create Label for the score
+                Label scoreInfo = new Label(user.getScore() + " points");
+                scoreInfo.setStyle("-fx-text-fill: white;"); // Set text color
+
+                // Add avatar, username, spacer, and score to HBox
+                hbox.getChildren().addAll(avatar, space, userInfo, spacer, scoreInfo);
+
+                // Set background color for HBox (optional)
+                hbox.setStyle("-fx-background-color: #453221;");
+
+                // Set the HBox as the graphic for this cell
+                setGraphic(hbox);
+            }
+        }
+    }
+
+    public void updateUserList(List<User> users) {
+        userListModel.clear();
+        System.out.println("Updating user list with " + users.size() + " users.");
+        // Sắp xếp danh sách người chơi theo số điểm
+        users.sort((u1, u2) -> Integer.compare(u2.getScore(), u1.getScore())); // Sắp xếp giảm dần
+        for (User user : users) {
+            if (!user.getUserName().equals(clientControl.getCurrentUser().getUserName())) {
+                userListModel.add(user);
             }
         }
     }

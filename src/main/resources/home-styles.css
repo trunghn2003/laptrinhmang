@@ -32,3 +32,20 @@
     -fx-border-color: #634831;
     -fx-text-fill: #fff;
 }
+
+.list-view .list-cell:odd {
+    -fx-background-color: #453221;
+}
+
+.list-view .list-cell:even {
+    -fx-background-color: #453221;
+}
+
+.list-view {
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+    -fx-border-style: none;
+    -fx-padding: 0;
+}
