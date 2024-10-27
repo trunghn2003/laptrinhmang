@@ -46,6 +46,9 @@
     -fx-padding: 8 15;
     -fx-background-radius: 25;
     -fx-font-size: 18px;
+    -fx-border-color: #A37029;
+    -fx-border-width: 2px; /* Độ rộng viền */
+    -fx-border-radius: 25;
     -fx-transition: background-color 0.5s ease;
 }
 

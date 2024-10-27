@@ -4,8 +4,10 @@ import client.controller.ClientControl;
 import client.controller.GameController;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import server.model.User;
 import client.utils.Constants;
 import javafx.application.Application;
@@ -55,13 +57,35 @@ public class MainView extends Application {
         Region spacer = new Region();
         spacer.setPrefHeight(100);
 
+        // Tạo Text với hiệu ứng bóng đổ
+        Text text = new Text("Play Now");
+        text.setFill(Color.WHITE);
+        text.setStyle("-fx-font-size: 18px;");
+
+        // Thêm stroke cho Text
+        text.setStroke(Color.web("#9B6B27")); // Đặt màu stroke (ví dụ: màu đen)
+        text.setStrokeWidth(1); // Đặt độ rộng stroke (ví dụ: 1 pixel)
+
+        DropShadow ds = new DropShadow();
+        ds.setOffsetY(2.0);
+        ds.setColor(Color.web("#9B6B27"));
+        ds.setRadius(0);
+        text.setEffect(ds);
+
         // Thêm nút
-        playButton = new Button("Play Now");
+        playButton = new Button();
+        playButton.setGraphic(text);
         playButton.setPrefWidth(250);
         playButton.setPrefHeight(60);
+        // Thêm hiệu ứng DropShadow cho nút
+        DropShadow buttonShadow = new DropShadow();
+        buttonShadow.setOffsetY(6.0);
+        buttonShadow.setColor(Color.web("#9B6B27"));
+        buttonShadow.setRadius(1);
+        playButton.setEffect(buttonShadow);
+
         playButton.setOnAction(e -> {
-            // Logic cho nút mời
-            showAlert("Play button clicked!");
+            playNow();
         });
 
         leftColumn.getChildren().addAll(logo, spacer, playButton);
@@ -137,14 +161,13 @@ public class MainView extends Application {
                 hbox.setSpacing(10); // Spacing between elements
                 hbox.setAlignment(Pos.CENTER_LEFT); // Center vertically, align left horizontally
 
-                // Add avatar
                 ImageView avatar = new ImageView(new Image("/assets/avatar/avt1.png")); // Path to avatar
-                avatar.setFitWidth(40); // Set width for avatar
-                avatar.setFitHeight(40); // Set height for avatar
+                avatar.setFitWidth(50); // Set width for avatar
+                avatar.setFitHeight(50); // Set height for avatar
 
                 //Space
                 Region space = new Region();
-                space.setPrefWidth(10);
+                space.setPrefWidth(5);
 
                 // Create Label for the username
                 Label userInfo = new Label(user.getUserName());
@@ -164,6 +187,15 @@ public class MainView extends Application {
                 // Set background color for HBox (optional)
                 hbox.setStyle("-fx-background-color: #453221;");
 
+                //set background when hover
+                hbox.setOnMouseEntered(e -> {
+                    hbox.setStyle("-fx-background-color: #5A3C29;");
+                });
+
+                hbox.setOnMouseExited(e -> {
+                    hbox.setStyle("-fx-background-color: #453221;");
+                });
+
                 // Set the HBox as the graphic for this cell
                 setGraphic(hbox);
             }
@@ -176,9 +208,13 @@ public class MainView extends Application {
         // Sắp xếp danh sách người chơi theo số điểm
         users.sort((u1, u2) -> Integer.compare(u2.getScore(), u1.getScore())); // Sắp xếp giảm dần
         for (User user : users) {
-            if (!user.getUserName().equals(clientControl.getCurrentUser().getUserName())) {
-                userListModel.add(user);
-            }
+            userListModel.add(user);
         }
+    }
+
+    //Play now
+    public void playNow() {
+        //Chuyển qua màn hình friendList
+        FriendsView friendsView = new FriendsView(clientControl, userListModel);
     }
 }

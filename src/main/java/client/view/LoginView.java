@@ -64,10 +64,33 @@ public class LoginView extends Application {
         passwordField.setPrefWidth(600);
         passwordField.setPrefHeight(60); // Đặt chiều cao cho trường nhập
 
+        // Tạo Text với hiệu ứng bóng đổ
+        Text text = new Text("Đăng nhập");
+        text.setFill(Color.WHITE);
+        text.setStyle("-fx-font-size: 18px;");
+
+        // Thêm stroke cho Text
+        text.setStroke(Color.web("#9B6B27")); // Đặt màu stroke (ví dụ: màu đen)
+        text.setStrokeWidth(1); // Đặt độ rộng stroke (ví dụ: 1 pixel)
+
+        DropShadow ds = new DropShadow();
+        ds.setOffsetY(2.0);
+        ds.setColor(Color.web("#9B6B27"));
+        ds.setRadius(0);
+        text.setEffect(ds);
+
         // Nút đăng nhập
-        loginButton = new Button("Đăng nhập");
+        loginButton = new Button();
+        loginButton.setGraphic(text); // Đặt Text vào nút
         loginButton.setPrefWidth(600); // Đặt chiều rộng cho nút bằng với trường nhập
         loginButton.setPrefHeight(60); // Đặt chiều cao cho nút
+
+        // Thêm hiệu ứng DropShadow cho nút
+        DropShadow buttonShadow = new DropShadow();
+        buttonShadow.setOffsetY(6.0);
+        buttonShadow.setColor(Color.web("#9B6B27"));
+        buttonShadow.setRadius(1);
+        loginButton.setEffect(buttonShadow);
 
         // Sự kiện cho nút đăng nhập
         loginButton.setOnAction(e -> login());
