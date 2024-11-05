@@ -71,7 +71,7 @@ public class GameView extends JFrame {
     }
 
     private void listenFromServerMessage() {
-        new Thread(() -> {
+//        new Thread(() -> {
             try {
                 while (true) {
                     Object obj = gameController.receiveData();
@@ -97,7 +97,7 @@ public class GameView extends JFrame {
                 e.printStackTrace();
                 System.out.println("Error in game view: " + e.getMessage());
             }
-        }).start();
+//        }).start();
     }
 
     public void setOpponent(String opponent) {

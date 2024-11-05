@@ -40,3 +40,7 @@ build/
 
 ### Environment Files ###
 .env
+structure
+tcpip.iml
+build.yaml
+
