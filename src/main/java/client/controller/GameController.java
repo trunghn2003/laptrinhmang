@@ -37,7 +37,6 @@ public class GameController {
     }
 
     public ArrayList<String> receivedColors(String message) {
-        System.out.println("message colors: " + message);
         ArrayList<String> parts = new ArrayList<>(Arrays.asList(message.split(":")));
         ArrayList<String> receivedColors = new ArrayList<>(Arrays.asList(parts.get(1).split(",")));
         if (receivedColors.isEmpty()) {
@@ -57,11 +56,15 @@ public class GameController {
         clientControl.sendMessage(Constants.ACTION_SEND_COLORS + ":" + colors);
     }
 
+    public void startRound() {
+        clientControl.sendMessage(Constants.ACTION_START_ROUND);
+    }
+
     public void receiveGameResult(String message) {
         ArrayList<String> parts = new ArrayList<>(Arrays.asList(message.split(":")));
         System.out.println("RESULT: " + message);
-        check = Boolean.parseBoolean(parts.get(2));
-        score = Integer.parseInt(parts.get(3));
+        check = Boolean.parseBoolean(parts.get(1));
+        score = Integer.parseInt(parts.get(2));
     }
 
     public void endMidGame() {
@@ -80,7 +83,7 @@ public class GameController {
     }
 
     public Object receiveData() {
-        System.out.println("receive data " + clientControl.receiveData());
+        System.out.println("receive data: " + clientControl.receiveData());
         return clientControl.receiveData();
     }
 }

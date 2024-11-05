@@ -30,7 +30,13 @@ public class ClientHandler implements Runnable, IClientHandler {
     private boolean gameStartedWithOpponent = false;
     private final ArrayList<String> colors = new ArrayList<>(Arrays.asList("red", "green", "blue", "yellow", "orange", "purple", "black", "white"));
     private int score = 0;
+    private int round = 0;
     private ArrayList<String> selectedColors = new ArrayList<>();
+    private boolean myClientEndMatch;
+    private boolean opponentEndMatch;
+    private ClientHandler myClient;
+    private ClientHandler opponentClient;
+    private User opponentUser;
 
     // Danh sách các client đang kết nối
     private static List<ClientHandler> clientHandlers = new CopyOnWriteArrayList<>();
@@ -163,15 +169,16 @@ public class ClientHandler implements Runnable, IClientHandler {
                     }
                     else if(message.startsWith(Constants.ACTION_START_GAME)){
                         sendColorsToClient();
-                    }
-                    else if (message.startsWith(Constants.ACTION_SEND_COLORS)){
-                        sendResultToClient(message, user.getUserName(), this.score);
+                    } else if (message.startsWith(Constants.ACTION_START_ROUND)) {
+                        sendColorsToClient();
+                    } else if (message.startsWith(Constants.ACTION_SEND_COLORS)){
+                        sendResultToClient(message);
                     }
                     else if (message.startsWith(Constants.ACTION_GAME_MOVE)){
                         System.out.println("log: " + message);
                     }
                     else if (message.startsWith(Constants.ACTION_EXIT_MID_GAME)){
-                        System.out.println("log: " + message);
+                        exitMidGame();
                     }
                     else {
                         serverView.showMessage("Received unknown message: " + message);
@@ -280,6 +287,13 @@ public class ClientHandler implements Runnable, IClientHandler {
                         gameStartedWithOpponent = true;
                         senderHandler.gameStartedWithOpponent = true;
 
+                        this.myClient = getClientHandler(user.getUserName());
+                        this.opponentClient = senderHandler;
+
+                        opponentClient.opponentClient = getClientHandler(user.getUserName());
+
+                        opponentUser = userController.getUserByUsername(senderUsername);
+
                         broadcastOnlineUsers();
                     } else {
                         System.out.println("Game already started, ignoring duplicate invite response.");
@@ -334,7 +348,6 @@ public class ClientHandler implements Runnable, IClientHandler {
 
     // Phương thức kiểm tra màu
     public boolean checkColors(ArrayList<String> colors) {
-        System.out.println("Checking colors: " + colors);
         return colors.size() == 3 && this.selectedColors.containsAll(colors);
     }
 
@@ -351,71 +364,64 @@ public class ClientHandler implements Runnable, IClientHandler {
             oos.writeObject(Constants.RESPONSE_RANDOM_COLORS + ":" + randomColors);
             oos.flush();
 
-            Thread.sleep(3000);
+            this.round++;
 
-            oos.writeObject(null);
-            oos.flush();
-
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             serverView.showMessage("Error sending message to client: " + e.getMessage());
         }
     }
 
-    public void sendResultToClient(String message, String username, int score) {
-        ClientHandler client = getClientHandler(username);
-        System.out.println("Sending result to client: " + username);
-        System.out.println("Message: " + message);
+    public void sendResultToClient(String message) {
         String result = message.split(":")[1];
         ArrayList<String> resultColors = new ArrayList<>(Arrays.asList(result.split(",")));
         boolean check = checkColors(resultColors);
-        System.out.println("result: " + check);
-        if(client != null) {
-            System.out.println("client found");
-//            if(check) {
-//                this.score++;
-//            }
-            sendMessage(
-                    Constants.RESPONSE_GAME_RESULT
-                            + ":"
-                            + client.user.getUserName()
-                            + ":"
-                            + check
-                            + ":"
-                            + (check ? score + 1 : score));
-        } else {
-            serverView.showMessage("Can not find client");
+        sendMessage(
+                Constants.RESPONSE_GAME_RESULT
+                        + ":"
+                        + check
+                        + ":"
+                        + (check ? score + 1 : score)
+        );
+
+        if(round == 5) {
+            actionEndGame();
         }
     }
 
-    public void exitMidGame(String message) {
+    public int getScore() {
+        return this.score;
+    }
+
+    public void exitMidGame() {
         try {
-            ArrayList<String> parts = new ArrayList<>(Arrays.asList(message.split(":")));
-            String opponent = parts.get(1);
-            ClientHandler client = getClientHandler(opponent);
-            if(client != null) {
-                oos.writeObject(Constants.RESPONSE_GAME_RESULT + ":" + user.getUserName() + ":" + "LOSE");
-                client.sendMessage(Constants.RESPONSE_GAME_RESULT + ":" + opponent + ":" + "WIN");
-            } else {
-                serverView.showMessage("Can not find client");
-            }
+            sendMessage(Constants.RESPONSE_EXIT_MIDDLE_GAME + ":" + "LOSE");
+            opponentClient.sendMessage(Constants.RESPONSE_EXIT_MIDDLE_GAME + ":" + "WIN");
             userController.updateUserStatus(user.getUserName(), Constants.STATUS_ONLINE);
-            User opponentUser = userController.getUserByUsername(opponent);
             opponentUser.setStatus(Constants.STATUS_ONLINE);
             gameStartedWithOpponent = false;
+            this.score = 0;
+            this.round = 0;
             broadcastOnlineUsers();
         } catch (Exception e) {
             serverView.showMessage("Error exiting mid-game: " + e.getMessage());
         }
     }
 
-    public void getGameResult(String message) {
-        try {
-            ArrayList<String> parts = new ArrayList<>(Arrays.asList(message.split(":")));
-            String opponent = parts.get(1);
-            oos.writeObject(Constants.ACTION_GAME_RESULT);
-            oos.flush();
-        } catch (IOException e) {
-            serverView.showMessage("Error sending message to client: " + e.getMessage());
+    public void actionEndGame() {
+        this.myClientEndMatch = true;
+        opponentClient.opponentEndMatch = true;
+
+        if (this.opponentEndMatch && this.myClientEndMatch) {
+            if (this.score > opponentClient.getScore()) {
+                sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "WIN");
+                opponentClient.sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "LOSE");
+            } else if (this.score < opponentClient.getScore()) {
+                sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "LOSE");
+                opponentClient.sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "WIN");
+            } else {
+                sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "DRAW");
+                opponentClient.sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "DRAW");
+            }
         }
     }
 

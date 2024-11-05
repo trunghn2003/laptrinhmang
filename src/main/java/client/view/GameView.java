@@ -84,8 +84,11 @@ public class GameView extends JFrame {
                         } else if (message.startsWith(Constants.RESPONSE_GAME_RESULT)) {
                             System.out.println("RESULT MESSAGE: " + message);
                             gameController.receiveGameResult(message);
-                        }
-                        else {
+                        } else if (message.startsWith(Constants.RESPONSE_EXIT_MIDDLE_GAME)) {
+                            //TODO DO EXIT MID GAME
+                        } else if (message.startsWith(Constants.RESPONSE_MATCH_RESULT)) {
+                            //TODO DO MATCH RESULT
+                        } else {
                             System.out.println("Unknown message: " + message);
                         }
                     }
