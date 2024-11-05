@@ -29,6 +29,8 @@ public class ClientHandler implements Runnable, IClientHandler {
     private ObjectOutputStream oos;
     private boolean gameStartedWithOpponent = false;
     private final ArrayList<String> colors = new ArrayList<>(Arrays.asList("red", "green", "blue", "yellow", "orange", "purple", "black", "white"));
+    private int score = 0;
+    private ArrayList<String> selectedColors = new ArrayList<>();
 
     // Danh sách các client đang kết nối
     private static List<ClientHandler> clientHandlers = new CopyOnWriteArrayList<>();
@@ -95,13 +97,6 @@ public class ClientHandler implements Runnable, IClientHandler {
                     handleRegisterRequest(user, oos);
                     break;
 
-                case Constants.RESPONSE_GAME_RESULT:
-                    getGameResult(user.getActionType());
-                    break;
-
-                case Constants.ACTION_START_GAME:
-                    sendColorsToClient();
-
                 default:
                     handleUnknownRequest(user, oos);
                     break;
@@ -167,10 +162,10 @@ public class ClientHandler implements Runnable, IClientHandler {
                         handleInviteResponse(message);
                     }
                     else if(message.startsWith(Constants.ACTION_START_GAME)){
-                        System.out.println("log: " + message);
+                        sendColorsToClient();
                     }
                     else if (message.startsWith(Constants.ACTION_SEND_COLORS)){
-                        System.out.println("log: " + message);
+                        sendResultToClient(message, user.getUserName(), this.score);
                     }
                     else if (message.startsWith(Constants.ACTION_GAME_MOVE)){
                         System.out.println("log: " + message);
@@ -327,17 +322,20 @@ public class ClientHandler implements Runnable, IClientHandler {
 
     // Phương thức tạo màu ngẫu nhiên
     public String random3Color() {
-        ArrayList<String> colors = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            int randomIndex = (int) (Math.random() * colors.size());
-            colors.add(this.colors.get(randomIndex));
+        Set<String> uniqueColors = new HashSet<>();
+        Random random = new Random();
+        while (uniqueColors.size() < 3) {
+            int randomIndex = random.nextInt(colors.size());
+            uniqueColors.add(colors.get(randomIndex));
         }
-        return String.join(",", colors);
+        this.selectedColors.addAll(uniqueColors);
+        return String.join(",", uniqueColors);
     }
 
     // Phương thức kiểm tra màu
     public boolean checkColors(ArrayList<String> colors) {
-        return colors.size() == 3 && this.colors.containsAll(colors);
+        System.out.println("Checking colors: " + colors);
+        return colors.size() == 3 && this.selectedColors.containsAll(colors);
     }
 
     public void sendColorsToClient() {
@@ -364,32 +362,28 @@ public class ClientHandler implements Runnable, IClientHandler {
     }
 
     public void sendResultToClient(String message, String username, int score) {
-        try {
-            ClientHandler client = getClientHandler(username);
-            System.out.println("Sending result to client: " + username);
-            System.out.println("Message: " + message);
-            String result = message.split(":")[1];
-            ArrayList<String> resultColors = new ArrayList<>(Arrays.asList(result.split(",")));
-            for(String color : resultColors) {
-                System.out.print(color +"\t");
-            }
-            System.out.println();
-            boolean check = checkColors(resultColors);
-            if(client != null) {
-                oos.writeObject(
-                        Constants.RESPONSE_GAME_RESULT
-                                + ":"
-                                + client.user.getUserName()
-                                + ":"
-                                + check
-                                + ":"
-                                + (check ? score + 1 : score));
-                oos.flush();
-            } else {
-                serverView.showMessage("Can not find client");
-            }
-        } catch (IOException e) {
-            serverView.showMessage("Error sending message to client: " + e.getMessage());
+        ClientHandler client = getClientHandler(username);
+        System.out.println("Sending result to client: " + username);
+        System.out.println("Message: " + message);
+        String result = message.split(":")[1];
+        ArrayList<String> resultColors = new ArrayList<>(Arrays.asList(result.split(",")));
+        boolean check = checkColors(resultColors);
+        System.out.println("result: " + check);
+        if(client != null) {
+            System.out.println("client found");
+//            if(check) {
+//                this.score++;
+//            }
+            sendMessage(
+                    Constants.RESPONSE_GAME_RESULT
+                            + ":"
+                            + client.user.getUserName()
+                            + ":"
+                            + check
+                            + ":"
+                            + (check ? score + 1 : score));
+        } else {
+            serverView.showMessage("Can not find client");
         }
     }
 

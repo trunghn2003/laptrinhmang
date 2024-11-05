@@ -1,12 +1,15 @@
 package client.view;
 
 import client.controller.GameController;
+import client.utils.Constants;
+import server.model.User;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.List;
 
 public class GameView extends JFrame {
     private GameController gameController;
@@ -17,10 +20,13 @@ public class GameView extends JFrame {
     private ArrayList<JButton> colorButtons;
     private ArrayList<String> selectedColors;
 
+    private ArrayList<String> colors = new ArrayList<>();
+
     public GameView(GameController gameController) {
         this.gameController = gameController;
         this.selectedColors = new ArrayList<>();
         setupUI();
+        listenFromServerMessage();
     }
 
     private void setupUI() {
@@ -64,6 +70,33 @@ public class GameView extends JFrame {
         setVisible(true);
     }
 
+    private void listenFromServerMessage() {
+        new Thread(() -> {
+            try {
+                while (true) {
+                    Object obj = gameController.receiveData();
+                    System.out.println("Received object in game view: " + obj);
+                    if (obj instanceof String) {
+                        String message = (String) obj;
+                        System.out.println("Received message in game view: " + message);
+                        if (message.startsWith(Constants.RESPONSE_RANDOM_COLORS)) {
+                            colors = gameController.receivedColors(message);
+                        } else if (message.startsWith(Constants.RESPONSE_GAME_RESULT)) {
+                            System.out.println("RESULT MESSAGE: " + message);
+                            gameController.receiveGameResult(message);
+                        }
+                        else {
+                            System.out.println("Unknown message: " + message);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Error in game view: " + e.getMessage());
+            }
+        }).start();
+    }
+
     public void setOpponent(String opponent) {
         this.opponent = opponent;
         opponentLabel.setText("Opponent: " + opponent);
@@ -93,6 +126,7 @@ public class GameView extends JFrame {
         public void actionPerformed(ActionEvent e) {
             if (selectedColors.size() == 3) {
                 String colors = String.join(",", selectedColors);
+                System.out.println("Colors chosen: " + colors);
                 gameController.sendColors(colors);
                 JOptionPane.showMessageDialog(null, "Colors sent: " + colors);
             } else {

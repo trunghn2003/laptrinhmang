@@ -84,6 +84,7 @@ public class MainView extends JFrame {
                             handleInviteResponse(message);
                         } else if (message.startsWith(Constants.RESPONSE_GAME_START)) {
                             handleGameStart(message);
+                            this.dispose();
                         } else {
                             // Xử lý các tin nhắn khác
                         }
