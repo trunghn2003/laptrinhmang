@@ -33,6 +33,7 @@ public class ServerControl {
         loginController = new LoginServerController(con);
         registerController = new RegisterServerController(con);
         userController = new UserServerController(con);
+        gameController = new GameServerController(con);
         openServer(serverPort);
     }
 

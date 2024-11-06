@@ -101,6 +101,12 @@ public class GameView extends JFrame {
                 System.out.println("Colors chosen: " + colors);
                 gameController.sendColors(colors);
                 JOptionPane.showMessageDialog(null, "Colors sent: " + colors);
+
+                // Reset color buttons and selected colors
+                for (JButton button : colorButtons) {
+                    button.setEnabled(true);
+                }
+                selectedColors.clear();
             } else {
                 JOptionPane.showMessageDialog(null, "Please select exactly 3 colors.");
             }

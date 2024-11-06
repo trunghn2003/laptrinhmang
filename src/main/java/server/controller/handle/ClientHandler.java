@@ -30,7 +30,7 @@ public class ClientHandler implements Runnable, IClientHandler {
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
     private boolean gameStartedWithOpponent = false;
-    private final ArrayList<String> colors = new ArrayList<>(Arrays.asList("red", "green", "blue", "yellow", "orange", "purple", "black", "white"));
+    private final ArrayList<String> colors = new ArrayList<>(Arrays.asList("Red", "Green", "Blue", "Yellow", "Orange", "Purple", "Black", "White", "Pink", "Gray", "Cyan", "Magenta"));
     private int score = 0;
     private int round = 0;
     private ArrayList<String> selectedColors = new ArrayList<>();
@@ -296,10 +296,11 @@ public class ClientHandler implements Runnable, IClientHandler {
                         this.opponentClient = senderHandler;
                         this.opponentClient.myClient = getClientHandler(senderUsername);
                         this.opponentClient.opponentClient = this.myClient;
+                        this.opponentClient.opponentClient = getClientHandler(user.getUserName());
 
                         // Lưu thông tin người chơi đối thủ
-                        this.opponentClient.opponentClient = getClientHandler(user.getUserName());
-                        opponentUser = userController.getUserByUsername(senderUsername);
+                        this.opponentUser = userController.getUserByUsername(senderUsername);
+                        this.opponentClient.opponentUser = userController.getUserByUsername(user.getUserName());
 
                         broadcastOnlineUsers();
                     } else {
@@ -349,6 +350,7 @@ public class ClientHandler implements Runnable, IClientHandler {
             int randomIndex = random.nextInt(colors.size());
             uniqueColors.add(colors.get(randomIndex));
         }
+        this.selectedColors.clear();
         this.selectedColors.addAll(uniqueColors);
         return String.join(",", uniqueColors);
     }
@@ -386,6 +388,10 @@ public class ClientHandler implements Runnable, IClientHandler {
                         + ":"
                         + (check ? this.score + 1 : this.score)
         );
+
+        if (check) {
+            this.score++;
+        }
 
         // Nếu chưa đủ 5 rounds sẽ thực hiện chơi tiếp
         if(this.round == 5) {
