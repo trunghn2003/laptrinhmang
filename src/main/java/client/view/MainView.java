@@ -78,12 +78,21 @@ public class MainView extends JFrame {
                     Object obj = clientControl.receiveData();
                     if (obj instanceof String) {
                         String message = (String) obj;
+                        System.out.println("in mainView: " + message);
                         if (message.startsWith(Constants.RESPONSE_INVITE)) {
                             handleInvite(message);
                         } else if (message.startsWith(Constants.RESPONSE_INVITE_RESPONSE)) {
                             handleInviteResponse(message);
                         } else if (message.startsWith(Constants.RESPONSE_GAME_START)) {
                             handleGameStart(message);
+                        } else if (message.startsWith(Constants.RESPONSE_RANDOM_COLORS)) {
+                            gameController.receivedColors(message);
+                        } else if (message.startsWith(Constants.RESPONSE_GAME_RESULT)) {
+                            gameController.receiveGameResult(message);
+                        } else if (message.startsWith(Constants.RESPONSE_EXIT_MIDDLE_GAME)) {
+                            System.out.println("EXIT MID GAME");
+                        } else if (message.startsWith(Constants.RESPONSE_MATCH_RESULT)) {
+                            gameController.receivedMatchResult(message);
                         } else {
                             // Xử lý các tin nhắn khác
                         }
@@ -111,7 +120,7 @@ public class MainView extends JFrame {
             // Xử lý phản hồi dựa trên nội dung
             if (response.equalsIgnoreCase("ACCEPT")) {
                 JOptionPane.showMessageDialog(null, recipient + " has accepted your invitation. The game will start!");
-                gameController.startGame(recipient); // Bắt đầu trò chơi
+//                gameController.startGame(recipient); // Bắt đầu trò chơi
             } else if (response.equalsIgnoreCase("DECLINE")) {
                 JOptionPane.showMessageDialog(null, recipient + " has declined your invitation.");
             }
@@ -142,6 +151,7 @@ public class MainView extends JFrame {
         String opponent = message.split(":")[1];
         JOptionPane.showMessageDialog(null, "Starting game with " + opponent + "!");
         gameController.startGame(opponent);
+//        this.setVisible(false);
     }
 }
 

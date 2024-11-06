@@ -21,6 +21,7 @@ public class ServerControl {
     private LoginServerController loginController;
     private RegisterServerController registerController;
     private UserServerController userController;
+    private GameServerController gameController;
     private ServerView serverView;
     private AtomicInteger clientIdCounter = new AtomicInteger(1);
 
@@ -32,6 +33,7 @@ public class ServerControl {
         loginController = new LoginServerController(con);
         registerController = new RegisterServerController(con);
         userController = new UserServerController(con);
+        gameController = new GameServerController(con);
         openServer(serverPort);
     }
 
@@ -65,7 +67,7 @@ public class ServerControl {
                 Socket clientSocket = myServer.accept();
                 serverView.showMessage("Client connected: " + clientSocket.getInetAddress());
                 IClientHandler clientHandler = new ClientHandler(
-                        clientSocket, loginController, registerController, userController, serverView, clientIdCounter
+                        clientSocket, loginController, registerController, userController, serverView, clientIdCounter, gameController
                 );
                 new Thread((Runnable) clientHandler).start();
 

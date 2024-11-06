@@ -81,7 +81,7 @@ public class ClientControl {
      *
      * @return Đối tượng nhận được từ server hoặc null nếu thất bại.
      */
-    public Object receiveData() {
+    public synchronized Object receiveData() {
         try {
             Object o = ois.readObject();
             return o;
@@ -151,7 +151,7 @@ public class ClientControl {
                 return new ResponseResult(false, errorMessage);
             }
         }
-        closeConnection();
+//        closeConnection();
         return new ResponseResult(false, "Unknown error occurred.");
     }
 
