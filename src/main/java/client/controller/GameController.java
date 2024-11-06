@@ -14,6 +14,7 @@ public class GameController {
 
     private String matchResult = "";
     private int score = 0;
+    private int totalScore = 0;
 
     public GameController(ClientControl clientControl) {
         this.clientControl = clientControl;
@@ -28,6 +29,9 @@ public class GameController {
 
     public int getScore() {
         return this.score;
+    }
+    public int getTotalScore() {
+        return this.totalScore;
     }
 
     public ArrayList<String> getColors() {
@@ -58,6 +62,9 @@ public class GameController {
         ArrayList<String> parts = new ArrayList<>(Arrays.asList(message.split(":")));
         this.gameResult = Boolean.parseBoolean(parts.get(1));
         this.score = Integer.parseInt(parts.get(2));
+
+        this.totalScore += score;
+
     }
 
     // Kết thúc trò chơi giữa chừng
@@ -74,6 +81,7 @@ public class GameController {
     public void handleEndGame() {
         this.gameResult = false;
         this.score = 0;
+        this.totalScore = 0;
         this.matchResult = "";
     }
 }
