@@ -26,7 +26,6 @@ public class GameView extends JFrame {
         this.gameController = gameController;
         this.selectedColors = new ArrayList<>();
         setupUI();
-        listenFromServerMessage();
     }
 
     private void setupUI() {
@@ -38,7 +37,7 @@ public class GameView extends JFrame {
         moveButton = new JButton("Send Move");
         moveButton.addActionListener(e -> {
             // Gửi lượt chơi
-            gameController.sendGameMove("MOVE_DATA");
+            gameController.endMidGame();
         });
 
         JPanel panel = new JPanel();
@@ -68,36 +67,6 @@ public class GameView extends JFrame {
         add(submitButton);
 
         setVisible(true);
-    }
-
-    private void listenFromServerMessage() {
-//        new Thread(() -> {
-            try {
-                while (true) {
-                    Object obj = gameController.receiveData();
-                    System.out.println("Received object in game view: " + obj);
-                    if (obj instanceof String) {
-                        String message = (String) obj;
-                        System.out.println("Received message in game view: " + message);
-                        if (message.startsWith(Constants.RESPONSE_RANDOM_COLORS)) {
-                            colors = gameController.receivedColors(message);
-                        } else if (message.startsWith(Constants.RESPONSE_GAME_RESULT)) {
-                            System.out.println("RESULT MESSAGE: " + message);
-                            gameController.receiveGameResult(message);
-                        } else if (message.startsWith(Constants.RESPONSE_EXIT_MIDDLE_GAME)) {
-                            //TODO DO EXIT MID GAME
-                        } else if (message.startsWith(Constants.RESPONSE_MATCH_RESULT)) {
-                            //TODO DO MATCH RESULT
-                        } else {
-                            System.out.println("Unknown message: " + message);
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("Error in game view: " + e.getMessage());
-            }
-//        }).start();
     }
 
     public void setOpponent(String opponent) {
