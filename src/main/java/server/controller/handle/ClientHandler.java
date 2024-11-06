@@ -356,8 +356,10 @@ public class ClientHandler implements Runnable, IClientHandler {
     }
 
     // Phương thức kiểm tra màu
-    public boolean checkColors(ArrayList<String> colors) {
-        return colors.size() == 3 && this.selectedColors.containsAll(colors);
+    public String checkColors(ArrayList<String> colors) {
+        ArrayList<String> duplicateColors = new ArrayList<>(this.selectedColors);
+        duplicateColors.retainAll(colors);
+        return (colors.size() == 3 && this.selectedColors.containsAll(colors)) + ":" + duplicateColors.size();
     }
 
     public void sendColorsToClient() {
@@ -380,17 +382,19 @@ public class ClientHandler implements Runnable, IClientHandler {
         // Xử lý kết quả từ client
         String result = message.split(":")[1];
         ArrayList<String> resultColors = new ArrayList<>(Arrays.asList(result.split(",")));
-        boolean check = checkColors(resultColors);
+        String resultChecking = checkColors(resultColors);
+        boolean check = Boolean.parseBoolean(resultChecking.split(":")[0]);
+        int scoreAchieve = Integer.parseInt(resultChecking.split(":")[1]);
         sendMessage(
                 Constants.RESPONSE_GAME_RESULT
                         + ":"
                         + check
                         + ":"
-                        + (check ? this.score + 1 : this.score)
+                        + scoreAchieve
         );
 
         if (check) {
-            this.score++;
+            this.score+=scoreAchieve;
         }
 
         // Nếu chưa đủ 5 rounds sẽ thực hiện chơi tiếp
