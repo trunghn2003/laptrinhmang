@@ -184,6 +184,9 @@ public class ClientHandler implements Runnable, IClientHandler {
                     else if (message.startsWith(Constants.ACTION_EXIT_MID_GAME)){
                         exitMidGame();
                     }
+                    if (message.startsWith(Constants.ACTION_CHAT_MESSAGE + ":")) {
+                        handleChatMessage(message);
+                    }
                     else {
                         serverView.showMessage("Received unknown message: " + message);
                     }
@@ -517,4 +520,26 @@ public class ClientHandler implements Runnable, IClientHandler {
             serverView.showMessage("Error closing client connection: " + e.getMessage());
         }
     }
+    private void handleChatMessage(String message) {
+        String[] parts = message.split(":", 3);
+        if (parts.length >= 3) {
+            String recipientUsername = parts[1];
+            String chatContent = parts[2];
+
+            ClientHandler recipientHandler = getClientHandler(recipientUsername);
+            if (recipientHandler != null) {
+                recipientHandler.sendMessage(Constants.RESPONSE_CHAT_MESSAGE + ":" + user.getUserName() + ":" + chatContent);
+                serverView.showMessage("Chat message from " + user.getUserName() + " to " + recipientUsername + ": " + chatContent);
+            } else {
+                sendMessage("CHAT_ERROR:" + recipientUsername + " is not available.");
+                serverView.showMessage("Chat error: " + recipientUsername + " is not available.");
+            }
+        } else {
+            sendMessage("CHAT_ERROR:Invalid message format.");
+            serverView.showMessage("Chat error: Invalid message format from " + user.getUserName());
+        }
+    }
+
+
+
 }

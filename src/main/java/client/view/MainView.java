@@ -13,64 +13,130 @@ public class MainView extends JFrame {
     private ClientControl clientControl;
     private GameController gameController;
     private DefaultListModel<User> userListModel;
-    private JList<User> userList;  // JList giờ sẽ chứa đối tượng User, không chỉ tên người dùng
+    private JList<User> userList;
     private JButton inviteButton;
+
+    // Chat components
+    private JTextArea chatArea;
+    private JTextField chatInputField;
+    private JButton sendChatButton;
+    private User selectedChatUser;
 
     public MainView(ClientControl clientControl, Object userData) {
         this.clientControl = clientControl;
         this.gameController = new GameController(clientControl);
         setupUI();
-        updateUserList((List<User>) userData);  // Cập nhật danh sách người chơi ban đầu
-        listenFromServer();  // Bắt đầu lắng nghe các tin nhắn từ server
+        updateUserList((List<User>) userData);
+        listenFromServer();
     }
 
-    // Tạo giao diện chính
+    // Create the main UI
     private void setupUI() {
         setTitle("Online Players");
-        setSize(400, 600);
+        setSize(600, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+        // Left panel: user list and invite button
+        JPanel leftPanel = new JPanel();
+        leftPanel.setLayout(new BorderLayout());
 
         userListModel = new DefaultListModel<>();
         userList = new JList<>(userListModel);
 
-        // Sử dụng renderer tùy chỉnh để hiển thị tên và trạng thái người chơi
+        // Use custom renderer to display user names and statuses
         userList.setCellRenderer(new UserListCellRenderer());
 
         JScrollPane userScrollPane = new JScrollPane(userList);
 
         inviteButton = new JButton("Invite to Play");
         inviteButton.addActionListener(e -> {
-            User selectedUser = userList.getSelectedValue();  // Lấy đối tượng User thay vì chỉ tên người dùng
+            User selectedUser = userList.getSelectedValue();
             if (selectedUser != null) {
-                sendInvite(selectedUser.getUserName());  // Gửi lời mời tới người chơi được chọn
+                sendInvite(selectedUser.getUserName());
             } else {
                 JOptionPane.showMessageDialog(null, "Please select a player to invite.");
             }
         });
 
-        add(userScrollPane, BorderLayout.CENTER);
-        add(inviteButton, BorderLayout.SOUTH);
+        // Add selection listener to set the selectedChatUser
+        userList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                selectedChatUser = userList.getSelectedValue();
+            }
+        });
+
+        leftPanel.add(userScrollPane, BorderLayout.CENTER);
+        leftPanel.add(inviteButton, BorderLayout.SOUTH);
+
+        // Right panel: chat area
+        JPanel rightPanel = new JPanel();
+        rightPanel.setLayout(new BorderLayout());
+
+        chatArea = new JTextArea();
+        chatArea.setEditable(false);
+        JScrollPane chatScrollPane = new JScrollPane(chatArea);
+
+        JPanel chatInputPanel = new JPanel();
+        chatInputPanel.setLayout(new BorderLayout());
+
+        chatInputField = new JTextField();
+        sendChatButton = new JButton("Send");
+
+        sendChatButton.addActionListener(e -> sendChatMessage());
+
+        chatInputPanel.add(chatInputField, BorderLayout.CENTER);
+        chatInputPanel.add(sendChatButton, BorderLayout.EAST);
+
+        rightPanel.add(chatScrollPane, BorderLayout.CENTER);
+        rightPanel.add(chatInputPanel, BorderLayout.SOUTH);
+
+        // Main layout
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
+        splitPane.setDividerLocation(200);
+
+        add(splitPane);
 
         setVisible(true);
     }
 
-    // Cập nhật danh sách người chơi
+    // Update the user list
     public void updateUserList(List<User> users) {
         userListModel.clear();
         for (User user : users) {
-            if(!user.getUserName().equals(clientControl.getCurrentUser().getUserName())) {
+            if (!user.getUserName().equals(clientControl.getCurrentUser().getUserName())) {
                 userListModel.addElement(user);
             }
         }
     }
 
-    // Gửi lời mời chơi
+    // Send game invite
     private void sendInvite(String recipient) {
         String message = Constants.ACTION_INVITE + ":" + recipient;
         clientControl.sendMessage(message);
     }
 
-    // Lắng nghe từ server
+    // Send chat message
+    private void sendChatMessage() {
+        String messageText = chatInputField.getText().trim();
+        if (messageText.isEmpty()) {
+            return;
+        }
+        if (selectedChatUser == null) {
+            JOptionPane.showMessageDialog(this, "Please select a user to chat with.");
+            return;
+        }
+        String recipientUsername = selectedChatUser.getUserName();
+        String message = Constants.ACTION_CHAT_MESSAGE + ":" + recipientUsername + ":" + messageText;
+        clientControl.sendMessage(message);
+
+        // Display the message in the chat area
+        chatArea.append("Me: " + messageText + "\n");
+
+        // Clear the input field
+        chatInputField.setText("");
+    }
+
+    // Listen for messages from the server
     private void listenFromServer() {
         new Thread(() -> {
             try {
@@ -78,8 +144,10 @@ public class MainView extends JFrame {
                     Object obj = clientControl.receiveData();
                     if (obj instanceof String) {
                         String message = (String) obj;
-                        System.out.println("in mainView: " + message);
-                        if (message.startsWith(Constants.RESPONSE_INVITE)) {
+                        System.out.println("Received message: " + message);
+                        if (message.startsWith(Constants.RESPONSE_CHAT_MESSAGE)) {
+                            handleChatMessage(message);
+                        } else if (message.startsWith(Constants.RESPONSE_INVITE)) {
                             handleInvite(message);
                         } else if (message.startsWith(Constants.RESPONSE_INVITE_RESPONSE)) {
                             handleInviteResponse(message);
@@ -90,14 +158,13 @@ public class MainView extends JFrame {
                         } else if (message.startsWith(Constants.RESPONSE_GAME_RESULT)) {
                             gameController.receiveGameResult(message);
                         } else if (message.startsWith(Constants.RESPONSE_EXIT_MIDDLE_GAME)) {
-                            System.out.println("EXIT MID GAME");
+                            System.out.println("Exit mid-game");
                         } else if (message.startsWith(Constants.RESPONSE_MATCH_RESULT)) {
                             gameController.receivedMatchResult(message);
                         } else {
-                            // Xử lý các tin nhắn khác
+                            // Handle other messages
                         }
                     } else if (obj instanceof List) {
-                        // Cập nhật danh sách người chơi online
                         @SuppressWarnings("unchecked")
                         List<User> users = (List<User>) obj;
                         updateUserList(users);
@@ -109,18 +176,28 @@ public class MainView extends JFrame {
         }).start();
     }
 
-    // Xử lý khi nhận được lời mời chơi từ người khác
+    // Handle incoming chat messages
+    private void handleChatMessage(String message) {
+        String[] parts = message.split(":", 3);
+        if (parts.length >= 3) {
+            String senderUsername = parts[1];
+            String chatContent = parts[2];
+            chatArea.append(senderUsername + ": " + chatContent + "\n");
+        } else {
+            System.out.println("Invalid chat message format: " + message);
+        }
+    }
+
+    // Handle game invite
     private void handleInvite(String message) {
         String[] parts = message.split(":");
-
         if (parts.length >= 3) {
             String recipient = parts[1]; // Tên người nhận (người gửi phản hồi)
             String response = parts[2];  // Phản hồi (ACCEPT hoặc DECLINE)
-
             // Xử lý phản hồi dựa trên nội dung
             if (response.equalsIgnoreCase("ACCEPT")) {
                 JOptionPane.showMessageDialog(null, recipient + " has accepted your invitation. The game will start!");
-//                gameController.startGame(recipient); // Bắt đầu trò chơi
+                gameController.startGame(recipient); // Bắt đầu trò chơi
             } else if (response.equalsIgnoreCase("DECLINE")) {
                 JOptionPane.showMessageDialog(null, recipient + " has declined your invitation.");
             }
@@ -133,58 +210,63 @@ public class MainView extends JFrame {
         }
     }
 
-    // Xử lý phản hồi lời mời
+    // Handle invite response
     private void handleInviteResponse(String message) {
         String[] parts = message.split(":");
-        String recipient = parts[1];
-        String response = parts[2];
-        if (response.equals("ACCEPT")) {
-            JOptionPane.showMessageDialog(null, recipient + " has accepted your invitation. The game will start!");
-            gameController.startGame(recipient);
+        if (parts.length >= 3) {
+            String recipient = parts[1];
+            String response = parts[2];
+            if (response.equalsIgnoreCase("ACCEPT")) {
+                JOptionPane.showMessageDialog(null, recipient + " has accepted your invitation. The game will start!");
+                gameController.startGame(recipient);
+            } else {
+                JOptionPane.showMessageDialog(null, recipient + " has declined your invitation.");
+            }
         } else {
-            JOptionPane.showMessageDialog(null, recipient + " has declined your invitation.");
+            System.out.println("Invalid invite response format: " + message);
         }
     }
 
-    // Xử lý khi trò chơi bắt đầu
+    // Handle game start
     private void handleGameStart(String message) {
         String opponent = message.split(":")[1];
         JOptionPane.showMessageDialog(null, "Starting game with " + opponent + "!");
         gameController.startGame(opponent);
-//        this.setVisible(false);
+        this.setVisible(false);
     }
 }
 
-// Renderer tùy chỉnh để hiển thị tên và trạng thái người dùng
+// Custom renderer for displaying user names and statuses
 class UserListCellRenderer extends DefaultListCellRenderer {
     @Override
-    public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+    public Component getListCellRendererComponent(JList<?> list, Object value,
+                                                  int index, boolean isSelected, boolean cellHasFocus) {
         JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
         if (value instanceof User) {
             User user = (User) value;
-            // Hiển thị tên người dùng và trạng thái
-            String statusText = user.getStatus() == 1 ? "Online" : user.getStatus() == 2 ? "Playing" : "Offline";
+            // Display user name and status
+            String statusText = user.getStatus() == 1 ? "Online"
+                    : user.getStatus() == 2 ? "Playing" : "Offline";
             label.setText("<html><b>" + user.getUserName() + "</b> (" + statusText + ")</html>");
 
-            // Tùy chỉnh màu sắc dựa trên trạng thái người dùng
+            // Customize color based on user status
             if (user.getStatus() == 1) {
-                label.setForeground(new Color(0, 128, 0));  // Xanh lá cho Online
+                label.setForeground(new Color(0, 128, 0));  // Green for Online
             } else if (user.getStatus() == 2) {
-                label.setForeground(new Color(0, 0, 255));  // Xanh dương cho Playing
+                label.setForeground(new Color(0, 0, 255));  // Blue for Playing
             } else {
-                label.setForeground(new Color(128, 128, 128));  // Xám cho Offline
+                label.setForeground(new Color(128, 128, 128));  // Gray for Offline
             }
 
-            // Thêm khoảng cách giữa các mục
+            // Add padding between items
             label.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         }
 
         if (isSelected) {
-            label.setBackground(new Color(200, 230, 255));  // Màu nền khi được chọn
+            label.setBackground(new Color(200, 230, 255));  // Background color when selected
         }
 
         return label;
     }
 }
-
