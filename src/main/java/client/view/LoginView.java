@@ -13,9 +13,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-/**
- * Giao diện đăng nhập người dùng bằng JavaFX với thiết kế đẹp hơn.
- */
+
 public class LoginView extends Application {
     private TextField usernameField;
     private PasswordField passwordField;
@@ -24,7 +22,7 @@ public class LoginView extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        loginController = new LoginController();
+        loginController = new LoginController(this);
 
         // Tải font chữ
         Font.loadFont(getClass().getResourceAsStream("/fonts/SVN-Bango.otf"), 52);
@@ -141,5 +139,11 @@ public class LoginView extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public void close() {
+        // Đóng cửa sổ đăng nhập
+        Stage stage = (Stage) usernameField.getScene().getWindow();
+        stage.close();
     }
 }
