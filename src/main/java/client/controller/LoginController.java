@@ -2,14 +2,18 @@ package client.controller;
 
 import client.model.ResponseResult;
 import client.view.MainView;
-
-import javax.swing.*;
+import client.view.LoginView; // Import LoginView
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 
 public class LoginController {
     private ClientControl clientControl;
+    private LoginView loginView; // Tham chiếu đến LoginView
 
-    public LoginController() {
-        clientControl = new ClientControl();
+    // Constructor nhận LoginView
+    public LoginController(LoginView loginView) {
+        this.clientControl = new ClientControl();
+        this.loginView = loginView; // Khởi tạo tham chiếu
     }
 
     public void login(String username, String password) {
@@ -17,9 +21,18 @@ public class LoginController {
         if (result.isSuccess()) {
             // Mở giao diện chính
             MainView mainView = new MainView(clientControl, result.getData());
-            mainView.setVisible(true);
+            // Đóng giao diện đăng nhập
+            loginView.close(); // Gọi phương thức để đóng loginView
         } else {
-            JOptionPane.showMessageDialog(null, result.getMessage(), "Login Failed", JOptionPane.ERROR_MESSAGE);
+            showAlert(result.getMessage(), "Login Failed", AlertType.ERROR);
         }
+    }
+
+    // Phương thức để hiển thị thông báo
+    private void showAlert(String message, String title, AlertType alertType) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
