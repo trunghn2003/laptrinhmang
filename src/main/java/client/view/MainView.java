@@ -216,5 +216,7 @@ public class MainView extends Application {
     public void playNow() {
         //Chuyển qua màn hình friendList
         FriendsView friendsView = new FriendsView(clientControl, userListModel);
+        Stage stage = (Stage) playButton.getScene().getWindow();
+        stage.close();
     }
 }

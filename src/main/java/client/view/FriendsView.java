@@ -78,7 +78,7 @@ public class FriendsView extends Application {
         backButton = new Button("Back");
         backButton.setOnAction(e -> {
             // Xử lý sự kiện khi nhấn nút "Back"
-//            backToMainView();
+            backToMainView();
         });
 
         // Tạo HBox để chứa nút "Back"
@@ -124,6 +124,7 @@ public class FriendsView extends Application {
     private void sendInvite(String recipient) {
         String message = Constants.ACTION_INVITE + ":" + recipient;
         clientControl.sendMessage(message);
+        showAlert("Invitation sent to " + recipient + "!");
     }
 
     // Lắng nghe từ server
@@ -240,7 +241,7 @@ public class FriendsView extends Application {
                 avatar.setFitWidth(50); // Set width for avatar
                 avatar.setFitHeight(50); // Set height for avatar
 
-                //Space
+                // Space
                 Region space = new Region();
                 space.setPrefWidth(5);
 
@@ -248,13 +249,12 @@ public class FriendsView extends Application {
                 Label username = new Label(user.getUserName());
                 username.setStyle("-fx-text-fill: white;"); // Set text color
 
-                // Tạo 1 label để hiển thị trang thái online
+                // Tạo 1 label để hiển thị trạng thái online
                 String statusText = user.getStatus() == 1 ? "Online" : user.getStatus() == 2 ? "Playing" : "Offline";
                 Label status = new Label(statusText);
-                //font size
+                // Font size
                 status.setId("statusLbl");
                 status.setStyle(user.getStatus() == 1 ? "-fx-text-fill: green;" : user.getStatus() == 2 ? "-fx-text-fill: blue;" : "-fx-text-fill: gray;");
-
 
                 VBox userInfo = new VBox();
                 userInfo.getChildren().addAll(username, status);
@@ -273,20 +273,17 @@ public class FriendsView extends Application {
                     actionButton.setStyle("-fx-background-color: #E29A36; -fx-text-fill: white;"); // Set style for button
 
                     actionButton.setOnAction(e -> {
-                        // Handle button click event
-//                        parent.sendInvite(user.getUserName());
+                        // Gửi lời mời đến người dùng được chọn
+                        sendInvite(user.getUserName());
                     });
 
                     hbox.getChildren().add(actionButton);
-                } else {
-                    // Else, display score label
-
                 }
 
                 // Set background color for HBox (optional)
                 hbox.setStyle("-fx-background-color: #453221;");
 
-                //set background when hover
+                // Set background when hover
                 hbox.setOnMouseEntered(e -> {
                     hbox.setStyle("-fx-background-color: #5A3C29;");
                 });
@@ -304,6 +301,13 @@ public class FriendsView extends Application {
     @Override
     public void start(Stage primaryStage) {
         // Chỉ để thực hiện ứng dụng JavaFX, không sử dụng trong MainView
+    }
+
+    public void backToMainView() {
+        // Xử lý sự kiện khi nhấn nút "Back"
+        MainView mainView = new MainView(clientControl, userListModel);
+        Stage stage = (Stage) backButton.getScene().getWindow();
+        stage.close();
     }
 
     public static void main(String[] args) {

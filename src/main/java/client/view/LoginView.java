@@ -132,8 +132,6 @@ public class LoginView extends Application {
     }
 
     private void openRegisterView() {
-        // Mở giao diện đăng ký
-        // Bạn cần chuyển đổi lớp RegisterView sang JavaFX tương tự
         new RegisterView(); // Ví dụ
     }
 
@@ -142,7 +140,6 @@ public class LoginView extends Application {
     }
 
     public void close() {
-        // Đóng cửa sổ đăng nhập
         Stage stage = (Stage) usernameField.getScene().getWindow();
         stage.close();
     }
