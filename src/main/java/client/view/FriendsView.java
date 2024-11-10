@@ -4,6 +4,7 @@ import client.controller.ClientControl;
 import client.controller.GameController;
 import client.utils.Constants;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -137,19 +138,22 @@ public class FriendsView extends Application {
                         String message = (String) obj;
                         System.out.println("in mainView: " + message);
                         if (message.startsWith(Constants.RESPONSE_INVITE)) {
-                            handleInvite(message);
+                            // Gọi handleInvite trên luồng chính
+                            Platform.runLater(() -> handleInvite(message));
                         } else if (message.startsWith(Constants.RESPONSE_INVITE_RESPONSE)) {
-                            handleInviteResponse(message);
+                            // Gọi handleInviteResponse trên luồng chính
+                            Platform.runLater(() -> handleInviteResponse(message));
                         } else if (message.startsWith(Constants.RESPONSE_GAME_START)) {
-                            handleGameStart(message);
+                            // Gọi handleGameStart trên luồng chính
+                            Platform.runLater(() -> handleGameStart(message));
                         } else if (message.startsWith(Constants.RESPONSE_RANDOM_COLORS)) {
-                            gameController.receivedColors(message);
+                            Platform.runLater(() -> gameController.receivedColors(message));
                         } else if (message.startsWith(Constants.RESPONSE_GAME_RESULT)) {
-                            gameController.receiveGameResult(message);
+                            Platform.runLater(() -> gameController.receiveGameResult(message));
                         } else if (message.startsWith(Constants.RESPONSE_EXIT_MIDDLE_GAME)) {
                             System.out.println("EXIT MID GAME");
                         } else if (message.startsWith(Constants.RESPONSE_MATCH_RESULT)) {
-                            gameController.receivedMatchResult(message);
+                            Platform.runLater(() -> gameController.receivedMatchResult(message));
                         } else {
                             // Xử lý các tin nhắn khác
                         }
@@ -157,7 +161,7 @@ public class FriendsView extends Application {
                         // Cập nhật danh sách người chơi online
                         @SuppressWarnings("unchecked")
                         List<User> users = (List<User>) obj;
-                        updateUserList(users);
+                        Platform.runLater(() -> updateUserList(users));
                     }
                 }
             } catch (Exception e) {
@@ -183,9 +187,13 @@ public class FriendsView extends Application {
             }
         } else {
             String sender = message.split(":")[1];
-            boolean response = showConfirmation(sender + " invites you to a game. Do you accept?");
-            String responseMessage = Constants.ACTION_INVITE_RESPONSE + ":" + sender + ":" + (response ? "ACCEPT" : "DECLINE");
-            clientControl.sendMessage(responseMessage);
+
+            // Sử dụng Platform.runLater để đảm bảo hiển thị trên luồng chính
+            Platform.runLater(() -> {
+                boolean response = showConfirmation(sender + " invites you to a game. Do you accept?");
+                String responseMessage = Constants.ACTION_INVITE_RESPONSE + ":" + sender + ":" + (response ? "ACCEPT" : "DECLINE");
+                clientControl.sendMessage(responseMessage);
+            });
         }
     }
 
