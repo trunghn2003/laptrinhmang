@@ -11,10 +11,11 @@ public class GameController {
     private GameView gameView;
     private ArrayList<String> colors = new ArrayList<>();
     private boolean gameResult = false;
-
     private String matchResult = "";
     private int score = 0;
+    private int enemyCurrentRoundScore = 0;
     private int totalScore = 0;
+    private int enemyScore = 0;
 
     public GameController(ClientControl clientControl) {
         this.clientControl = clientControl;
@@ -30,6 +31,15 @@ public class GameController {
     public int getScore() {
         return this.score;
     }
+
+    public int getEnemyCurrentRoundScore() {
+        return this.enemyCurrentRoundScore;
+    }
+
+    public int getEnemyScore() {
+        return this.enemyScore;
+    }
+
     public int getTotalScore() {
         return this.totalScore;
     }
@@ -63,6 +73,8 @@ public class GameController {
         this.gameResult = Boolean.parseBoolean(parts.get(1));
         this.score = Integer.parseInt(parts.get(2));
 
+        this.enemyCurrentRoundScore = Integer.parseInt(parts.get(3));
+
         this.totalScore += score;
 
     }
@@ -76,6 +88,7 @@ public class GameController {
     public void receivedMatchResult(String message) {
         ArrayList<String> parts = new ArrayList<>(Arrays.asList(message.split(":")));
         this.matchResult = parts.get(1);
+        this.enemyScore = Integer.parseInt(parts.get(2));
     }
 
     public void handleEndGame() {
