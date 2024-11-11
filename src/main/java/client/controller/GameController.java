@@ -11,10 +11,10 @@ public class GameController {
     private GameView gameView;
     private ArrayList<String> colors = new ArrayList<>();
     private boolean gameResult = false;
-
     private String matchResult = "";
     private int score = 0;
     private int totalScore = 0;
+    private String opponent;
 
     public GameController(ClientControl clientControl) {
         this.clientControl = clientControl;
@@ -22,8 +22,7 @@ public class GameController {
 
     public void startGame(String opponent) {
         clientControl.sendMessage(Constants.ACTION_START_GAME);
-        this.gameView = new GameView(this);
-        gameView.setOpponent(opponent);
+        this.opponent = opponent;
     }
 
     public int getScore() {
@@ -43,11 +42,19 @@ public class GameController {
 
     //Phương thức nhận màu ngẫu nhiên từ server
     public void receivedColors(String message) {
+        System.out.println("Received colors: " + message);
         ArrayList<String> parts = new ArrayList<>(Arrays.asList(message.split(":")));
         ArrayList<String> receivedColors = new ArrayList<>(Arrays.asList(parts.get(1).split(",")));
 
+        int currentRound = Integer.parseInt(parts.get(2));
+
         colors.clear();
         colors.addAll(receivedColors);
+
+        if(currentRound == 0) {
+            this.gameView = new GameView(this);
+            gameView.setOpponent(opponent);
+        }
 
     }
 
@@ -82,5 +89,6 @@ public class GameController {
         this.score = 0;
         this.totalScore = 0;
         this.matchResult = "";
+        this.opponent = "";
     }
 }

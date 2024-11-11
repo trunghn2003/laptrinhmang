@@ -369,7 +369,7 @@ public class ClientHandler implements Runnable, IClientHandler {
 
         String randomColors = random3Color(); //Thực hiện chọn 3 màu ngẫu nhiên
 
-        sendMessage(Constants.RESPONSE_RANDOM_COLORS + ":" + randomColors);
+        sendMessage(Constants.RESPONSE_RANDOM_COLORS + ":" + randomColors + ":" + this.round); // Gửi 3 màu ngẫu nhiên tới client
 
         System.out.println("Sending colors to client: " + user.getUserName());
         serverView.showMessage("Sending colors to client: " + user.getUserName());
