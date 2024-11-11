@@ -181,7 +181,7 @@ public class FriendsView extends Application {
             // Xử lý phản hồi dựa trên nội dung
             if (response.equalsIgnoreCase("ACCEPT")) {
                 showAlert(recipient + " has accepted your invitation. The game will start!");
-                gameController.startGame(recipient); // Bắt đầu trò chơi
+//                gameController.startGame(recipient); // Bắt đầu trò chơi
             } else if (response.equalsIgnoreCase("DECLINE")) {
                 showAlert(recipient + " has declined your invitation.");
             }
@@ -198,7 +198,7 @@ public class FriendsView extends Application {
     }
 
     // Xử lý phản hồi lời mời
-    private void handleInviteResponse(String message) {
+    private void handleInviteResponse(String message)  {
         String[] parts = message.split(":");
         String recipient = parts[1];
         String response = parts[2];
@@ -215,6 +215,9 @@ public class FriendsView extends Application {
         String opponent = message.split(":")[1];
         showAlert("Starting game with " + opponent + "!");
         gameController.startGame(opponent);
+        // ẩn FriendsView
+        Stage stage = (Stage) backButton.getScene().getWindow();
+        stage.hide();
     }
 
     // Hiển thị thông báo

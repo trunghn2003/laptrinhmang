@@ -1,72 +1,196 @@
 package client.view;
 
 import client.controller.GameController;
-import client.utils.Constants;
-import server.model.User;
+import javafx.animation.PauseTransition;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.stage.Stage;
+import javafx.util.Duration;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameView extends JFrame {
+public class GameView {
     private GameController gameController;
     private String opponent;
-    private JLabel opponentLabel;
-    private JButton moveButton;
-    private JButton submitButton;
-    private ArrayList<JButton> colorButtons;
+    private Label opponentLabel;
+    private Button moveButton;
+    private Button submitButton;
+    private ArrayList<Button> colorButtons;
     private ArrayList<String> selectedColors;
+    private Label scoreLabel;
+    private int roundCnt = 0;
 
-    private ArrayList<String> colors = new ArrayList<>();
+    private Stage stage;
+    private BorderPane root; // Root pane to switch content
+    private Scene scene; // Main scene
 
     public GameView(GameController gameController) {
         this.gameController = gameController;
         this.selectedColors = new ArrayList<>();
         setupUI();
+        showColorsFromServer();
     }
 
     private void setupUI() {
-        setTitle("Color Guessing Game");
-        setSize(400, 300);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        stage = new Stage();
+        stage.setTitle("Color Guessing Game");
 
-        opponentLabel = new JLabel("Opponent: ");
-        moveButton = new JButton("Send Move");
-        moveButton.addActionListener(e -> {
+        root = new BorderPane();
+        scene = new Scene(root, 1280, 720);
+        stage.setScene(scene);
+        scene.getStylesheets().add(getClass().getResource("/game-styles.css").toExternalForm());
+
+        opponentLabel = new Label("Opponent: ");
+        scoreLabel = new Label("Score: 0");
+
+        stage.show();
+
+        // We will add content to 'root' in startGame() and setupMainUI()
+        showColorsFromServer();
+    }
+
+    private void showColorsFromServer() {
+        // Lấy 3 màu từ server
+        List<String> colorsFromServer = gameController.getColors(); // Bạn cần cài đặt phương thức này trong GameController
+        System.out.println("Colors from server: " + colorsFromServer);
+        // Tạo HBox hiển thị các màu từ server
+        HBox colorDisplayBox = new HBox();
+        colorDisplayBox.setAlignment(Pos.CENTER);
+        colorDisplayBox.setSpacing(20);
+        colorDisplayBox.setPadding(new Insets(20));
+
+        for (String color : colorsFromServer) {
+            Label colorLabel = new Label();
+            colorLabel.setStyle("-fx-background-color: " + color.toLowerCase() + "; -fx-min-width: 200px; -fx-min-height: 200px;");
+            colorDisplayBox.getChildren().add(colorLabel);
+        }
+
+        // Đặt colorDisplayBox vào trung tâm của root
+        root.setCenter(colorDisplayBox);
+
+        // Sau 3 giây, chuyển sang giao diện bảng màu chính
+        PauseTransition pause = new PauseTransition(Duration.seconds(3));
+        pause.setOnFinished(event -> {
+            // Xóa nội dung hiện tại và thiết lập giao diện chính của game
+            root.getChildren().clear();
+            setupMainUI();
+        });
+        pause.play();
+    }
+
+    private void setupMainUI() {
+        // Tạo các nút màu
+        String[] colors = {"Red", "Green", "Blue", "Yellow", "Orange", "Purple",
+                "Black", "White", "Pink", "Gray", "Cyan", "Magenta"};
+        colorButtons = new ArrayList<>();
+
+        GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(20));
+        gridPane.setVgap(20); // Tăng khoảng cách giữa các hàng
+        gridPane.setHgap(20); // Tăng khoảng cách giữa các cột
+        gridPane.setAlignment(Pos.CENTER); // Căn giữa nội dung trong GridPane
+
+        moveButton = new Button("Send Move");
+        moveButton.setOnAction(e -> {
             // Gửi lượt chơi
             gameController.endMidGame();
         });
 
-        JPanel panel = new JPanel();
-        panel.add(opponentLabel);
-        panel.add(moveButton);
+        // Đặt opponentLabel và moveButton vào HBox
+        HBox topBox = new HBox(10, opponentLabel, moveButton);
+        topBox.setAlignment(Pos.CENTER);
 
-        add(panel);
-
-        setLayout(new GridLayout(5, 3));
-
-        opponentLabel = new JLabel("Opponent: ");
-        add(opponentLabel);
-
-        String[] colors = {"Red", "Green", "Blue", "Yellow", "Orange", "Purple", "Black", "White", "Pink", "Gray", "Cyan", "Magenta"};
-        colorButtons = new ArrayList<>();
-
+        int row = 0;
+        int col = 0;
         for (String color : colors) {
-            JButton colorButton = new JButton(color);
-            colorButton.setBackground(getColorFromName(color));
-            colorButton.addActionListener(new ColorButtonListener());
+            Button colorButton = new Button();
+            colorButton.setUserData(color); // Store color name in user data
+            colorButton.setStyle("-fx-background-color: " + color.toLowerCase());
+            colorButton.setPrefSize(100, 100); // Đặt kích thước nút thành 100x100
+            colorButton.setOnAction(e -> handleColorButton(colorButton));
             colorButtons.add(colorButton);
-            add(colorButton);
+
+            gridPane.add(colorButton, col, row);
+
+            col++;
+            if (col > 2) { // Giữ nguyên bố cục 3 cột
+                col = 0;
+                row++;
+            }
         }
 
-        submitButton = new JButton("Submit");
-        submitButton.addActionListener(new SubmitButtonListener());
-        add(submitButton);
+        submitButton = new Button("Submit");
+        submitButton.setOnAction(e -> handleSubmitButton());
 
-        setVisible(true);
+        // Tạo HBox cho scoreLabel và căn trái
+        HBox scoreBox = new HBox(scoreLabel);
+        scoreBox.setAlignment(Pos.CENTER_LEFT);
+        scoreBox.setPadding(new Insets(10));
+
+        // Tạo VBox cho phần top, bao gồm scoreBox và topBox
+        VBox topContainer = new VBox();
+        topContainer.getChildren().addAll(scoreBox, topBox);
+        topContainer.setAlignment(Pos.CENTER);
+
+        root.setTop(topContainer);
+
+        // Đặt gridPane vào trung tâm
+        root.setCenter(gridPane);
+
+        // Đặt submitButton vào vùng dưới cùng, căn giữa
+        HBox bottomBox = new HBox(submitButton);
+        bottomBox.setAlignment(Pos.CENTER);
+        bottomBox.setPadding(new Insets(10));
+        root.setBottom(bottomBox);
+    }
+
+    private void handleColorButton(Button button) {
+        String color = (String) button.getUserData(); // Get the color from user data
+        if (selectedColors.contains(color)) {
+            selectedColors.remove(color);
+            button.setDisable(false);
+        } else if (selectedColors.size() < 3) {
+            selectedColors.add(color);
+            button.setDisable(true);
+        }
+    }
+
+    private void handleSubmitButton() {
+        if (selectedColors.size() == 3) {
+            String colors = String.join(",", selectedColors);
+            System.out.println("Colors chosen: " + colors);
+            gameController.sendColors(colors);
+//            showAlert(Alert.AlertType.INFORMATION, "Colors sent: " + colors);
+
+            // Reset các nút màu và danh sách màu đã chọn
+            for (Button button : colorButtons) {
+                button.setDisable(false);
+            }
+            roundCnt += 1;
+            selectedColors.clear();
+            if (roundCnt <= 5) {
+                showColorsFromServer();
+                showAlert(Alert.AlertType.INFORMATION, "Round " + roundCnt + " completed.");
+            } else {
+                showAlert(Alert.AlertType.INFORMATION, "Game completed.");
+                roundCnt = 0;
+                // Chuyển sang màn hình kết quả
+            }
+        } else {
+            showAlert(Alert.AlertType.WARNING, "Please select exactly 3 colors.");
+        }
+    }
+
+    private void showAlert(Alert.AlertType alertType, String message) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle("Information");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     public void setOpponent(String opponent) {
@@ -74,60 +198,11 @@ public class GameView extends JFrame {
         opponentLabel.setText("Opponent: " + opponent);
     }
 
+    public void updateScore(int score) {
+        scoreLabel.setText("Score: " + score);
+    }
+
     public String getOpponent() {
         return opponent;
-    }
-
-    private class ColorButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            JButton source = (JButton) e.getSource();
-            String color = source.getText();
-            if (selectedColors.contains(color)) {
-                selectedColors.remove(color);
-                source.setEnabled(true);
-            } else if (selectedColors.size() < 3) {
-                selectedColors.add(color);
-                source.setEnabled(false);
-            }
-        }
-    }
-
-    private class SubmitButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (selectedColors.size() == 3) {
-                String colors = String.join(",", selectedColors);
-                System.out.println("Colors chosen: " + colors);
-                gameController.sendColors(colors);
-                JOptionPane.showMessageDialog(null, "Colors sent: " + colors);
-
-                // Reset color buttons and selected colors
-                for (JButton button : colorButtons) {
-                    button.setEnabled(true);
-                }
-                selectedColors.clear();
-            } else {
-                JOptionPane.showMessageDialog(null, "Please select exactly 3 colors.");
-            }
-        }
-    }
-
-    private Color getColorFromName(String colorName) {
-        switch (colorName.toLowerCase()) {
-            case "red": return Color.RED;
-            case "green": return Color.GREEN;
-            case "blue": return Color.BLUE;
-            case "yellow": return Color.YELLOW;
-            case "orange": return Color.ORANGE;
-            case "purple": return new Color(128, 0, 128); // Purple isn't predefined
-            case "black": return Color.BLACK;
-            case "white": return Color.WHITE;
-            case "pink": return Color.PINK;
-            case "gray": return Color.GRAY;
-            case "cyan": return Color.CYAN;
-            case "magenta": return Color.MAGENTA;
-            default: return Color.LIGHT_GRAY; // Fallback color
-        }
     }
 }

@@ -5,6 +5,8 @@ import client.view.MainView;
 import client.view.LoginView; // Import LoginView
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.stage.Stage;
+import kotlin.Pair;
 
 public class LoginController {
     private ClientControl clientControl;
@@ -19,10 +21,9 @@ public class LoginController {
     public void login(String username, String password) {
         ResponseResult result = clientControl.login(username, password);
         if (result.isSuccess()) {
+            loginView.close();
             // Mở giao diện chính
             MainView mainView = new MainView(clientControl, result.getData());
-            // Đóng giao diện đăng nhập
-            loginView.close(); // Gọi phương thức để đóng loginView
         } else {
             showAlert(result.getMessage(), "Login Failed", AlertType.ERROR);
         }

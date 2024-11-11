@@ -21,10 +21,9 @@ public class GameController {
     }
 
     public void startGame(String opponent) {
+        clientControl.sendMessage(Constants.ACTION_START_GAME);
         this.gameView = new GameView(this);
         gameView.setOpponent(opponent);
-        gameView.setVisible(true);
-        clientControl.sendMessage(Constants.ACTION_START_GAME);
     }
 
     public int getScore() {
