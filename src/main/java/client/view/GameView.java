@@ -26,6 +26,7 @@ public class GameView {
     private int roundCnt = 0;
     private Label timerLabel;
     private int timeRemaining = 30;
+    private Timeline timer;
 
     private Stage stage;
     private BorderPane root; // Root pane to switch content
@@ -82,7 +83,7 @@ public class GameView {
             // Xóa nội dung hiện tại và thiết lập giao diện chính của game
             root.getChildren().clear();
             setupMainUI();
-//            startTimer(); // Bắt đầu đồng hồ đếm ngược
+            startTimer(); // Bắt đầu đồng hồ đếm ngược
         });
         pause.play();
     }
@@ -227,7 +228,10 @@ public class GameView {
                 if (roundCnt <= 5) {
                     showRoundScoreScreen();  // Method to show score between rounds
                     PauseTransition pause = new PauseTransition(Duration.seconds(2));
-                    pause.setOnFinished(e -> showColorsFromServer());
+                    pause.setOnFinished(e -> {
+                        showColorsFromServer();
+                        startTimer();
+                    });
                     pause.play();
                 } else {
                     showGameOverScreen();
@@ -282,19 +286,28 @@ public class GameView {
 
 
     private void startTimer() {
-        // Tạo Timeline để đếm ngược
-        Timeline timer = new Timeline(
+        // Nếu đã tồn tại timer từ trước, hãy dừng nó trước khi tạo timer mới
+        if (timer != null) {
+            timer.stop();
+        }
+
+        // Đặt thời gian đếm ngược ban đầu là 30 giây
+        timeRemaining = 30;
+        timerLabel.setText(String.valueOf(timeRemaining));
+
+        // Tạo Timeline mới cho timer
+        timer = new Timeline(
                 new KeyFrame(Duration.seconds(1), e -> {
                     if (timeRemaining > 0) {
                         timeRemaining--;
                         timerLabel.setText(String.valueOf(timeRemaining));
                     } else {
-                        handleSubmitButton();
+                        handleSubmitButton(); // Tự động nộp khi hết thời gian
                     }
                 })
         );
-        timer.setCycleCount(Timeline.INDEFINITE);
-        timer.play();
+        timer.setCycleCount(Timeline.INDEFINITE); // Lặp lại vô hạn cho đến khi dừng
+        timer.play(); // Bắt đầu timer
     }
 
 
