@@ -380,7 +380,7 @@ public class ClientHandler implements Runnable, IClientHandler {
 
     public void sendResultToClient(String message) {
         // Xử lý kết quả từ client
-        String result = message.split(":")[1];
+        String result = (message.split(":").length > 1) ? message.split(":")[1] : "";
         ArrayList<String> resultColors = new ArrayList<>(Arrays.asList(result.split(",")));
         String resultChecking = checkColors(resultColors);
         boolean check = Boolean.parseBoolean(resultChecking.split(":")[0]);
