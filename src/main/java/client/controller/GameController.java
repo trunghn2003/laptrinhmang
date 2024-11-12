@@ -94,6 +94,7 @@ public class GameController {
     }
 
     public void finishGame() {
+        System.out.println("Finish game");
         this.gameView.showGameOverScreen();
     }
 }

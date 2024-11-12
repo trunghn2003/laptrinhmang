@@ -14,6 +14,7 @@ import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class GameView {
     private GameController gameController;
@@ -163,7 +164,8 @@ public class GameView {
 
     public void showGameOverScreen() {
         // Tạo một Label hiển thị điểm số cuối cùng
-        Label gameOverLabel = new Label("Game Over\nTotal Score: " + gameController.getTotalScore());
+        String result = gameController.getMatchResult();
+        Label gameOverLabel = new Label(result + "\nGame Over\nTotal Score: " + gameController.getTotalScore());
         gameOverLabel.setStyle("-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: green;");
 
         // Tạo một VBox để căn giữa gameOverLabel
@@ -248,7 +250,11 @@ public class GameView {
 
                     pause.play();
                 } else {
-                    showWaitingMessage();
+                    String checkRes = gameController.getMatchResult();
+                    System.out.println("Check res: " + Objects.equals(checkRes, ""));
+                    if (Objects.equals(checkRes, "")) {
+                        showWaitingMessage();
+                    }
                     roundCnt = 0;
                 }
             });
