@@ -28,7 +28,6 @@ public class GameView {
     private int timeRemaining = 30;
     private Timeline timer;
     private FriendsView friendsView;
-
     private Stage stage;
     private BorderPane root; // Root pane to switch content
     private Scene scene; // Main scene
@@ -210,6 +209,9 @@ public class GameView {
 
     private void handleSubmitButton() {
         if (selectedColors.size() == 3 || timeRemaining == 0) {
+            timer.stop();
+            timer = null;
+
             String colors = String.join(",", selectedColors);
             System.out.println("Colors chosen: " + colors);
 
