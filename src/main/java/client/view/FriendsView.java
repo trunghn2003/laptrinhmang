@@ -162,6 +162,8 @@ public class FriendsView extends Application {
                         @SuppressWarnings("unchecked")
                         List<User> users = (List<User>) obj;
                         Platform.runLater(() -> updateUserList(users));
+                    } else {
+                        System.err.println("Unexpected data type received: " + obj.getClass().getName());
                     }
                 }
             } catch (Exception e) {

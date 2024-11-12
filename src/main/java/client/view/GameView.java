@@ -1,7 +1,9 @@
 package client.view;
 
 import client.controller.GameController;
+import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
+import javafx.animation.Timeline;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -17,12 +19,13 @@ public class GameView {
     private GameController gameController;
     private String opponent;
     private Label opponentLabel;
-    private Button moveButton;
     private Button submitButton;
     private ArrayList<Button> colorButtons;
     private ArrayList<String> selectedColors;
     private Label scoreLabel;
     private int roundCnt = 0;
+    private Label timerLabel;
+    private int timeRemaining = 30;
 
     private Stage stage;
     private BorderPane root; // Root pane to switch content
@@ -33,6 +36,7 @@ public class GameView {
         this.selectedColors = new ArrayList<>();
         setupUI();
         showColorsFromServer();
+//        startTimer();
     }
 
     private void setupUI() {
@@ -78,9 +82,11 @@ public class GameView {
             // Xóa nội dung hiện tại và thiết lập giao diện chính của game
             root.getChildren().clear();
             setupMainUI();
+//            startTimer(); // Bắt đầu đồng hồ đếm ngược
         });
         pause.play();
     }
+
 
     private void setupMainUI() {
         // Tạo các nút màu
@@ -88,21 +94,27 @@ public class GameView {
                 "Black", "White", "Pink", "Gray", "Cyan", "Magenta"};
         colorButtons = new ArrayList<>();
 
+        // Tạo Label cho đồng hồ đếm ngược
+        timerLabel = new Label("30");
+        timerLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+        timeRemaining = 30; // Reset đồng hồ về 30 giây
+        timerLabel.setText(String.valueOf(timeRemaining));
+
+        // Tạo một VBox cho phần trên, bao gồm opponentLabel và timerLabel
+        HBox topBox = new HBox(10, opponentLabel, timerLabel);
+        topBox.setAlignment(Pos.CENTER_RIGHT);
+
+
+        // Các bước còn lại trong setupMainUI
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(20));
         gridPane.setVgap(20); // Tăng khoảng cách giữa các hàng
         gridPane.setHgap(20); // Tăng khoảng cách giữa các cột
         gridPane.setAlignment(Pos.CENTER); // Căn giữa nội dung trong GridPane
 
-        moveButton = new Button("Send Move");
-        moveButton.setOnAction(e -> {
-            // Gửi lượt chơi
-            gameController.endMidGame();
-        });
-
         // Đặt opponentLabel và moveButton vào HBox
-        HBox topBox = new HBox(10, opponentLabel, moveButton);
-        topBox.setAlignment(Pos.CENTER);
+        topBox.setAlignment(Pos.CENTER_RIGHT); // Căn phải cho topBox
+        topBox.setPadding(new Insets(10));
 
         int row = 0;
         int col = 0;
@@ -148,42 +160,137 @@ public class GameView {
         root.setBottom(bottomBox);
     }
 
+    private void showGameOverScreen() {
+        // Tạo một Label hiển thị điểm số cuối cùng
+        Label gameOverLabel = new Label("Game Over\nTotal Score: " + gameController.getTotalScore());
+        gameOverLabel.setStyle("-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: green;");
+
+        // Tạo một VBox để căn giữa gameOverLabel
+        VBox gameOverBox = new VBox(gameOverLabel);
+        gameOverBox.setAlignment(Pos.CENTER);
+        gameOverBox.setPadding(new Insets(20));
+
+        // Đặt VBox vào giữa màn hình
+        root.setCenter(gameOverBox);
+
+        // Thêm nút quay lại hoặc kết thúc trò chơi
+        Button restartButton = new Button("Restart Game");
+//        restartButton.setOnAction(e -> restartGame());
+        VBox buttonBox = new VBox(restartButton);
+        buttonBox.setAlignment(Pos.CENTER);
+        buttonBox.setSpacing(10);
+        buttonBox.setPadding(new Insets(10));
+
+        root.setBottom(buttonBox);
+    }
+
+
     private void handleColorButton(Button button) {
         String color = (String) button.getUserData(); // Get the color from user data
+        System.out.println("Color selected: " + color + " - " + "Selected colors: " + selectedColors);
         if (selectedColors.contains(color)) {
             selectedColors.remove(color);
-            button.setDisable(false);
+            button.setOpacity(1.0);
         } else if (selectedColors.size() < 3) {
             selectedColors.add(color);
-            button.setDisable(true);
+            button.setOpacity(0.5);
         }
     }
 
     private void handleSubmitButton() {
-        if (selectedColors.size() == 3) {
+        if (selectedColors.size() == 3 || timeRemaining == 0) {
             String colors = String.join(",", selectedColors);
             System.out.println("Colors chosen: " + colors);
-            gameController.sendColors(colors);
-//            showAlert(Alert.AlertType.INFORMATION, "Colors sent: " + colors);
+
+            List<String> correctColors = gameController.getColors();
 
             // Reset các nút màu và danh sách màu đã chọn
             for (Button button : colorButtons) {
-                button.setDisable(false);
+                String color = (String) button.getUserData();
+
+                // Kiểm tra và áp dụng hiệu ứng flash cho các màu đã chọn
+                if (selectedColors.contains(color)) {
+                    if (correctColors.contains(color)) {
+                        flashButton(button, "green");
+                    } else {
+                        flashButton(button, "red");
+                    }
+                }
+                button.setOpacity(1);
             }
-            roundCnt += 1;
+
+            // Gửi màu đã chọn và cập nhật điểm
+            gameController.sendColors(colors);
             selectedColors.clear();
-            if (roundCnt <= 5) {
-                showColorsFromServer();
-                showAlert(Alert.AlertType.INFORMATION, "Round " + roundCnt + " completed.");
-            } else {
-                showAlert(Alert.AlertType.INFORMATION, "Game completed.");
-                roundCnt = 0;
-                // Chuyển sang màn hình kết quả
-            }
+            roundCnt += 1;
+            updateScore(); // Cập nhật scoreLabel ngay lập tức
+
+            PauseTransition pause = new PauseTransition(Duration.seconds(2));
+
+            // Hiển thị cảnh báo khi hoàn thành một vòng
+            pause.setOnFinished(event -> {
+                if (roundCnt <= 5) {
+                    showColorsFromServer();
+//                    showAlert(Alert.AlertType.INFORMATION, "Round " + roundCnt + " completed.");
+                } else {
+                    showGameOverScreen();
+                    roundCnt = 0;
+                }
+            });
+            pause.play();
         } else {
             showAlert(Alert.AlertType.WARNING, "Please select exactly 3 colors.");
         }
     }
+
+
+    private void flashButton(Button button, String color) {
+        String originalStyle = button.getStyle();
+        String overlayColor = "rgba(255, 0, 0, 0.3)"; // Màu đỏ với opacity 0.3
+
+        // Thiết lập hiệu ứng flash để thay đổi giữa màu chính và màu overlay
+        PauseTransition flashOn = new PauseTransition(Duration.seconds(0.2));
+        flashOn.setOnFinished(e -> button.setStyle("-fx-background-color: " + overlayColor + ", " + color + ";"));
+
+        PauseTransition flashOff = new PauseTransition(Duration.seconds(0.2));
+        flashOff.setOnFinished(e -> button.setStyle(originalStyle));
+
+        // Chain các flash để tạo hiệu ứng nhấp nháy
+        flashOn.setOnFinished(e -> {
+            button.setStyle("-fx-background-color: " + overlayColor + ", " + color + ";");
+            flashOff.play();
+        });
+
+        flashOff.setOnFinished(e -> {
+            button.setStyle(originalStyle);
+            flashOn.play();
+        });
+
+        // Bắt đầu chuỗi flash và dừng sau 1 giây
+        flashOn.play();
+
+        PauseTransition stopFlash = new PauseTransition(Duration.seconds(1));
+        stopFlash.setOnFinished(e -> button.setStyle(originalStyle));
+        stopFlash.play();
+    }
+
+
+    private void startTimer() {
+        // Tạo Timeline để đếm ngược
+        Timeline timer = new Timeline(
+                new KeyFrame(Duration.seconds(1), e -> {
+                    if (timeRemaining > 0) {
+                        timeRemaining--;
+                        timerLabel.setText(String.valueOf(timeRemaining));
+                    } else {
+                        handleSubmitButton();
+                    }
+                })
+        );
+        timer.setCycleCount(Timeline.INDEFINITE);
+        timer.play();
+    }
+
 
     private void showAlert(Alert.AlertType alertType, String message) {
         Alert alert = new Alert(alertType);
@@ -198,7 +305,8 @@ public class GameView {
         opponentLabel.setText("Opponent: " + opponent);
     }
 
-    public void updateScore(int score) {
+    public void updateScore() {
+        int score = gameController.getTotalScore();
         scoreLabel.setText("Score: " + score);
     }
 
