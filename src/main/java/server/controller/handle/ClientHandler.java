@@ -323,7 +323,7 @@ public class ClientHandler implements Runnable, IClientHandler {
 
 
     // Gửi tin nhắn tới client
-    public synchronized void sendMessage(String message) {
+    public void sendMessage(String message) {
         try {
             oos.writeObject(message);
             oos.flush();

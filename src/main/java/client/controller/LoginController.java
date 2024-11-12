@@ -21,9 +21,16 @@ public class LoginController {
     public void login(String username, String password) {
         ResponseResult result = clientControl.login(username, password);
         if (result.isSuccess()) {
+            Stage loginStage = loginView.getStage();
+            double xPos = loginStage.getX();
+            double yPos = loginStage.getY();
+
             loginView.close();
             // Mở giao diện chính
             MainView mainView = new MainView(clientControl, result.getData());
+            Stage mainStage = mainView.getStage();
+            mainStage.setX(xPos);
+            mainStage.setY(yPos);
         } else {
             showAlert(result.getMessage(), "Login Failed", AlertType.ERROR);
         }

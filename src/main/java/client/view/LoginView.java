@@ -144,4 +144,9 @@ public class LoginView extends Application {
         Stage stage = (Stage) usernameField.getScene().getWindow();
         stage.close();
     }
+
+    //Get stage
+    public Stage getStage() {
+        return (Stage) usernameField.getScene().getWindow();
+    }
 }

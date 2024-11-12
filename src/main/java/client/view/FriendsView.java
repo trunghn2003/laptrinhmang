@@ -318,9 +318,19 @@ public class FriendsView extends Application {
 
     public void backToMainView() {
         // Xử lý sự kiện khi nhấn nút "Back"
-        MainView mainView = new MainView(clientControl, userListModel);
         Stage stage = (Stage) backButton.getScene().getWindow();
-        stage.close();
+        double xPos = stage.getX();
+        double yPos = stage.getY();
+        MainView mainView = new MainView(clientControl, userListModel);
+        Stage mainStage = mainView.getStage();
+        mainStage.setX(xPos);
+        mainStage.setY(yPos);
+        stage.hide();
+    }
+
+    //get stage
+    public Stage getStage() {
+        return (Stage) backButton.getScene().getWindow();
     }
 
     public static void main(String[] args) {
