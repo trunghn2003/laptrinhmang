@@ -214,9 +214,18 @@ public class MainView extends Application {
 
     //Play now
     public void playNow() {
-        //Chuyển qua màn hình friendList
-        FriendsView friendsView = new FriendsView(clientControl, userListModel);
         Stage stage = (Stage) playButton.getScene().getWindow();
-        stage.close();
+        double xPos = stage.getX();
+        double yPos = stage.getY();
+        stage.hide();
+        FriendsView friendsView = new FriendsView(clientControl, userListModel);
+        Stage friendsStage = friendsView.getStage();
+        friendsStage.setX(xPos);
+        friendsStage.setY(yPos);
+    }
+
+    //get stage
+    public Stage getStage() {
+        return (Stage) playButton.getScene().getWindow();
     }
 }
