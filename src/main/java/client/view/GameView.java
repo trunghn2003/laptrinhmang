@@ -204,11 +204,8 @@ public class GameView {
 
             List<String> correctColors = gameController.getColors();
 
-            // Reset các nút màu và danh sách màu đã chọn
             for (Button button : colorButtons) {
                 String color = (String) button.getUserData();
-
-                // Kiểm tra và áp dụng hiệu ứng flash cho các màu đã chọn
                 if (selectedColors.contains(color)) {
                     if (correctColors.contains(color)) {
                         flashButton(button, "green");
@@ -219,28 +216,37 @@ public class GameView {
                 button.setOpacity(1);
             }
 
-            // Gửi màu đã chọn và cập nhật điểm
             gameController.sendColors(colors);
             selectedColors.clear();
             roundCnt += 1;
-            updateScore(); // Cập nhật scoreLabel ngay lập tức
+            updateScore();
 
-            PauseTransition pause = new PauseTransition(Duration.seconds(2));
-
-            // Hiển thị cảnh báo khi hoàn thành một vòng
-            pause.setOnFinished(event -> {
+            // Add a pause after flashing to display the score screen
+            PauseTransition pauseAfterFlash = new PauseTransition(Duration.seconds(1.5));
+            pauseAfterFlash.setOnFinished(event -> {
                 if (roundCnt <= 5) {
-                    showColorsFromServer();
-//                    showAlert(Alert.AlertType.INFORMATION, "Round " + roundCnt + " completed.");
+                    showRoundScoreScreen();  // Method to show score between rounds
+                    PauseTransition pause = new PauseTransition(Duration.seconds(2));
+                    pause.setOnFinished(e -> showColorsFromServer());
+                    pause.play();
                 } else {
                     showGameOverScreen();
                     roundCnt = 0;
                 }
             });
-            pause.play();
+            pauseAfterFlash.play();
         } else {
             showAlert(Alert.AlertType.WARNING, "Please select exactly 3 colors.");
         }
+    }
+
+    private void showRoundScoreScreen() {
+        Label roundScoreLabel = new Label("Round Score: " + gameController.getScore());
+        roundScoreLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: blue;");
+
+        VBox scoreBox = new VBox(roundScoreLabel);
+        scoreBox.setAlignment(Pos.CENTER);
+        root.setCenter(scoreBox);
     }
 
 
