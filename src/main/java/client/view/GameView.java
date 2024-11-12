@@ -225,12 +225,12 @@ public class GameView {
             // Add a pause after flashing to display the score screen
             PauseTransition pauseAfterFlash = new PauseTransition(Duration.seconds(1.5));
             pauseAfterFlash.setOnFinished(event -> {
-                if (roundCnt <= 5) {
+                if (roundCnt <= 4) {
                     showRoundScoreScreen();  // Method to show score between rounds
                     PauseTransition pause = new PauseTransition(Duration.seconds(2));
                     pause.setOnFinished(e -> {
                         showColorsFromServer();
-                        startTimer();
+//                        startTimer();
                     });
                     pause.play();
                 } else {
@@ -292,7 +292,7 @@ public class GameView {
         }
 
         // Đặt thời gian đếm ngược ban đầu là 30 giây
-        timeRemaining = 30;
+        timeRemaining = 5;
         timerLabel.setText(String.valueOf(timeRemaining));
 
         // Tạo Timeline mới cho timer
@@ -302,6 +302,8 @@ public class GameView {
                         timeRemaining--;
                         timerLabel.setText(String.valueOf(timeRemaining));
                     } else {
+                        timer.stop(); // Dừng timer
+                        timer = null; // Xóa timer để tạo timer mới ở lần tiếp theo
                         handleSubmitButton(); // Tự động nộp khi hết thời gian
                     }
                 })

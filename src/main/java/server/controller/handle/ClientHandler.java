@@ -173,8 +173,6 @@ public class ClientHandler implements Runnable, IClientHandler {
                     }
                     else if(message.startsWith(Constants.ACTION_START_GAME)){
                         sendColorsToClient();
-                    } else if (message.startsWith(Constants.ACTION_START_ROUND)) {
-                        sendColorsToClient();
                     } else if (message.startsWith(Constants.ACTION_SEND_COLORS)){
                         sendResultToClient(message);
                     }
@@ -376,9 +374,11 @@ public class ClientHandler implements Runnable, IClientHandler {
 
         this.round++; // Tăng số round lên 1
 
+        System.out.println("send color to client: " + this.round);
     }
 
     public void sendResultToClient(String message) {
+        System.out.println("Server received color: " + message);
         // Xử lý kết quả từ client
         String result = (message.split(":").length > 1) ? message.split(":")[1] : "";
         ArrayList<String> resultColors = new ArrayList<>(Arrays.asList(result.split(",")));
