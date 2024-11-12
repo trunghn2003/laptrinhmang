@@ -82,6 +82,7 @@ public class GameController {
     public void receivedMatchResult(String message) {
         ArrayList<String> parts = new ArrayList<>(Arrays.asList(message.split(":")));
         this.matchResult = parts.get(1);
+        clientControl.sendMessage(Constants.ACTION_FINISH_GAME);
     }
 
     public void handleEndGame() {
@@ -90,5 +91,9 @@ public class GameController {
         this.totalScore = 0;
         this.matchResult = "";
         this.opponent = "";
+    }
+
+    public void finishGame() {
+        this.gameView.showGameOverScreen();
     }
 }

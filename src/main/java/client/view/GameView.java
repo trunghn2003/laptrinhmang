@@ -162,7 +162,7 @@ public class GameView {
         root.setBottom(bottomBox);
     }
 
-    private void showGameOverScreen() {
+    public void showGameOverScreen() {
         // Tạo một Label hiển thị điểm số cuối cùng
         Label gameOverLabel = new Label("Game Over\nTotal Score: " + gameController.getTotalScore());
         gameOverLabel.setStyle("-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: green;");
@@ -242,9 +242,10 @@ public class GameView {
                         showColorsFromServer();
 //                        startTimer();
                     });
+
                     pause.play();
                 } else {
-                    showGameOverScreen();
+                    showWaitingMessage();
                     roundCnt = 0;
                 }
             });
@@ -253,6 +254,12 @@ public class GameView {
             showAlert(Alert.AlertType.WARNING, "Please select exactly 3 colors.");
         }
     }
+
+    public void showWaitingMessage() {
+        Label waitingLabel = new Label("Waiting for opponent to finish...");
+        root.setCenter(waitingLabel); // Temporarily replace the center of the root with the waiting message
+    }
+
 
     private void showRoundScoreScreen() {
         Label roundScoreLabel = new Label("Round Score: " + gameController.getScore());
