@@ -232,13 +232,14 @@ public class GameView {
             gameController.sendColors(colors);
             selectedColors.clear();
             roundCnt += 1;
-            updateScore();
+//            updateScore();
 
             // Add a pause after flashing to display the score screen
             PauseTransition pauseAfterFlash = new PauseTransition(Duration.seconds(1.5));
             pauseAfterFlash.setOnFinished(event -> {
                 if (roundCnt <= 4) {
                     showRoundScoreScreen();  // Method to show score between rounds
+                    updateScore();
                     PauseTransition pause = new PauseTransition(Duration.seconds(2));
                     pause.setOnFinished(e -> {
                         showColorsFromServer();
@@ -321,8 +322,8 @@ public class GameView {
                         timeRemaining--;
                         timerLabel.setText(String.valueOf(timeRemaining));
                     } else {
-                        timer.stop(); // Dừng timer
-                        timer = null; // Xóa timer để tạo timer mới ở lần tiếp theo
+//                        timer.stop(); // Dừng timer
+//                        timer = null; // Xóa timer để tạo timer mới ở lần tiếp theo
                         handleSubmitButton(); // Tự động nộp khi hết thời gian
                     }
                 })
