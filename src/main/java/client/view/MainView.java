@@ -235,4 +235,7 @@ public class MainView extends Application {
             chatArea.appendText(senderUsername + ": " + chatContent + "\n");
         }
     }
+    public Stage getStage() {
+        return (Stage) playButton.getScene().getWindow();
+    }
 }
