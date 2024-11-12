@@ -27,6 +27,7 @@ public class GameView {
     private Label timerLabel;
     private int timeRemaining = 30;
     private Timeline timer;
+    private FriendsView friendsView;
 
     private Stage stage;
     private BorderPane root; // Root pane to switch content
@@ -175,8 +176,17 @@ public class GameView {
         root.setCenter(gameOverBox);
 
         // Thêm nút quay lại hoặc kết thúc trò chơi
-        Button restartButton = new Button("Restart Game");
-//        restartButton.setOnAction(e -> restartGame());
+        Button restartButton = new Button("Back to Friends");
+        restartButton.setOnAction(e -> {
+            // Close GameView stage
+            stage.close();
+
+//            // Show FriendView
+//            FriendsView friendsView = new FriendsView(this.gameController.getClientControl());
+//            Stage friendsStage = friendsView.getStage();
+//            friendsStage.show();
+        });
+
         VBox buttonBox = new VBox(restartButton);
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.setSpacing(10);
