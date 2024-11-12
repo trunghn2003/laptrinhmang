@@ -184,9 +184,13 @@ public class ClientHandler implements Runnable, IClientHandler {
                     else if (message.startsWith(Constants.ACTION_EXIT_MID_GAME)){
                         exitMidGame();
                     }
+                    else if (message.startsWith(Constants.ACTION_FINISH_GAME)){
+                        sendMessage(Constants.RESPONSE_FINISH_GAME);
+                    }
                     if (message.startsWith(Constants.ACTION_CHAT_MESSAGE + ":")) {
                         handleChatMessage(message);
                     }
+
                     else {
                         serverView.showMessage("Received unknown message: " + message);
                     }
@@ -382,8 +386,9 @@ public class ClientHandler implements Runnable, IClientHandler {
     }
 
     public void sendResultToClient(String message) {
+        System.out.println("Server received color: " + message);
         // Xử lý kết quả từ client
-        String result = message.split(":")[1];
+        String result = (message.split(":").length > 1) ? message.split(":")[1] : "";
         ArrayList<String> resultColors = new ArrayList<>(Arrays.asList(result.split(",")));
         String resultChecking = checkColors(resultColors);
         boolean check = Boolean.parseBoolean(resultChecking.split(":")[0]);

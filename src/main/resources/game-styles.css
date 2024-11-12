@@ -1,0 +1,12 @@
+@font-face {
+    font-family: "SVN-Bango";
+    src: url("/fonts/SVN-Bango.otf");
+}
+
+.root {
+    -fx-font-family: "SVN-Bango";
+    -fx-background-image: url("/assets/game-bg.png");
+    -fx-background-size: cover; /* This makes the image cover the entire area */
+    -fx-background-position: center; /* Centers the image */
+    -fx-background-repeat: no-repeat; /* Prevents the image from repeating */
+}
