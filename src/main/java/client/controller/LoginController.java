@@ -27,7 +27,7 @@ public class LoginController {
 
             loginView.close();
             // Mở giao diện chính
-            MainView mainView = new MainView(clientControl, result.getData());
+            MainView mainView = new MainView(clientControl);
             Stage mainStage = mainView.getStage();
             mainStage.setX(xPos);
             mainStage.setY(yPos);

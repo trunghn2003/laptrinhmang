@@ -215,7 +215,7 @@ public class ClientControl {
         return oos;
     }
 
-    public ResponseResult getAllUser() {
+    public java.util.List<User> getAllUser() {
 //        User user = new User(username, password, Constants.ACTION_LOGIN);
 //        if (openConnection() == null) {
 //            return new ResponseResult(false, "Cannot connect to server.");
@@ -224,29 +224,13 @@ public class ClientControl {
 //            closeConnection();
 //            return new ResponseResult(false, "Error sending data to server.");
 //        }
+        System.out.println("Get all user");
         Object response = receiveData();
-        if (response instanceof String) {
-            String message = (String) response;
-            if (message.equals(Constants.LOGIN_SUCCESS)) {
-//                currentUser = user;
-//                System.out.println(user);
-                // Nhận danh sách người chơi online
-                Object userList = receiveData();
-                if (userList instanceof java.util.List) {
-                    @SuppressWarnings("unchecked")
-                    java.util.List<User> users = (java.util.List<User>) userList;
-                    ResponseResult result = new ResponseResult(true, "Login successful.");
-                    result.setData(users);
-                    return result;
-                }
-//            } else if (message.startsWith(Constants.LOGIN_FAILURE)) {
-//                String errorMessage = message.split(":", 2)[1];
-//                closeConnection();
-//                return new ResponseResult(false, errorMessage);
-//            }
-            }
-//        closeConnection();
-            return new ResponseResult(false, "Unknown error occurred.");
+        System.out.println("get all user: "+response);
+        if (response instanceof java.util.List) {
+            @SuppressWarnings("unchecked")
+            java.util.List<User> users = (java.util.List<User>) response;
+            return users;
         }
         return null;
     }

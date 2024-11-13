@@ -2,6 +2,7 @@ package client.view;
 
 import client.controller.ClientControl;
 import client.controller.GameController;
+import client.model.ResponseResult;
 import client.utils.Constants;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -29,12 +30,12 @@ public class FriendsView extends Application {
     private HBox inviteButton;
     private Button backButton;
 
-    public FriendsView(ClientControl clientControl, Object userData) {
+    public FriendsView(ClientControl clientControl) {
         this.clientControl = clientControl;
         this.gameController = new GameController(clientControl);
         this.userListModel = FXCollections.observableArrayList();
         setupUI();
-        updateUserList((List<User>) userData);  // Cập nhật danh sách người chơi ban đầu
+        updateUserList();  // Cập nhật danh sách người chơi ban đầu
         listenFromServer();  // Bắt đầu lắng nghe các tin nhắn từ server
     }
 
@@ -117,13 +118,14 @@ public class FriendsView extends Application {
     }
 
     // Cập nhật danh sách người chơi
-    public void updateUserList(List<User> users) {
+    public void updateUserList() {
         userListModel.clear();
-        System.out.println("User list: " + userList);
-        if (userList == null) {
+        List<User> listUser = clientControl.getAllUser();
+        System.out.println("User list: " + listUser);
+        if (listUser == null) {
             return;
         }
-        for (User user : users) {
+        for (User user : listUser) {
             if (!user.getUserName().equals(clientControl.getCurrentUser().getUserName())) {
                 userListModel.add(user);
             }
@@ -172,7 +174,7 @@ public class FriendsView extends Application {
                         // Cập nhật danh sách người chơi online
                         @SuppressWarnings("unchecked")
                         List<User> users = (List<User>) obj;
-                        Platform.runLater(() -> updateUserList(users));
+                        Platform.runLater(() -> updateUserList());
                     } else {
 //                        System.err.println("Unexpected data type received: " + obj.getClass().getName());
                     }
@@ -338,7 +340,7 @@ public class FriendsView extends Application {
         Stage stage = (Stage) backButton.getScene().getWindow();
         double xPos = stage.getX();
         double yPos = stage.getY();
-        MainView mainView = new MainView(clientControl, userListModel);
+        MainView mainView = new MainView(clientControl);
         Stage mainStage = mainView.getStage();
         mainStage.setX(xPos);
         mainStage.setY(yPos);

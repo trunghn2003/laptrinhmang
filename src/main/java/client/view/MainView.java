@@ -28,11 +28,11 @@ public class MainView extends Application {
     private ListView<User> userList;
     private Button playButton;
 
-    public MainView(ClientControl clientControl, Object userData) {
+    public MainView(ClientControl clientControl) {
         this.clientControl = clientControl;
         this.gameController = new GameController(clientControl);
         this.userListModel = FXCollections.observableArrayList();
-        updateUserList((List<User>) userData);
+        updateUserList(clientControl.getAllUser());
         setupUI();
     }
 
@@ -218,7 +218,7 @@ public class MainView extends Application {
         double xPos = stage.getX();
         double yPos = stage.getY();
         stage.hide();
-        FriendsView friendsView = new FriendsView(clientControl, userListModel);
+        FriendsView friendsView = new FriendsView(clientControl);
         Stage friendsStage = friendsView.getStage();
         friendsStage.setX(xPos);
         friendsStage.setY(yPos);
