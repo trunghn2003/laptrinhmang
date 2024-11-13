@@ -214,6 +214,42 @@ public class ClientControl {
     public ObjectOutputStream getObjectOutputStream() {
         return oos;
     }
+
+    public ResponseResult getAllUser() {
+//        User user = new User(username, password, Constants.ACTION_LOGIN);
+//        if (openConnection() == null) {
+//            return new ResponseResult(false, "Cannot connect to server.");
+//        }
+//        if (!sendUser(user)) {
+//            closeConnection();
+//            return new ResponseResult(false, "Error sending data to server.");
+//        }
+        Object response = receiveData();
+        if (response instanceof String) {
+            String message = (String) response;
+            if (message.equals(Constants.LOGIN_SUCCESS)) {
+//                currentUser = user;
+//                System.out.println(user);
+                // Nhận danh sách người chơi online
+                Object userList = receiveData();
+                if (userList instanceof java.util.List) {
+                    @SuppressWarnings("unchecked")
+                    java.util.List<User> users = (java.util.List<User>) userList;
+                    ResponseResult result = new ResponseResult(true, "Login successful.");
+                    result.setData(users);
+                    return result;
+                }
+//            } else if (message.startsWith(Constants.LOGIN_FAILURE)) {
+//                String errorMessage = message.split(":", 2)[1];
+//                closeConnection();
+//                return new ResponseResult(false, errorMessage);
+//            }
+            }
+//        closeConnection();
+            return new ResponseResult(false, "Unknown error occurred.");
+        }
+        return null;
+    }
 }
 
 
