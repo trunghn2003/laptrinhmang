@@ -11,9 +11,11 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import server.model.User;
 
@@ -24,7 +26,7 @@ public class FriendsView extends Application {
     private GameController gameController;
     private ObservableList<User> userListModel;
     private ListView<User> userList;  // Sử dụng ListView thay vì JList
-    private Button inviteButton;
+    private HBox inviteButton;
     private Button backButton;
 
     public FriendsView(ClientControl clientControl, Object userData) {
@@ -65,22 +67,25 @@ public class FriendsView extends Application {
         vbox.setId("centerPanel");
 
         // Tạo nút mời
-        inviteButton = new Button("Invite to Play");
-        inviteButton.setOnAction(e -> {
-            User selectedUser = userList.getSelectionModel().getSelectedItem();  // Lấy đối tượng User
-            if (selectedUser != null) {
-                sendInvite(selectedUser.getUserName());  // Gửi lời mời tới người chơi được chọn
-            } else {
-                showAlert("Please select a player to invite.");
-            }
-        });
+        inviteButton = new HBox(10);
+        inviteButton.setMinHeight(20);
+
+        // Load the back icon image
+        Image backIcon = new Image("/assets/back_btn.png"); // Adjust the path if necessary
+        ImageView backIconView = new ImageView(backIcon);
+        backIconView.setFitWidth(40); // Set the desired width for the icon
+        backIconView.setFitHeight(40); // Set the desired height for the icon
 
         // Tạo nút "Back"
-        backButton = new Button("Back");
+        backButton = new Button();
+        backButton.setGraphic(backIconView);
+        // không border
+        backButton.setStyle("-fx-background-color: transparent; -fx-border-color: transparent;");
         backButton.setOnAction(e -> {
             // Xử lý sự kiện khi nhấn nút "Back"
             backToMainView();
         });
+
 
         // Tạo HBox để chứa nút "Back"
         HBox topPane = new HBox();
@@ -101,7 +106,7 @@ public class FriendsView extends Application {
         BorderPane root = new BorderPane();
         root.setTop(topPane);
         root.setCenter(centerPane); // Đặt centerPane vào giữa BorderPane
-//        root.setBottom(inviteButton);
+        root.setBottom(inviteButton);
         BorderPane.setAlignment(inviteButton, Pos.CENTER); // Căn giữa nút mời trong BorderPane
 
         // Tạo Scene và hiển thị
@@ -114,6 +119,10 @@ public class FriendsView extends Application {
     // Cập nhật danh sách người chơi
     public void updateUserList(List<User> users) {
         userListModel.clear();
+        System.out.println("User list: " + userList);
+        if (userList == null) {
+            return;
+        }
         for (User user : users) {
             if (!user.getUserName().equals(clientControl.getCurrentUser().getUserName())) {
                 userListModel.add(user);
@@ -122,7 +131,7 @@ public class FriendsView extends Application {
     }
 
     // Gửi lời mời chơi
-    private void sendInvite(String recipient) {
+    public void sendInvite(String recipient) {
         String message = Constants.ACTION_INVITE + ":" + recipient;
         clientControl.sendMessage(message);
         showAlert("Invitation sent to " + recipient + "!");
@@ -176,7 +185,7 @@ public class FriendsView extends Application {
 
 
     // Xử lý khi nhận được lời mời chơi từ người khác
-    private void handleInvite(String message) {
+    public void handleInvite(String message) {
         String[] parts = message.split(":");
         if (parts.length >= 3) {
             String recipient = parts[1]; // Tên người nhận (người gửi phản hồi)
@@ -265,11 +274,11 @@ public class FriendsView extends Application {
                 username.setStyle("-fx-text-fill: white;"); // Set text color
 
                 // Tạo 1 label để hiển thị trạng thái online
-                String statusText = user.getStatus() == 1 ? "Online" : user.getStatus() == 2 ? "Playing" : "Offline";
+                String statusText = user.getStatus() == 1 ? "● Online" : user.getStatus() == 2 ? "● Playing" : "● Offline";
                 Label status = new Label(statusText);
                 // Font size
                 status.setId("statusLbl");
-                status.setStyle(user.getStatus() == 1 ? "-fx-text-fill: green;" : user.getStatus() == 2 ? "-fx-text-fill: blue;" : "-fx-text-fill: gray;");
+                status.setStyle(user.getStatus() == 1 ? "-fx-text-fill: green;" : user.getStatus() == 2 ? "-fx-text-fill: yellow;" : "-fx-text-fill: red;");
 
                 VBox userInfo = new VBox();
                 userInfo.getChildren().addAll(username, status);
@@ -284,8 +293,14 @@ public class FriendsView extends Application {
 
                 if (user.getStatus() == 1) {
                     // If status == 1, display Button on the right
+                    // Thêm hiệu ứng DropShadow cho nút
+                    DropShadow buttonShadow = new DropShadow();
+                    buttonShadow.setOffsetY(2.0);
+                    buttonShadow.setColor(Color.web("#A37029"));
+                    buttonShadow.setRadius(1);
+
                     Button actionButton = new Button("Invite");
-                    actionButton.setStyle("-fx-background-color: #E29A36; -fx-text-fill: white;"); // Set style for button
+                    actionButton.setEffect(buttonShadow);
 
                     actionButton.setOnAction(e -> {
                         // Gửi lời mời đến người dùng được chọn

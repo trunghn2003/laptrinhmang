@@ -46,5 +46,19 @@
 }
 
 #statusLbl {
-    -fx-font-size: 8px;
+    -fx-font-size: 10px;
+    -fx-font-family: "";
+    -fx-font-weight: bold;
+}
+
+.button {
+    -fx-background-color: #E29A36;
+    -fx-text-fill: white;
+    -fx-padding: 4 10;
+    -fx-background-radius: 25;
+    -fx-font-size: 10px;
+    -fx-border-color: #A37029;
+    -fx-border-width: 2px; /* Độ rộng viền */
+    -fx-border-radius: 25;
+    -fx-transition: background-color 0.5s ease;
 }

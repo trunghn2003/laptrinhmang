@@ -177,26 +177,30 @@ public class GameView {
         // Đặt VBox vào giữa màn hình
         root.setCenter(gameOverBox);
 
-        // Thêm nút quay lại hoặc kết thúc trò chơi
-        Button restartButton = new Button("Back to Friends");
-        restartButton.setOnAction(e -> {
-            // Close GameView stage
+        // Tạo nút "Back to Friends"
+        Button backButton = new Button("Back to Friends");
+        backButton.setOnAction(e -> {
+            // Đóng GameView stage
             stage.close();
             Stage friendsStage = friendsView.getStage();
             friendsStage.show();
-//            // Show FriendView
-//            FriendsView friendsView = new FriendsView(this.gameController.getClientControl());
-//            Stage friendsStage = friendsView.getStage();
-//            friendsStage.show();
         });
 
-        VBox buttonBox = new VBox(restartButton);
+        // Tạo nút "Replay"
+        Button replayButton = new Button("Replay");
+        replayButton.setOnAction(e -> {
+            // Code khởi động lại trò chơi, ví dụ reset các biến game và bắt đầu lại
+            replayGame(); // Giả sử có một phương thức khởi động lại trong gameController
+        });
+
+        // Sử dụng HBox để căn hai nút ngang hàng
+        HBox buttonBox = new HBox(10, replayButton, backButton);
         buttonBox.setAlignment(Pos.CENTER);
-        buttonBox.setSpacing(10);
         buttonBox.setPadding(new Insets(10));
 
         root.setBottom(buttonBox);
     }
+
 
 
     private void handleColorButton(Button button) {
@@ -361,5 +365,9 @@ public class GameView {
 
     public String getOpponent() {
         return opponent;
+    }
+
+    public void replayGame() {
+        friendsView.sendInvite(opponent);
     }
 }

@@ -25,7 +25,7 @@ public class MainView extends Application {
     private ClientControl clientControl;
     private GameController gameController;
     private ObservableList<User> userListModel;
-    private ListView<User> userList;  // Sử dụng ListView thay vì JList
+    private ListView<User> userList;
     private Button playButton;
 
     public MainView(ClientControl clientControl, Object userData) {
