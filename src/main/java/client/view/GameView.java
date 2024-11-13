@@ -41,7 +41,7 @@ public class GameView {
         this.friendsView = friendsView;
         this.selectedColors = new ArrayList<>();
         setupUI();
-        showColorsFromServer();
+//        showColorsFromServer();
 //        startTimer();
     }
 

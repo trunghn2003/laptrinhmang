@@ -55,7 +55,7 @@ public class GameController {
         colors.clear();
         colors.addAll(receivedColors);
 
-        if(currentRound == 0 && this.gameView.cnt <= 2) {
+        if(currentRound == 0 && this.gameView.cnt <= 1) {
             this.gameView.cnt +=1 ;
             this.gameView = new GameView(this, this.friendsView);
             gameView.setOpponent(opponent);
