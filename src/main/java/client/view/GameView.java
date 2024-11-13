@@ -34,6 +34,7 @@ public class GameView {
     private Stage stage;
     private BorderPane root; // Root pane to switch content
     private Scene scene; // Main scene
+    public static  int cnt = 0;
 
     public GameView(GameController gameController, FriendsView friendsView) {
         this.gameController = gameController;
