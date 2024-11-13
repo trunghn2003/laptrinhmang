@@ -218,7 +218,7 @@ public class MainView extends Application {
         double xPos = stage.getX();
         double yPos = stage.getY();
         stage.hide();
-        FriendsView friendsView = new FriendsView(clientControl, userListModel);
+        FriendsView friendsView = new FriendsView(clientControl,userListModel);
         Stage friendsStage = friendsView.getStage();
         friendsStage.setX(xPos);
         friendsStage.setY(yPos);

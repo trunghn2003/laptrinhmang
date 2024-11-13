@@ -2,6 +2,7 @@ package client.view;
 
 import client.controller.ClientControl;
 import client.controller.GameController;
+import client.model.ResponseResult;
 import client.utils.Constants;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -119,12 +120,8 @@ public class FriendsView extends Application {
     // Cập nhật danh sách người chơi
     public void updateUserList(List<User> users) {
         userListModel.clear();
-        System.out.println("User list: " + userList);
-        if (userList == null) {
-            return;
-        }
         for (User user : users) {
-            if (!user.getUserName().equals(clientControl.getCurrentUser().getUserName())) {
+            if(!user.getUserName().equals(clientControl.getCurrentUser().getUserName())) {
                 userListModel.add(user);
             }
         }
