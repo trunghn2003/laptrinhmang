@@ -8,6 +8,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -52,7 +54,7 @@ public class GameView {
         scene.getStylesheets().add(getClass().getResource("/game-styles.css").toExternalForm());
 
         opponentLabel = new Label("Opponent: ");
-        scoreLabel = new Label("Score: 0");
+        scoreLabel = new Label("0");
 
         stage.show();
 
@@ -103,21 +105,54 @@ public class GameView {
         timeRemaining = 30; // Reset đồng hồ về 30 giây
         timerLabel.setText(String.valueOf(timeRemaining));
 
-        // Tạo một VBox cho phần trên, bao gồm opponentLabel và timerLabel
-        HBox topBox = new HBox(10, opponentLabel, timerLabel);
-        topBox.setAlignment(Pos.CENTER_RIGHT);
+        // Tạo hình ảnh biểu tượng và căn chỉnh tuyệt đối
+        Image iconImage = new Image("/assets/coin.png"); // Đường dẫn tới ảnh
+        ImageView iconView = new ImageView(iconImage);
+        iconView.setFitWidth(45); // Chiều rộng hình ảnh
+        iconView.setFitHeight(45); // Chiều cao hình ảnh
+        iconView.setTranslateX(-15); // Điều chỉnh vị trí ngang của hình ảnh
 
+        // Tạo scoreLabel cho điểm số
+        scoreLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white;");
+        scoreLabel.setAlignment(Pos.CENTER);
+        scoreLabel.setTranslateX(20);
 
-        // Các bước còn lại trong setupMainUI
+        // Sử dụng StackPane để chứa iconView và scoreLabel
+        StackPane scorePane = new StackPane();
+        scorePane.getChildren().addAll(iconView, scoreLabel);
+        StackPane.setAlignment(iconView, Pos.CENTER_LEFT);
+        StackPane.setAlignment(scoreLabel, Pos.CENTER);
+
+        // Tạo HBox cho scorePane với màu nền và căn chỉnh
+        HBox scoreBox = new HBox(scorePane);
+        scoreBox.setAlignment(Pos.CENTER);
+        scoreBox.setPadding(new Insets(0, 20, 0, 20));
+        scoreBox.setStyle("-fx-background-color: #453221;-fx-background-radius: 25;");
+        scoreBox.setMinWidth(100);
+
+        // Tạo HBox để chứa scoreBox và timerLabel
+        HBox topBox = new HBox(scoreBox, timerLabel);
+        topBox.setAlignment(Pos.CENTER);
+        topBox.setSpacing(20); // Khoảng cách giữa scoreBox và timerLabel
+        topBox.setPadding(new Insets(10));
+
+        // Bỏ MaxWidth để scoreBox vừa với nội dung
+        HBox.setHgrow(timerLabel, Priority.ALWAYS);
+        timerLabel.setMaxWidth(Double.MAX_VALUE);
+
+        // Căn chỉnh scoreBox sang trái và timerLabel sang phải trong topBox
+        scoreBox.setAlignment(Pos.CENTER_LEFT);
+        timerLabel.setAlignment(Pos.CENTER_RIGHT);
+
+        // Đặt topBox vào phần trên của root
+        root.setTop(topBox);
+
+        // Các phần còn lại trong setupMainUI
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(20));
         gridPane.setVgap(20); // Tăng khoảng cách giữa các hàng
         gridPane.setHgap(20); // Tăng khoảng cách giữa các cột
         gridPane.setAlignment(Pos.CENTER); // Căn giữa nội dung trong GridPane
-
-        // Đặt opponentLabel và moveButton vào HBox
-        topBox.setAlignment(Pos.CENTER_RIGHT); // Căn phải cho topBox
-        topBox.setPadding(new Insets(10));
 
         int row = 0;
         int col = 0;
@@ -141,18 +176,6 @@ public class GameView {
         submitButton = new Button("Submit");
         submitButton.setOnAction(e -> handleSubmitButton());
 
-        // Tạo HBox cho scoreLabel và căn trái
-        HBox scoreBox = new HBox(scoreLabel);
-        scoreBox.setAlignment(Pos.CENTER_LEFT);
-        scoreBox.setPadding(new Insets(10));
-
-        // Tạo VBox cho phần top, bao gồm scoreBox và topBox
-        VBox topContainer = new VBox();
-        topContainer.getChildren().addAll(scoreBox, topBox);
-        topContainer.setAlignment(Pos.CENTER);
-
-        root.setTop(topContainer);
-
         // Đặt gridPane vào trung tâm
         root.setCenter(gridPane);
 
@@ -162,6 +185,10 @@ public class GameView {
         bottomBox.setPadding(new Insets(10));
         root.setBottom(bottomBox);
     }
+
+
+
+
 
     public void showGameOverScreen() {
         // Tạo một Label hiển thị điểm số cuối cùng
@@ -360,7 +387,7 @@ public class GameView {
 
     public void updateScore() {
         int score = gameController.getTotalScore();
-        scoreLabel.setText("Score: " + score);
+        scoreLabel.setText(String.valueOf(score));
     }
 
     public String getOpponent() {

@@ -68,7 +68,7 @@ public class MainView extends Application {
 
         DropShadow ds = new DropShadow();
         ds.setOffsetY(2.0);
-        ds.setColor(Color.web("#9B6B27"));
+        ds.setColor(Color.web("#A37029"));
         ds.setRadius(0);
         text.setEffect(ds);
 
@@ -77,10 +77,10 @@ public class MainView extends Application {
         playButton.setGraphic(text);
         playButton.setPrefWidth(250);
         playButton.setPrefHeight(60);
-        // Thêm hiệu ứng DropShadow cho nút
+        // Thêm hiệu ứng DropShadow cho nútq
         DropShadow buttonShadow = new DropShadow();
         buttonShadow.setOffsetY(6.0);
-        buttonShadow.setColor(Color.web("#9B6B27"));
+        buttonShadow.setColor(Color.web("#A37029"));
         buttonShadow.setRadius(1);
         playButton.setEffect(buttonShadow);
 
