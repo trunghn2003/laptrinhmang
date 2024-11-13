@@ -257,7 +257,7 @@ public class GameView {
                     pause.play();
                 } else {
                     String checkRes = gameController.getMatchResult();
-                    System.out.println("Check res: " + Objects.equals(checkRes, ""));
+                    System.out.println("Check res: " + checkRes);
                     if (Objects.equals(checkRes, "")) {
                         showWaitingMessage();
                     }
@@ -318,6 +318,8 @@ public class GameView {
 
 
     private void startTimer() {
+        System.out.println("hallo my voice from the deepnesttttttttttttttttttttttttttttttttttttttt");
+
         // Nếu đã tồn tại timer từ trước, hãy dừng nó trước khi tạo timer mới
         if (timer != null) {
             timer.stop();
@@ -334,6 +336,7 @@ public class GameView {
                         timeRemaining--;
                         timerLabel.setText(String.valueOf(timeRemaining));
                     } else {
+
 //                        timer.stop(); // Dừng timer
 //                        timer = null; // Xóa timer để tạo timer mới ở lần tiếp theo
                         handleSubmitButton(); // Tự động nộp khi hết thời gian
@@ -369,5 +372,10 @@ public class GameView {
 
     public void replayGame() {
         friendsView.sendInvite(opponent);
+    }
+
+    public void close() {
+        Stage stage = (Stage) root.getScene().getWindow();
+        stage.close();
     }
 }

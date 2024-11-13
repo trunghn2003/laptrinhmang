@@ -23,7 +23,13 @@ public class GameController {
     }
 
     public void startGame(String opponent, FriendsView friendsView) {
+
+        handleEndGame();
+
         this.friendsView = friendsView;
+        if(this.gameView != null) {
+            this.gameView.close();
+        }
         clientControl.sendMessage(Constants.ACTION_START_GAME);
         this.opponent = opponent;
     }
