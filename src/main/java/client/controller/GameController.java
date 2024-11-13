@@ -1,6 +1,7 @@
 package client.controller;
 
 import client.utils.Constants;
+import client.view.FriendsView;
 import client.view.GameView;
 
 import java.util.ArrayList;
@@ -15,12 +16,14 @@ public class GameController {
     private int score = 0;
     private int totalScore = 0;
     private String opponent;
+    private FriendsView friendsView;
 
     public GameController(ClientControl clientControl) {
         this.clientControl = clientControl;
     }
 
-    public void startGame(String opponent) {
+    public void startGame(String opponent, FriendsView friendsView) {
+        this.friendsView = friendsView;
         clientControl.sendMessage(Constants.ACTION_START_GAME);
         this.opponent = opponent;
     }
@@ -52,7 +55,7 @@ public class GameController {
         colors.addAll(receivedColors);
 
         if(currentRound == 0) {
-            this.gameView = new GameView(this);
+            this.gameView = new GameView(this, this.friendsView);
             gameView.setOpponent(opponent);
         }
 

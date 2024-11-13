@@ -33,8 +33,9 @@ public class GameView {
     private BorderPane root; // Root pane to switch content
     private Scene scene; // Main scene
 
-    public GameView(GameController gameController) {
+    public GameView(GameController gameController, FriendsView friendsView) {
         this.gameController = gameController;
+        this.friendsView = friendsView;
         this.selectedColors = new ArrayList<>();
         setupUI();
         showColorsFromServer();
@@ -181,7 +182,8 @@ public class GameView {
         restartButton.setOnAction(e -> {
             // Close GameView stage
             stage.close();
-
+            Stage friendsStage = friendsView.getStage();
+            friendsStage.show();
 //            // Show FriendView
 //            FriendsView friendsView = new FriendsView(this.gameController.getClientControl());
 //            Stage friendsStage = friendsView.getStage();

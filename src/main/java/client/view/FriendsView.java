@@ -208,7 +208,7 @@ public class FriendsView extends Application {
         String response = parts[2];
         if (response.equals("ACCEPT")) {
             showAlert(recipient + " has accepted your invitation. The game will start!");
-            gameController.startGame(recipient);
+            gameController.startGame(recipient, this);
         } else {
             showAlert(recipient + " has declined your invitation.");
         }
@@ -218,7 +218,7 @@ public class FriendsView extends Application {
     private void handleGameStart(String message) {
         String opponent = message.split(":")[1];
         showAlert("Starting game with " + opponent + "!");
-        gameController.startGame(opponent);
+        gameController.startGame(opponent, this);
         // ẩn FriendsView
         Stage stage = (Stage) backButton.getScene().getWindow();
         stage.hide();
