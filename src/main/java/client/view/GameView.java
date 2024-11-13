@@ -54,6 +54,11 @@ public class GameView {
         stage.setScene(scene);
         scene.getStylesheets().add(getClass().getResource("/game-styles.css").toExternalForm());
 
+        stage.setOnCloseRequest(event -> {
+            gameController.endMidGame();
+            event.consume();
+        });
+
         opponentLabel = new Label("Opponent: ");
         scoreLabel = new Label("0");
 

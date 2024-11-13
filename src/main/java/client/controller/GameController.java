@@ -88,6 +88,7 @@ public class GameController {
         ArrayList<String> parts = new ArrayList<>(Arrays.asList(message.split(":")));
         this.matchResult = parts.get(1);
         clientControl.sendMessage(Constants.ACTION_FINISH_GAME);
+
     }
 
     public void handleEndGame() {
