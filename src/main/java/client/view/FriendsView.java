@@ -30,12 +30,12 @@ public class FriendsView extends Application {
     private HBox inviteButton;
     private Button backButton;
 
-    public FriendsView(ClientControl clientControl) {
+    public FriendsView(ClientControl clientControl, Object userData) {
         this.clientControl = clientControl;
         this.gameController = new GameController(clientControl);
         this.userListModel = FXCollections.observableArrayList();
         setupUI();
-        updateUserList();  // Cập nhật danh sách người chơi ban đầu
+        updateUserList((List<User>) userData);  // Cập nhật danh sách người chơi ban đầu
         listenFromServer();  // Bắt đầu lắng nghe các tin nhắn từ server
     }
 
@@ -118,15 +118,10 @@ public class FriendsView extends Application {
     }
 
     // Cập nhật danh sách người chơi
-    public void updateUserList() {
+    public void updateUserList(List<User> users) {
         userListModel.clear();
-        List<User> listUser = clientControl.getAllUser();
-        System.out.println("User list: " + listUser);
-        if (listUser == null) {
-            return;
-        }
-        for (User user : listUser) {
-            if (!user.getUserName().equals(clientControl.getCurrentUser().getUserName())) {
+        for (User user : users) {
+            if(!user.getUserName().equals(clientControl.getCurrentUser().getUserName())) {
                 userListModel.add(user);
             }
         }
@@ -174,7 +169,7 @@ public class FriendsView extends Application {
                         // Cập nhật danh sách người chơi online
                         @SuppressWarnings("unchecked")
                         List<User> users = (List<User>) obj;
-                        Platform.runLater(() -> updateUserList());
+                        Platform.runLater(() -> updateUserList(users));
                     } else {
 //                        System.err.println("Unexpected data type received: " + obj.getClass().getName());
                     }
@@ -340,7 +335,7 @@ public class FriendsView extends Application {
         Stage stage = (Stage) backButton.getScene().getWindow();
         double xPos = stage.getX();
         double yPos = stage.getY();
-        MainView mainView = new MainView(clientControl);
+        MainView mainView = new MainView(clientControl, userListModel);
         Stage mainStage = mainView.getStage();
         mainStage.setX(xPos);
         mainStage.setY(yPos);

@@ -215,25 +215,25 @@ public class ClientControl {
         return oos;
     }
 
-    public java.util.List<User> getAllUser() {
-//        User user = new User(username, password, Constants.ACTION_LOGIN);
-//        if (openConnection() == null) {
-//            return new ResponseResult(false, "Cannot connect to server.");
+//    public java.util.List<User> getAllUser() {
+////        User user = new User(username, password, Constants.ACTION_LOGIN);
+////        if (openConnection() == null) {
+////            return new ResponseResult(false, "Cannot connect to server.");
+////        }
+////        if (!sendUser(user)) {
+////            closeConnection();
+////            return new ResponseResult(false, "Error sending data to server.");
+////        }
+//        System.out.println("Get all user");
+//        Object response = receiveData();
+//        System.out.println("get all user: "+response);
+//        if (response instanceof java.util.List) {
+//            @SuppressWarnings("unchecked")
+//            java.util.List<User> users = (java.util.List<User>) response;
+//            return users;
 //        }
-//        if (!sendUser(user)) {
-//            closeConnection();
-//            return new ResponseResult(false, "Error sending data to server.");
-//        }
-        System.out.println("Get all user");
-        Object response = receiveData();
-        System.out.println("get all user: "+response);
-        if (response instanceof java.util.List) {
-            @SuppressWarnings("unchecked")
-            java.util.List<User> users = (java.util.List<User>) response;
-            return users;
-        }
-        return null;
-    }
+//        return null;
+//    }
 }
 
 

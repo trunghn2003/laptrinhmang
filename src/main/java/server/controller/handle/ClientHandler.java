@@ -408,7 +408,7 @@ public class ClientHandler implements Runnable, IClientHandler {
     public void resetStatus() {
         // Cập nhật trạng thái người dùng thành online
         userController.updateUserStatus(user.getUserName(), Constants.STATUS_ONLINE);
-        opponentUser.setStatus(Constants.STATUS_ONLINE);
+        userController.updateUserStatus(opponentUser.getUserName(), Constants.STATUS_ONLINE);
         opponentClient.gameStartedWithOpponent = false;
         gameStartedWithOpponent = false;
 
@@ -465,6 +465,8 @@ public class ClientHandler implements Runnable, IClientHandler {
                 //Cập nhật trạn thái người chơi
                 resetStatus();
 
+                broadcastOnlineUsers();
+
             } else if (this.score < opponentClient.getScore()) {
                 //Gửi kết quả trận đấu cho người chơi
                 sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "LOSE");
@@ -477,6 +479,7 @@ public class ClientHandler implements Runnable, IClientHandler {
                 //Cập nhật trạn thái người chơi
                 resetStatus();
 
+                broadcastOnlineUsers();
             } else {
                 //Gửi kết quả trận đấu cho người chơi
                 sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "DRAW");
@@ -489,6 +492,7 @@ public class ClientHandler implements Runnable, IClientHandler {
                 //Cập nhật trạn thái người chơi
                 resetStatus();
 
+                broadcastOnlineUsers();
             }
         }
     }
