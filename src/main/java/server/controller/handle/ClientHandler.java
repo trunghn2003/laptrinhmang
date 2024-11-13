@@ -392,7 +392,7 @@ public class ClientHandler implements Runnable, IClientHandler {
         this.score+=scoreAchieve;
 
         // Nếu chưa đủ 5 rounds sẽ thực hiện chơi tiếp
-        if(this.round == 5) {
+        if(this.round == 2) {
             actionEndGame();
         } else {
             sendColorsToClient();
