@@ -27,6 +27,7 @@ public class MainView extends Application {
     private ObservableList<User> userListModel;
     private ListView<User> userList;
     private Button playButton;
+    private Button settingsButton;
 
     public MainView(ClientControl clientControl, Object userData) {
         this.clientControl = clientControl;
@@ -43,13 +44,55 @@ public class MainView extends Application {
 
         BorderPane root = new BorderPane();
 
+        // Tạo nút cài đặt
+        settingsButton = new Button();
+        ImageView settingsIcon = new ImageView(new Image("/assets/setting-btn.png"));
+        settingsIcon.setFitWidth(35);
+        settingsIcon.setFitHeight(35);
+        settingsButton.setGraphic(settingsIcon);
+        settingsButton.getStyleClass().add("settings-button");
+
+        // Tạo container cho nút cài đặt
+        StackPane topRight = new StackPane(settingsButton);
+        StackPane.setAlignment(settingsButton, Pos.BOTTOM_RIGHT);
+        StackPane.setMargin(settingsButton, new Insets(10, 10, 0, 0));
+
+        // Thêm style cho nút
+        settingsButton.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-cursor: hand;"
+        );
+
+        // Thêm hiệu ứng hover
+        settingsButton.setOnMouseEntered(e -> {
+            settingsButton.setStyle(
+                    "-fx-background-color: rgba(255,255,255,0.1);" +
+                            "-fx-cursor: hand;"
+            );
+        });
+
+        settingsButton.setOnMouseExited(e -> {
+            settingsButton.setStyle(
+                    "-fx-background-color: transparent;" +
+                            "-fx-cursor: hand;"
+            );
+        });
+
+        // Xử lý sự kiện click
+        settingsButton.setOnAction(e -> {
+            openSettings();
+        });
+
+        // Đặt nút cài đặt vào vị trí top của BorderPane
+        root.setTop(topRight);
+
         // Cột 1 và 2 gộp thành 1
         VBox leftColumn = new VBox();
-        leftColumn.setSpacing(20); // Khoảng cách giữa các phần tử
+        leftColumn.setSpacing(20);
         leftColumn.setAlignment(javafx.geometry.Pos.CENTER);
 
         // Thêm logo
-        Image logoImage = new Image("/assets/home-logo.png"); // Đường dẫn đến hình ảnh logo
+        Image logoImage = new Image("/assets/home-logo.png");
         ImageView logo = new ImageView(logoImage);
         logo.setFitWidth(420);
         logo.setPreserveRatio(true);
@@ -64,8 +107,8 @@ public class MainView extends Application {
         text.setStyle("-fx-font-size: 18px;");
 
         // Thêm stroke cho Text
-        text.setStroke(Color.web("#9B6B27")); // Đặt màu stroke (ví dụ: màu đen)
-        text.setStrokeWidth(1); // Đặt độ rộng stroke (ví dụ: 1 pixel)
+        text.setStroke(Color.web("#9B6B27"));
+        text.setStrokeWidth(1);
 
         DropShadow ds = new DropShadow();
         ds.setOffsetY(2.0);
@@ -78,7 +121,7 @@ public class MainView extends Application {
         playButton.setGraphic(text);
         playButton.setPrefWidth(250);
         playButton.setPrefHeight(60);
-        // Thêm hiệu ứng DropShadow cho nútq
+
         DropShadow buttonShadow = new DropShadow();
         buttonShadow.setOffsetY(6.0);
         buttonShadow.setColor(Color.web("#A37029"));
@@ -93,17 +136,15 @@ public class MainView extends Application {
 
         // Cột 3
         VBox rightColumn = new VBox();
-        rightColumn.setSpacing(20); // Khoảng cách giữa các phần tử
-//        rightColumn.setAlignment(Pos.CENTER);
+        rightColumn.setSpacing(20);
 
-        // Thêm hình ảnh từ asset
         Image leaderboardHeader = new Image("/assets/leaderboard.png");
         ImageView leaderboardHeaderImage = new ImageView(leaderboardHeader);
         leaderboardHeaderImage.setFitWidth(270);
         leaderboardHeaderImage.setPreserveRatio(true);
 
         userList = new ListView<>(userListModel);
-        userList.setCellFactory(param -> new UserListCellRenderer()); // Sử dụng renderer tùy chỉnh
+        userList.setCellFactory(param -> new UserListCellRenderer());
         userList.setPrefWidth(300);
         userList.setBackground(new Background(new BackgroundFill(Color.web("#ADD8E6"), CornerRadii.EMPTY, Insets.EMPTY)));
 
@@ -111,10 +152,7 @@ public class MainView extends Application {
         rightColumn.setStyle("-fx-background-color: #453221;");
         rightColumn.setPrefWidth(300);
         rightColumn.setPadding(new Insets(30, 20, 10, 20));
-
-        //add id cho rightColumn
         rightColumn.setId("rightColumn");
-
 
         // Thêm các cột vào root
         HBox hbox = new HBox();
@@ -125,15 +163,20 @@ public class MainView extends Application {
         HBox.setHgrow(rightSpacer, Priority.ALWAYS);
         HBox.setHgrow(centerSpacer, Priority.ALWAYS);
 
-        hbox.getChildren().addAll( leftColumn,centerSpacer, rightColumn); // Thêm các phần tử vào HBox
-        hbox.setSpacing(20); // Khoảng cách giữa các phần tử
+        hbox.getChildren().addAll(leftColumn, centerSpacer, rightColumn);
+        hbox.setSpacing(20);
         hbox.setStyle("-fx-padding: 20;");
-        root.setCenter(hbox); // Đặt HBox vào giữa
+        root.setCenter(hbox);
 
         Scene scene = new Scene(root, 800, 600);
         scene.getStylesheets().add(getClass().getResource("/home-styles.css").toExternalForm());
         stage.setScene(scene);
         stage.show();
+    }
+
+    private void openSettings() {
+        SettingsModal settingsModal = new SettingsModal((Stage) playButton.getScene().getWindow());
+        settingsModal.show();
     }
 
     // Hiển thị thông báo

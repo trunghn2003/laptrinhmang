@@ -11,6 +11,18 @@
     -fx-background-repeat: no-repeat; /* Prevents the image from repeating */
 }
 
+.settings-button {
+    -fx-border-width: 0px;
+    -fx-min-width: 40px;
+    -fx-min-height: 40px;
+    -fx-max-width: 40px;
+    -fx-max-height: 40px;
+}
+
+.settings-button:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 0);
+}
+
 .button {
     -fx-background-color: #E29A36;
     -fx-text-fill: white;
@@ -59,4 +71,21 @@
     -fx-border-color: transparent;
     -fx-border-style: none;
     -fx-padding: 0;
+}
+
+.settings-modal {
+    -fx-background-color: #453221;
+    -fx-background-radius: 10;
+}
+
+.settings-button {
+    -fx-background-radius: 30;
+    -fx-min-width: 40px;
+    -fx-min-height: 40px;
+    -fx-max-width: 40px;
+    -fx-max-height: 40px;
+}
+
+.settings-button:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 0);
 }
