@@ -176,8 +176,6 @@ public class ClientHandler implements Runnable, IClientHandler {
                         sendResultToClient(message);
                     } else if (message.startsWith(Constants.ACTION_EXIT_MID_GAME)){
                         exitMidGame();
-                    } else if (message.startsWith(Constants.ACTION_FINISH_GAME)){
-                        sendMessage(Constants.RESPONSE_FINISH_GAME);
                     } else {
                         serverView.showMessage("Received unknown message: " + message);
                     }
