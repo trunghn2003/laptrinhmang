@@ -224,13 +224,13 @@ public class GameView {
         Label gameOverLabel = new Label("Game Over");
         gameOverLabel.setTranslateY(-110);
 
-        Text scoreLabelStroke = new Text("Total Score: " + gameController.getTotalScore());
+        Text scoreLabelStroke = new Text(gameController.getTotalScore() + " - " + gameController.getEnemyScore());
         scoreLabelStroke.setFont(Font.font("SVN-Bango", 26));
         scoreLabelStroke.setFill(Color.web("#714F20"));
         scoreLabelStroke.setStroke(Color.web("#714F20"));
         scoreLabelStroke.setStrokeWidth(6);
 
-        Text scoreLabel = new Text("Total Score: " + gameController.getTotalScore());
+        Text scoreLabel = new Text(gameController.getTotalScore() + " - " + gameController.getEnemyScore());
         scoreLabel.setFont(Font.font("SVN-Bango", 26));
         scoreLabel.setFill(Color.WHITE);
 
