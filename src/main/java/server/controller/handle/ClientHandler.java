@@ -457,19 +457,19 @@ public class ClientHandler implements Runnable, IClientHandler {
             boolean n2 = true;
             if (this.score > opponentClient.getScore()) {
                 //Gửi kết quả trận đấu cho người chơi
-                sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "WIN");
-                this.opponentClient.sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "LOSE");
+                sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "WIN" + ":" + this.opponentClient.getScore());
+                this.opponentClient.sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "LOSE" + ":" + this.score);
 
             } else if (this.score < opponentClient.getScore()) {
                 //Gửi kết quả trận đấu cho người chơi
-                sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "LOSE");
-                this.opponentClient.sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "WIN");
+                sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "LOSE" + ":" + this.opponentClient.getScore());
+                this.opponentClient.sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "WIN" + ":" + this.score);
 
 
             } else {
                 //Gửi kết quả trận đấu cho người chơi
-                sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "DRAW");
-                this.opponentClient.sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "DRAW");
+                sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "DRAW" + ":" + this.opponentClient.getScore());
+                this.opponentClient.sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "DRAW" + ":" + this.score);
 
             }
             if(n1){

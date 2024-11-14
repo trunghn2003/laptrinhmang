@@ -27,6 +27,7 @@ public class FriendsView extends Application {
     private GameController gameController;
     private ObservableList<User> userListModel;
     private ListView<User> userList;  // Sử dụng ListView thay vì JList
+    private List<User> fullCurrentUsers;
     private HBox inviteButton;
     private Button backButton;
 
@@ -34,6 +35,7 @@ public class FriendsView extends Application {
         this.clientControl = clientControl;
         this.gameController = new GameController(clientControl);
         this.userListModel = FXCollections.observableArrayList();
+        this.fullCurrentUsers = FXCollections.observableArrayList();
         setupUI();
         updateUserList((List<User>) userData);  // Cập nhật danh sách người chơi ban đầu
         listenFromServer();  // Bắt đầu lắng nghe các tin nhắn từ server
@@ -121,6 +123,8 @@ public class FriendsView extends Application {
 
     // Cập nhật danh sách người chơi
     public void updateUserList(List<User> users) {
+        if(fullCurrentUsers != null) fullCurrentUsers.clear();
+        fullCurrentUsers.addAll(users);
         userListModel.clear();
         for (User user : users) {
             if(!user.getUserName().equals(clientControl.getCurrentUser().getUserName())) {
@@ -337,7 +341,7 @@ public class FriendsView extends Application {
         Stage stage = (Stage) backButton.getScene().getWindow();
         double xPos = stage.getX();
         double yPos = stage.getY();
-        MainView mainView = new MainView(clientControl, userListModel);
+        MainView mainView = new MainView(clientControl, fullCurrentUsers);
         Stage mainStage = mainView.getStage();
         mainStage.setX(xPos);
         mainStage.setY(yPos);

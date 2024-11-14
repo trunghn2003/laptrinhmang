@@ -15,6 +15,7 @@ public class GameController {
     private String matchResult = "";
     private int score = 0;
     private int totalScore = 0;
+    private int enemyScore = 0;
     private String opponent;
     private FriendsView friendsView;
 
@@ -35,6 +36,9 @@ public class GameController {
         this.opponent = opponent;
     }
 
+    public int getEnemyScore() {
+        return this.enemyScore;
+    }
     public int getScore() {
         return this.score;
     }
@@ -92,6 +96,7 @@ public class GameController {
     public void receivedMatchResult(String message) {
         ArrayList<String> parts = new ArrayList<>(Arrays.asList(message.split(":")));
         this.matchResult = parts.get(1);
+        this.enemyScore = Integer.parseInt(parts.get(2));
         clientControl.sendMessage(Constants.ACTION_FINISH_GAME);
     }
 
@@ -101,6 +106,7 @@ public class GameController {
         this.totalScore = 0;
         this.matchResult = "";
         this.opponent = "";
+        this.enemyScore = 0;
     }
 
     public void finishGame() {
