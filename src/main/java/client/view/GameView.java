@@ -338,7 +338,7 @@ public class GameView {
             // Add a pause after flashing to display the score screen
             PauseTransition pauseAfterFlash = new PauseTransition(Duration.seconds(1.5));
             pauseAfterFlash.setOnFinished(event -> {
-                if (roundCnt <= 4) {
+                if (roundCnt <= 1) {
                     showRoundScoreScreen();  // Method to show score between rounds
                     updateScore();
                     PauseTransition pause = new PauseTransition(Duration.seconds(2));
@@ -462,5 +462,10 @@ public class GameView {
 
     public void replayGame() {
         friendsView.sendInvite(opponent);
+    }
+
+    public void close() {
+        Stage stage = (Stage) root.getScene().getWindow();
+        stage.close();
     }
 }

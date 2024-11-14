@@ -25,6 +25,7 @@ public class GameController {
     public void startGame(String opponent, FriendsView friendsView) {
         this.friendsView = friendsView;
         clientControl.sendMessage(Constants.ACTION_START_GAME);
+        if(this.gameView != null) this.gameView.close();
         this.opponent = opponent;
     }
 
