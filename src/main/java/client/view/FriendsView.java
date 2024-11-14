@@ -166,8 +166,6 @@ public class FriendsView extends Application {
                             System.out.println("EXIT MID GAME");
                         } else if (message.startsWith(Constants.RESPONSE_MATCH_RESULT)) {
                             Platform.runLater(() -> gameController.receivedMatchResult(message));
-                        } else if (message.startsWith(Constants.RESPONSE_FINISH_GAME)) {
-                            Platform.runLater(() -> gameController.finishGame());
                         } else {
                             // Xử lý các tin nhắn khác
                         }

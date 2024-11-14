@@ -97,7 +97,7 @@ public class GameController {
         ArrayList<String> parts = new ArrayList<>(Arrays.asList(message.split(":")));
         this.matchResult = parts.get(1);
         this.enemyScore = Integer.parseInt(parts.get(2));
-        clientControl.sendMessage(Constants.ACTION_FINISH_GAME);
+        this.gameView.showGameOverScreen();
     }
 
     public void handleEndGame() {
@@ -107,10 +107,5 @@ public class GameController {
         this.matchResult = "";
         this.opponent = "";
         this.enemyScore = 0;
-    }
-
-    public void finishGame() {
-        System.out.println("Finish game");
-        this.gameView.showGameOverScreen();
     }
 }
