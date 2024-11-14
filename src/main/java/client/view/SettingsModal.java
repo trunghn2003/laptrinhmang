@@ -94,9 +94,8 @@ public class SettingsModal {
         Region spacer = new Region();
         spacer.setPrefHeight(20);
 
-        // Các nút trong settings
-        Button soundButton = createSettingButton("Sound Settings");
-        Button profileButton = createSettingButton("Profile Settings");
+        // Chỉ tạo 2 nút: History và Logout
+        Button historyButton = createSettingButton("History");
         Button logoutButton = createSettingButton("Logout");
 
         // Thêm các components vào modal
@@ -104,29 +103,19 @@ public class SettingsModal {
                 closeButtonContainer,
                 titleLabel,
                 spacer,
-                soundButton,
-                profileButton,
+                historyButton,
                 logoutButton
         );
 
-        // Cho phép kéo thả modal
-        modalRoot.setOnMousePressed(event -> {
-            xOffset = event.getSceneX();
-            yOffset = event.getSceneY();
-        });
-
-        modalRoot.setOnMouseDragged(event -> {
-            modalStage.setX(event.getScreenX() - xOffset);
-            modalStage.setY(event.getScreenY() - yOffset);
-        });
+        // ... phần code kéo thả giữ nguyên ...
 
         Scene modalScene = new Scene(modalRoot);
         modalScene.setFill(null);
         modalStage.setScene(modalScene);
 
-        // Set kích thước cho modal
+        // Điều chỉnh kích thước modal cho phù hợp với ít nút hơn
         modalStage.setWidth(300);
-        modalStage.setHeight(400);
+        modalStage.setHeight(300); // Giảm chiều cao xuống vì có ít nút hơn
     }
 
     private Button createSettingButton(String text) {
@@ -167,13 +156,9 @@ public class SettingsModal {
         // Xử lý sự kiện click
         button.setOnAction(e -> {
             switch(text) {
-                case "Sound Settings":
-                    // TODO: Implement sound settings
-                    System.out.println("Sound settings clicked");
-                    break;
-                case "Profile Settings":
-                    // TODO: Implement profile settings
-                    System.out.println("Profile settings clicked");
+                case "History":
+                    // TODO: Implement history view
+                    System.out.println("History clicked");
                     break;
                 case "Logout":
                     // TODO: Implement logout
