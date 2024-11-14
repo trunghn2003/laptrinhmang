@@ -380,10 +380,45 @@ public class GameView {
 
 
     private void showRoundScoreScreen() {
-        Label roundScoreLabel = new Label("Round Score: " + gameController.getScore());
-        roundScoreLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: blue;");
+        Text endRoundLable = new Text("Round "+ roundCnt + "/ 5 Completed!");
+        endRoundLable.setFill(Color.WHITE);
+        endRoundLable.setFont(Font.font("SVN-Bango", 30));
 
-        VBox scoreBox = new VBox(roundScoreLabel);
+        Text endRoundBorderLable = new Text("Round "+ roundCnt + "/ 5 Completed!");
+        endRoundBorderLable.setFill(Color.web("#714F20"));
+        endRoundBorderLable.setStroke(Color.web("#714F20"));
+        endRoundBorderLable.setStrokeWidth(6);
+        endRoundBorderLable.setFont(Font.font("SVN-Bango", 30));
+
+        StackPane endRoundStack = new StackPane();
+        endRoundStack.getChildren().addAll(endRoundBorderLable, endRoundLable);
+        endRoundStack.setAlignment(Pos.CENTER);
+
+        Text roundScoreLabel = new Text("+" + gameController.getScore() + " Points");
+        roundScoreLabel.setFill(Color.WHITE);
+        roundScoreLabel.setFont(Font.font("SVN-Bango", 50));
+
+        Text roundScoreBorderLabel = new Text("+" + gameController.getScore() + " Points");
+        roundScoreBorderLabel.setFill(Color.web("#714F20"));
+        roundScoreBorderLabel.setStroke(Color.web("#714F20"));
+        roundScoreBorderLabel.setStrokeWidth(6);
+        roundScoreBorderLabel.setFont(Font.font("SVN-Bango", 50));
+
+        StackPane roundScoreStack = new StackPane();
+        roundScoreStack.getChildren().addAll(roundScoreBorderLabel, roundScoreLabel);
+        roundScoreStack.setAlignment(Pos.CENTER);
+
+        // Thêm hiệu ứng DropShadow cho nút
+        DropShadow buttonShadow = new DropShadow();
+        buttonShadow.setOffsetY(6.0);
+        buttonShadow.setColor(Color.web("#9B6B27"));
+        buttonShadow.setRadius(1);
+        endRoundStack.setEffect(buttonShadow);
+        roundScoreStack.setEffect(buttonShadow);
+
+        VBox scoreBox = new VBox();
+        scoreBox.setSpacing(30);
+        scoreBox.getChildren().addAll(endRoundStack, roundScoreStack);
         scoreBox.setAlignment(Pos.CENTER);
         root.setCenter(scoreBox);
     }
