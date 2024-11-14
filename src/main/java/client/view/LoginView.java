@@ -54,17 +54,17 @@ public class LoginView extends Application {
 
         // Trường nhập với PromptText
         usernameField = new TextField();
-        usernameField.setPromptText("Tên đăng nhập");
+        usernameField.setPromptText("Username");
         usernameField.setPrefWidth(600); // Đặt chiều rộng cho trường nhập
         usernameField.setPrefHeight(60); // Đặt chiều cao cho trường nhập
 
         passwordField = new PasswordField();
-        passwordField.setPromptText("Mật khẩu");
+        passwordField.setPromptText("Password");
         passwordField.setPrefWidth(600);
         passwordField.setPrefHeight(60); // Đặt chiều cao cho trường nhập
 
         // Tạo Text với hiệu ứng bóng đổ
-        Text text = new Text("Đăng nhập");
+        Text text = new Text("Sign In");
         text.setFill(Color.WHITE);
         text.setStyle("-fx-font-size: 18px;");
 
@@ -133,7 +133,8 @@ public class LoginView extends Application {
     }
 
     private void openRegisterView() {
-        new RegisterView(); // Ví dụ
+        close();
+        new RegisterView();
     }
 
     public static void main(String[] args) {
