@@ -434,7 +434,7 @@ public class ClientHandler implements Runnable, IClientHandler {
 
             //Cập nhật điểm người chơi
             gameServerController.updateScorePlayer(user.getUserName(), this.score);
-            gameServerController.updateScorePlayer(opponentUser.getUserName(), opponentClient.getScore());
+//            gameServerController.updateScorePlayer(opponentUser.getUserName(), opponentClient.getScore());
 
             //Cập nhật trạng thái người chơi
             resetStatus();
@@ -453,47 +453,36 @@ public class ClientHandler implements Runnable, IClientHandler {
 
         //Khi cả 2 người chơi đã nộp kết quả thì thực hiện xử lí kết quả trận đấu
         if (this.opponentEndMatch && this.myClientEndMatch) {
+            boolean n1 = true;
+            boolean n2 = true;
             if (this.score > opponentClient.getScore()) {
                 //Gửi kết quả trận đấu cho người chơi
                 sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "WIN");
                 this.opponentClient.sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "LOSE");
-
-                //Cập nhật điểm người chơi
-                gameServerController.updateScorePlayer(user.getUserName(), this.score + user.getScore());
-                gameServerController.updateScorePlayer(opponentUser.getUserName(), opponentClient.getScore() + opponentUser.getScore());
-
-                //Cập nhật trạn thái người chơi
-                resetStatus();
-
-                broadcastOnlineUsers();
 
             } else if (this.score < opponentClient.getScore()) {
                 //Gửi kết quả trận đấu cho người chơi
                 sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "LOSE");
                 this.opponentClient.sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "WIN");
 
-                //Cập nhật điểm người chơi
-                gameServerController.updateScorePlayer(user.getUserName(), this.score + user.getScore());
-                gameServerController.updateScorePlayer(opponentUser.getUserName(), opponentClient.getScore() + opponentUser.getScore());
 
-                //Cập nhật trạn thái người chơi
-                resetStatus();
-
-                broadcastOnlineUsers();
             } else {
                 //Gửi kết quả trận đấu cho người chơi
                 sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "DRAW");
                 this.opponentClient.sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "DRAW");
 
-                //Cập nhật điểm người chơi
-                gameServerController.updateScorePlayer(user.getUserName(), this.score + user.getScore());
-                gameServerController.updateScorePlayer(opponentUser.getUserName(), opponentClient.getScore() + opponentUser.getScore());
-
-                //Cập nhật trạn thái người chơi
-                resetStatus();
-
-                broadcastOnlineUsers();
             }
+            if(n1){
+                gameServerController.updateScorePlayer(user.getUserName(), this.score + user.getScore());
+                n1 = false;
+            }
+            if(n2){
+                gameServerController.updateScorePlayer1(opponentUser.getUserName(), opponentClient.getScore() + opponentUser.getScore());
+                n2 = false;
+            }
+            resetStatus();
+            broadcastOnlineUsers();
+
         }
     }
 
