@@ -38,7 +38,7 @@ public class GameView {
         this.friendsView = friendsView;
         this.selectedColors = new ArrayList<>();
         setupUI();
-        showColorsFromServer();
+//        showColorsFromServer();
 //        startTimer();
     }
 
@@ -61,6 +61,9 @@ public class GameView {
     }
 
     private void showColorsFromServer() {
+
+        System.out.println("log in show color");
+
         // Lấy 3 màu từ server
         List<String> colorsFromServer = gameController.getColors(); // Bạn cần cài đặt phương thức này trong GameController
         System.out.println("Colors from server: " + colorsFromServer);
@@ -85,6 +88,7 @@ public class GameView {
             // Xóa nội dung hiện tại và thiết lập giao diện chính của game
             root.getChildren().clear();
             setupMainUI();
+
             startTimer(); // Bắt đầu đồng hồ đếm ngược
         });
         pause.play();
@@ -164,6 +168,9 @@ public class GameView {
     }
 
     public void showGameOverScreen() {
+        if(timer != null) timer.stop();
+        timer = null;
+
         // Tạo một Label hiển thị điểm số cuối cùng
         String result = gameController.getMatchResult();
         Label gameOverLabel = new Label(result + "\nGame Over\nTotal Score: " + gameController.getTotalScore());
@@ -216,8 +223,11 @@ public class GameView {
     }
 
     private void handleSubmitButton() {
+
+        System.out.println("log in submit");
+
         if (selectedColors.size() == 3 || timeRemaining == 0) {
-            timer.stop();
+            if (timer != null) timer.stop();
             timer = null;
 
             String colors = String.join(",", selectedColors);
@@ -256,6 +266,7 @@ public class GameView {
 
                     pause.play();
                 } else {
+//                    timer = null;
                     String checkRes = gameController.getMatchResult();
                     System.out.println("Check res: " + checkRes);
                     if (Objects.equals(checkRes, "")) {
@@ -318,8 +329,6 @@ public class GameView {
 
 
     private void startTimer() {
-        System.out.println("hallo my voice from the deepnesttttttttttttttttttttttttttttttttttttttt");
-
         // Nếu đã tồn tại timer từ trước, hãy dừng nó trước khi tạo timer mới
         if (timer != null) {
             timer.stop();
@@ -336,6 +345,8 @@ public class GameView {
                         timeRemaining--;
                         timerLabel.setText(String.valueOf(timeRemaining));
                     } else {
+
+                        System.out.println("log in timer");
 
 //                        timer.stop(); // Dừng timer
 //                        timer = null; // Xóa timer để tạo timer mới ở lần tiếp theo
