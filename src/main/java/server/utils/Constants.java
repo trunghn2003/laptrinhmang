@@ -38,4 +38,5 @@ public class Constants {
     public static final String LOGIN_FAILURE = "Login failed";
     public static final String REGISTER_SUCCESS = "Registration successful!";
     public static final String REGISTER_FAILURE = "Registration failed";
+    public static final String ACTION_GET_HISTORY  = "Get History";
 }

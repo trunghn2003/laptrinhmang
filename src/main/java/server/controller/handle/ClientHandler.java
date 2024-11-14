@@ -178,7 +178,11 @@ public class ClientHandler implements Runnable, IClientHandler {
                         exitMidGame();
                     } else if (message.startsWith(Constants.ACTION_FINISH_GAME)){
                         sendMessage(Constants.RESPONSE_FINISH_GAME);
-                    } else {
+                    }
+                    else if (message.startsWith(Constants.ACTION_GET_HISTORY)) {
+                        // Nếu nhận được yêu cầu lấy lịch sử đấu
+                        sendMatchHistory(message);
+                    }else {
                         serverView.showMessage("Received unknown message: " + message);
                     }
                 } else {
@@ -377,7 +381,9 @@ public class ClientHandler implements Runnable, IClientHandler {
     }
 
     public void sendResultToClient(String message) {
+
         System.out.println("Server received color: " + message);
+        boolean send = true;
         // Xử lý kết quả từ client
         String result = (message.split(":").length > 1) ? message.split(":")[1] : "";
         ArrayList<String> resultColors = new ArrayList<>(Arrays.asList(result.split(",")));
@@ -393,15 +399,20 @@ public class ClientHandler implements Runnable, IClientHandler {
         );
 
         this.score+=scoreAchieve;
+        if(send) {
 
-        gameServerController.addRound(
-                matchId,
-                round,  // Current round number
-                String.join(",", resultColors),  // Player's color choice
-                String.join(",", opponentClient.selectedColors),  // Opponent's color choice
-                scoreAchieve,  // Player's score in this round
-                opponentClient.getScore()  // Opponent's score in this round
-        );
+
+            this.gameServerController.addRound(
+                    matchId,
+                    round,  // Current round number
+                    String.join(",", myClient.selectedColors),  // Player's color choice
+                    String.join(",", opponentClient.selectedColors),  // Opponent's color choice
+                    myClient.getScore(),  // Player's score in this round
+                    opponentClient.getScore()  // Opponent's score in this round
+            );
+            send = false;
+        }
+
 
 
         // Nếu chưa đủ 5 rounds sẽ thực hiện chơi tiếp
@@ -475,20 +486,24 @@ public class ClientHandler implements Runnable, IClientHandler {
                 sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "WIN" + ":" + this.opponentClient.getScore());
                 this.opponentClient.sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "LOSE" + ":" + this.score);
                 result = "WIN";
+                gameServerController.incrementWinCount(user.getUserName());
+                gameServerController.incrementLossCount(opponentUser.getUserName());
 
             } else if (this.score < opponentClient.getScore()) {
                 //Gửi kết quả trận đấu cho người chơi
                 sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "LOSE" + ":" + this.opponentClient.getScore());
                 this.opponentClient.sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "WIN" + ":" + this.score);
                 result = "LOSE";
-
+                gameServerController.incrementLossCount(user.getUserName());
+                gameServerController.incrementWinCount(opponentUser.getUserName());
 
             } else {
                 //Gửi kết quả trận đấu cho người chơi
                 sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "DRAW" + ":" + this.opponentClient.getScore());
                 this.opponentClient.sendMessage(Constants.RESPONSE_MATCH_RESULT + ":" + "DRAW" + ":" + this.score);
                 result = "DRAW";
-
+                gameServerController.incrementDrawCount(user.getUserName());
+                gameServerController.incrementDrawCount(opponentUser.getUserName());
 
             }
 
@@ -528,6 +543,32 @@ public class ClientHandler implements Runnable, IClientHandler {
             }
         } catch (Exception e) {
             serverView.showMessage("Error closing client connection: " + e.getMessage());
+        }
+    }
+
+    private void sendMatchHistory(String message) {
+        try {
+            String[] parts = message.split(":");
+
+
+                String action = parts[0];
+                String username = parts[1];
+
+
+                System.out.println("Action: " + action);
+                System.out.println("Username: " + username);
+
+            // Lấy lịch sử đấu từ GameServerController
+            List<Map<String, Object>> matchHistory = gameServerController.getMatchHistoryByUsername(username);
+
+            // Gửi dữ liệu lịch sử đấu đến client
+            oos.writeObject(matchHistory);
+            oos.flush();
+
+            serverView.showMessage("Sent match history to client: " + user.getUserName());
+        } catch (IOException e) {
+            serverView.showMessage("Error sending match history to client: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

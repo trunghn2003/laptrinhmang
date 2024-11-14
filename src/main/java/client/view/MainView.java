@@ -8,6 +8,8 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
+import javafx.stage.StageStyle;
 import server.model.User;
 import client.utils.Constants;
 import javafx.application.Application;
@@ -20,6 +22,7 @@ import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 import java.util.List;
+import java.util.Map;
 
 public class MainView extends Application {
     private ClientControl clientControl;
@@ -27,7 +30,7 @@ public class MainView extends Application {
     private ObservableList<User> userListModel;
     private ListView<User> userList;
     private Button playButton;
-
+    private Button historyButton;
     public MainView(ClientControl clientControl, Object userData) {
         this.clientControl = clientControl;
         this.gameController = new GameController(clientControl);
@@ -89,7 +92,12 @@ public class MainView extends Application {
             playNow();
         });
 
-        leftColumn.getChildren().addAll(logo, spacer, playButton);
+        historyButton = new Button("History");
+        historyButton.setPrefWidth(250);
+        historyButton.setPrefHeight(60);
+        historyButton.setOnAction(e -> showMatchHistory());
+        leftColumn.getChildren().addAll(logo, spacer, playButton, historyButton);
+//        leftColumn.getChildren().addAll(logo, spacer, playButton);
 
         // Cột 3
         VBox rightColumn = new VBox();
@@ -247,5 +255,42 @@ public class MainView extends Application {
     //get stage
     public Stage getStage() {
         return (Stage) playButton.getScene().getWindow();
+    }
+
+    private void showMatchHistory() {
+        try {
+            // Gọi phương thức lấy lịch sử đấu từ clientControl
+            boolean x = clientControl.sendMatchHistoryRequest();
+            List<Map<String, Object>> matchHistory = clientControl.receiveMatchHistory();
+            if (matchHistory != null && !matchHistory.isEmpty()) {
+                // Hiển thị lịch sử đấu
+                Stage historyStage = new Stage();
+                historyStage.initModality(Modality.APPLICATION_MODAL);
+                historyStage.initStyle(StageStyle.UTILITY);
+                historyStage.setTitle("Match History");
+
+                VBox historyBox = new VBox();
+                historyBox.setSpacing(10);
+                historyBox.setPadding(new Insets(10));
+
+                for (Map<String, Object> match : matchHistory) {
+                    String matchInfo = "Match ID: " + match.get("matchId")
+                            + ", Score: " + match.get("playerScore")
+                            + " vs " + match.get("opponentScore")
+                            + ", Result: " + match.get("result");
+//                    Label matchLabel = new Label(matchInfo);
+//                    historyBox.getChildren().add(matchLabel);
+                }
+
+                Scene historyScene = new Scene(historyBox, 400, 300);
+                historyStage.setScene(historyScene);
+                historyStage.show();
+            } else {
+                showAlert("No match history available.");
+            }
+        } catch (Exception e) {
+            showAlert("Failed to retrieve match history.");
+            e.printStackTrace();
+        }
     }
 }

@@ -10,6 +10,8 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import io.github.cdimascio.dotenv.Dotenv;
 
 
@@ -84,6 +86,8 @@ public class ClientControl {
     public synchronized Object receiveData() {
         try {
             Object o = ois.readObject();
+            System.out.println("Data received from server: " + o);
+            System.out.println("Received data type: " + o.getClass().getName());
             return o;
         } catch (IOException | ClassNotFoundException ex) {
             ex.printStackTrace();
@@ -234,6 +238,37 @@ public class ClientControl {
 //        }
 //        return null;
 //    }
+// Send request for match history to the server
+public boolean sendMatchHistoryRequest() {
+    if (currentUser == null) {
+        System.out.println("User chưa đăng nhập.");
+        return false;
+    }
+
+    // Create the request message
+    String message = Constants.ACTION_GET_HISTORY + ":" + currentUser.getUserName();
+    sendMessage(message);
+//    if (!sendMessage(message)) {
+//        System.out.println("Gửi yêu cầu lịch sử đấu thất bại.");
+//        return false;
+//    }
+    return true;  // Request was sent successfully
+}
+
+    // Receive and process match history response from the server
+    public List<Map<String, Object>> receiveMatchHistory() {
+        // Receive response from the server
+        Object response = receiveData();
+        if (response instanceof List) {
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> matchHistory = (List<Map<String, Object>>) response;
+            return matchHistory;
+        } else {
+            System.out.println("Phản hồi không hợp lệ hoặc lỗi từ server.");
+        }
+        return null;  // Return null if the response is invalid
+    }
+
 }
 
 
