@@ -51,8 +51,9 @@ public class MainView extends Application {
         // Thêm logo
         Image logoImage = new Image("/assets/home-logo.png"); // Đường dẫn đến hình ảnh logo
         ImageView logo = new ImageView(logoImage);
-        logo.setFitWidth(650); // Đặt chiều rộng cho logo
-        logo.setPreserveRatio(true); // Giữ tỷ lệ cho logo
+        logo.setFitWidth(420);
+        logo.setPreserveRatio(true);
+        logo.setTranslateY(-40);
 
         Region spacer = new Region();
         spacer.setPrefHeight(100);
@@ -98,6 +99,8 @@ public class MainView extends Application {
         // Thêm hình ảnh từ asset
         Image leaderboardHeader = new Image("/assets/leaderboard.png");
         ImageView leaderboardHeaderImage = new ImageView(leaderboardHeader);
+        leaderboardHeaderImage.setFitWidth(270);
+        leaderboardHeaderImage.setPreserveRatio(true);
 
         userList = new ListView<>(userListModel);
         userList.setCellFactory(param -> new UserListCellRenderer()); // Sử dụng renderer tùy chỉnh
@@ -117,15 +120,17 @@ public class MainView extends Application {
         HBox hbox = new HBox();
         Region leftSpacer = new Region();
         Region rightSpacer = new Region();
+        Region centerSpacer = new Region();
         HBox.setHgrow(leftSpacer, Priority.ALWAYS);
         HBox.setHgrow(rightSpacer, Priority.ALWAYS);
+        HBox.setHgrow(centerSpacer, Priority.ALWAYS);
 
-        hbox.getChildren().addAll(leftSpacer, leftColumn, rightColumn, rightSpacer); // Thêm các phần tử vào HBox
+        hbox.getChildren().addAll( leftColumn,centerSpacer, rightColumn); // Thêm các phần tử vào HBox
         hbox.setSpacing(20); // Khoảng cách giữa các phần tử
         hbox.setStyle("-fx-padding: 20;");
         root.setCenter(hbox); // Đặt HBox vào giữa
 
-        Scene scene = new Scene(root, 1280, 720);
+        Scene scene = new Scene(root, 800, 600);
         scene.getStylesheets().add(getClass().getResource("/home-styles.css").toExternalForm());
         stage.setScene(scene);
         stage.show();
@@ -158,12 +163,14 @@ public class MainView extends Application {
             } else {
                 // Create an HBox to contain avatar, name, spacer, and score
                 HBox hbox = new HBox();
-                hbox.setSpacing(10); // Spacing between elements
+                //Thêm padding y cho hbox
+                hbox.setPadding(new Insets(5, 0, 5, 0));
+                hbox.setSpacing(5); // Spacing between elements
                 hbox.setAlignment(Pos.CENTER_LEFT); // Center vertically, align left horizontally
 
                 ImageView avatar = new ImageView(new Image("/assets/avatar/avt1.png")); // Path to avatar
-                avatar.setFitWidth(50); // Set width for avatar
-                avatar.setFitHeight(50); // Set height for avatar
+                avatar.setFitWidth(40); // Set width for avatar
+                avatar.setFitHeight(40); // Set height for avatar
 
                 //Space
                 Region space = new Region();
@@ -171,18 +178,31 @@ public class MainView extends Application {
 
                 // Create Label for the username
                 Label userInfo = new Label(user.getUserName());
-                userInfo.setStyle("-fx-text-fill: white;"); // Set text color
+                userInfo.setStyle("-fx-text-fill: white; -fx-font-family: '';-fx-font-weight: bold;"); // Set text color
 
                 // Create a spacer Region
                 Region spacer = new Region();
                 HBox.setHgrow(spacer, Priority.ALWAYS); // Make spacer grow horizontally
 
-                // Create Label for the score
-                Label scoreInfo = new Label(user.getScore() + " points");
-                scoreInfo.setStyle("-fx-text-fill: white;"); // Set text color
+                // Tạo HBox để chứa score và icon
+                HBox scoreBox = new HBox(5); // spacing 5 pixels
+                scoreBox.setAlignment(Pos.CENTER);
+
+                // Label cho điểm số
+                Label scoreInfo = new Label(String.valueOf(user.getScore()));
+                scoreInfo.setStyle("-fx-text-fill: #FFAF40;");
+
+                // Tạo ImageView cho icon point
+                ImageView pointIcon = new ImageView(new Image("/assets/coin.png")); // Thay đường dẫn icon của bạn
+                pointIcon.setFitWidth(20); // Điều chỉnh kích thước icon
+                pointIcon.setFitHeight(20);
+
+                // Thêm score và icon vào scoreBox
+                scoreBox.getChildren().addAll(scoreInfo, pointIcon);
+
 
                 // Add avatar, username, spacer, and score to HBox
-                hbox.getChildren().addAll(avatar, space, userInfo, spacer, scoreInfo);
+                hbox.getChildren().addAll(avatar, space, userInfo, spacer, scoreBox);
 
                 // Set background color for HBox (optional)
                 hbox.setStyle("-fx-background-color: #453221;");

@@ -46,6 +46,8 @@ public class FriendsView extends Application {
 
         Image leaderboardHeader = new Image("/assets/friend-list.png");
         ImageView leaderboardHeaderImage = new ImageView(leaderboardHeader);
+        leaderboardHeaderImage.setFitWidth(150);
+        leaderboardHeaderImage.setPreserveRatio(true);
 
         // Khởi tạo userList
         userList = new ListView<>(userListModel);
@@ -111,7 +113,7 @@ public class FriendsView extends Application {
         BorderPane.setAlignment(inviteButton, Pos.CENTER); // Căn giữa nút mời trong BorderPane
 
         // Tạo Scene và hiển thị
-        Scene scene = new Scene(root, 1280, 720);
+        Scene scene = new Scene(root, 800, 600);
         scene.getStylesheets().add(getClass().getResource("/friends-styles.css").toExternalForm());
         stage.setScene(scene);
         stage.show();

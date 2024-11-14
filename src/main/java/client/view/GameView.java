@@ -8,9 +8,13 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -49,7 +53,7 @@ public class GameView {
         stage.setTitle("Color Guessing Game");
 
         root = new BorderPane();
-        scene = new Scene(root, 1280, 720);
+        scene = new Scene(root, 800, 600);
         stage.setScene(scene);
         scene.getStylesheets().add(getClass().getResource("/game-styles.css").toExternalForm());
 
@@ -94,65 +98,67 @@ public class GameView {
 
 
     private void setupMainUI() {
-        // Tạo các nút màu
-        String[] colors = {"Red", "Green", "Blue", "Yellow", "Orange", "Purple",
-                "Black", "White", "Pink", "Gray", "Cyan", "Magenta"};
+        // Create color buttons
+        String[] colors = {"Red", "Green", "Blue", "Yellow", "Orange", "Purple", "Black", "White", "Pink", "Gray", "Cyan", "Magenta"};
         colorButtons = new ArrayList<>();
 
-        // Tạo Label cho đồng hồ đếm ngược
+        // Create timer label
         timerLabel = new Label("30");
-        timerLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
-        timeRemaining = 30; // Reset đồng hồ về 30 giây
+        timerLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;");
+        timeRemaining = 30;
         timerLabel.setText(String.valueOf(timeRemaining));
 
-        // Tạo hình ảnh biểu tượng và căn chỉnh tuyệt đối
-        Image iconImage = new Image("/assets/coin.png"); // Đường dẫn tới ảnh
-        ImageView iconView = new ImageView(iconImage);
-        iconView.setFitWidth(45); // Chiều rộng hình ảnh
-        iconView.setFitHeight(45); // Chiều cao hình ảnh
-        iconView.setTranslateX(-15); // Điều chỉnh vị trí ngang của hình ảnh
 
-        // Tạo scoreLabel cho điểm số
+        // Create an HBox for the timer with the same background style as scoreBox
+        HBox timerBox = new HBox(timerLabel);
+        timerBox.setAlignment(Pos.CENTER);
+        timerBox.setPadding(new Insets(0, 20, 0, 20));
+        timerBox.setStyle("-fx-background-color: #453221; -fx-background-radius: 25;");
+        timerBox.setMinWidth(100);
+
+        // Create icon image and align it within a StackPane
+        Image iconImage = new Image("/assets/coin.png"); // Path to icon image
+        ImageView iconView = new ImageView(iconImage);
+        iconView.setFitWidth(45);
+        iconView.setFitHeight(45);
+        iconView.setTranslateX(-20);
+
+        // Create score label
         scoreLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white;");
         scoreLabel.setAlignment(Pos.CENTER);
-        scoreLabel.setTranslateX(20);
+        scoreLabel.setTranslateX(15);
 
-        // Sử dụng StackPane để chứa iconView và scoreLabel
+        // Use StackPane to contain iconView and scoreLabel
         StackPane scorePane = new StackPane();
         scorePane.getChildren().addAll(iconView, scoreLabel);
         StackPane.setAlignment(iconView, Pos.CENTER_LEFT);
         StackPane.setAlignment(scoreLabel, Pos.CENTER);
 
-        // Tạo HBox cho scorePane với màu nền và căn chỉnh
+        // Create scoreBox with background color and alignment
         HBox scoreBox = new HBox(scorePane);
         scoreBox.setAlignment(Pos.CENTER);
         scoreBox.setPadding(new Insets(0, 20, 0, 20));
-        scoreBox.setStyle("-fx-background-color: #453221;-fx-background-radius: 25;");
+        scoreBox.setStyle("-fx-background-color: #453221; -fx-background-radius: 25;");
         scoreBox.setMinWidth(100);
 
-        // Tạo HBox để chứa scoreBox và timerLabel
-        HBox topBox = new HBox(scoreBox, timerLabel);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        // Create topBox to hold scoreBox and timerBox
+        HBox topBox = new HBox(scoreBox,spacer , timerBox);
         topBox.setAlignment(Pos.CENTER);
-        topBox.setSpacing(20); // Khoảng cách giữa scoreBox và timerLabel
+        topBox.setSpacing(20); // Space between scoreBox and timerBox
         topBox.setPadding(new Insets(10));
 
-        // Bỏ MaxWidth để scoreBox vừa với nội dung
-        HBox.setHgrow(timerLabel, Priority.ALWAYS);
-        timerLabel.setMaxWidth(Double.MAX_VALUE);
-
-        // Căn chỉnh scoreBox sang trái và timerLabel sang phải trong topBox
-        scoreBox.setAlignment(Pos.CENTER_LEFT);
-        timerLabel.setAlignment(Pos.CENTER_RIGHT);
-
-        // Đặt topBox vào phần trên của root
+        // Set topBox at the top of the root
         root.setTop(topBox);
 
-        // Các phần còn lại trong setupMainUI
+        // Remaining setup in setupMainUI
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(20));
-        gridPane.setVgap(20); // Tăng khoảng cách giữa các hàng
-        gridPane.setHgap(20); // Tăng khoảng cách giữa các cột
-        gridPane.setAlignment(Pos.CENTER); // Căn giữa nội dung trong GridPane
+        gridPane.setVgap(20); // Increase row gap
+        gridPane.setHgap(20); // Increase column gap
+        gridPane.setAlignment(Pos.CENTER); // Center content in GridPane
 
         int row = 0;
         int col = 0;
@@ -160,14 +166,14 @@ public class GameView {
             Button colorButton = new Button();
             colorButton.setUserData(color); // Store color name in user data
             colorButton.setStyle("-fx-background-color: " + color.toLowerCase());
-            colorButton.setPrefSize(100, 100); // Đặt kích thước nút thành 100x100
+            colorButton.setPrefSize(100, 100); // Set button size to 100x100
             colorButton.setOnAction(e -> handleColorButton(colorButton));
             colorButtons.add(colorButton);
 
             gridPane.add(colorButton, col, row);
 
             col++;
-            if (col > 2) { // Giữ nguyên bố cục 3 cột
+            if (col > 2) { // Keep 3-column layout
                 col = 0;
                 row++;
             }
@@ -176,10 +182,12 @@ public class GameView {
         submitButton = new Button("Submit");
         submitButton.setOnAction(e -> handleSubmitButton());
 
-        // Đặt gridPane vào trung tâm
+        submitButton.setId("submit-button");
+
+        // Center the gridPane in the root
         root.setCenter(gridPane);
 
-        // Đặt submitButton vào vùng dưới cùng, căn giữa
+        // Place submitButton at the bottom, centered
         HBox bottomBox = new HBox(submitButton);
         bottomBox.setAlignment(Pos.CENTER);
         bottomBox.setPadding(new Insets(10));
@@ -187,17 +195,75 @@ public class GameView {
     }
 
 
-
-
-
     public void showGameOverScreen() {
-        // Tạo một Label hiển thị điểm số cuối cùng
-        String result = gameController.getMatchResult();
-        Label gameOverLabel = new Label(result + "\nGame Over\nTotal Score: " + gameController.getTotalScore());
-        gameOverLabel.setStyle("-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: green;");
+        // Tải font chữ
+        Font.loadFont(getClass().getResourceAsStream("/fonts/SVN-Bango.otf"), 40);
 
-        // Tạo một VBox để căn giữa gameOverLabel
-        VBox gameOverBox = new VBox(gameOverLabel);
+        // result label
+        Text resultLabelStroke = new Text(gameController.getMatchResult());
+        resultLabelStroke.setFont(Font.font("SVN-Bango", 40));
+        resultLabelStroke.setFill(Color.web("#714F20"));
+        resultLabelStroke.setStroke(Color.web("#714F20"));
+        resultLabelStroke.setStrokeWidth(6);
+
+        Text resultLabel = new Text(gameController.getMatchResult());
+        resultLabel.setFill(Color.WHITE);
+        resultLabel.setFont(Font.font("SVN-Bango", 40));
+
+        StackPane resultStack = new StackPane();
+        resultStack.getChildren().addAll(resultLabelStroke, resultLabel);
+        resultStack.setAlignment(Pos.CENTER);
+        resultStack.setTranslateY(-40);
+
+        Label gameOverLabel = new Label("Game Over");
+        gameOverLabel.setTranslateY(-110);
+
+        Text scoreLabelStroke = new Text("Total Score: " + gameController.getTotalScore());
+        scoreLabelStroke.setFont(Font.font("SVN-Bango", 26));
+        scoreLabelStroke.setFill(Color.web("#714F20"));
+        scoreLabelStroke.setStroke(Color.web("#714F20"));
+        scoreLabelStroke.setStrokeWidth(6);
+
+        Text scoreLabel = new Text("Total Score: " + gameController.getTotalScore());
+        scoreLabel.setFont(Font.font("SVN-Bango", 26));
+        scoreLabel.setFill(Color.WHITE);
+
+        StackPane scoreStack = new StackPane();
+        scoreStack.getChildren().addAll(scoreLabelStroke, scoreLabel);
+        scoreStack.setAlignment(Pos.CENTER);
+        scoreStack.setTranslateY(-40);
+
+        // Thêm hiệu ứng DropShadow cho nút
+        DropShadow buttonShadow = new DropShadow();
+        buttonShadow.setOffsetY(6.0);
+        buttonShadow.setColor(Color.web("#9B6B27"));
+        buttonShadow.setRadius(1);
+        resultStack.setEffect(buttonShadow);
+        scoreStack.setEffect(buttonShadow);
+
+        VBox spacer = new VBox(280);
+
+        // Style cho từng Label
+        String baseStyle = "-fx-font-weight: bold; -fx-text-fill: white;";
+        gameOverLabel.setStyle(baseStyle + "-fx-font-size: 24px;");
+
+        // Tạo VBox để chứa các Label theo thứ tự dọc
+        VBox labelsBox = new VBox(10); // spacing 10 pixels
+        labelsBox.setAlignment(Pos.CENTER);
+        labelsBox.getChildren().addAll(gameOverLabel, resultStack, scoreStack, spacer);
+
+        // Tạo ImageView để hiển thị hình ảnh
+        ImageView backgroundImage = new ImageView(new Image("/assets/machine.png"));
+        backgroundImage.setFitWidth(350);
+        backgroundImage.setPreserveRatio(true);
+
+        // Tạo StackPane để xếp chồng các phần tử
+        StackPane centerStack = new StackPane();
+        centerStack.getChildren().addAll(backgroundImage, labelsBox);
+        StackPane.setAlignment(labelsBox, Pos.CENTER);
+
+        // Tạo VBox để chứa StackPane
+        VBox gameOverBox = new VBox(centerStack);
         gameOverBox.setAlignment(Pos.CENTER);
         gameOverBox.setPadding(new Insets(20));
 
@@ -207,18 +273,18 @@ public class GameView {
         // Tạo nút "Back to Friends"
         Button backButton = new Button("Back to Friends");
         backButton.setOnAction(e -> {
-            // Đóng GameView stage
             stage.close();
             Stage friendsStage = friendsView.getStage();
             friendsStage.show();
         });
+        backButton.setId("back-button");
 
         // Tạo nút "Replay"
         Button replayButton = new Button("Replay");
         replayButton.setOnAction(e -> {
-            // Code khởi động lại trò chơi, ví dụ reset các biến game và bắt đầu lại
-            replayGame(); // Giả sử có một phương thức khởi động lại trong gameController
+            replayGame();
         });
+        replayButton.setId("replay-button");
 
         // Sử dụng HBox để căn hai nút ngang hàng
         HBox buttonBox = new HBox(10, replayButton, backButton);
