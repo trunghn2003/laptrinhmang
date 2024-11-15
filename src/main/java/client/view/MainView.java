@@ -30,7 +30,7 @@ public class MainView extends Application {
     private ObservableList<User> userListModel;
     private ListView<User> userList;
     private Button playButton;
-    private Button historyButton;
+//    private Button historyButton;
     public MainView(ClientControl clientControl, Object userData) {
         this.clientControl = clientControl;
         this.gameController = new GameController(clientControl);
@@ -92,11 +92,11 @@ public class MainView extends Application {
             playNow();
         });
 
-        historyButton = new Button("History");
-        historyButton.setPrefWidth(250);
-        historyButton.setPrefHeight(60);
-        historyButton.setOnAction(e -> showMatchHistory());
-        leftColumn.getChildren().addAll(logo, spacer, playButton, historyButton);
+//        historyButton = new Button("History");
+//        historyButton.setPrefWidth(250);
+//        historyButton.setPrefHeight(60);
+//        historyButton.setOnAction(e -> showMatchHistory());
+        leftColumn.getChildren().addAll(logo, spacer, playButton);
 //        leftColumn.getChildren().addAll(logo, spacer, playButton);
 
         // Cột 3
