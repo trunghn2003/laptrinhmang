@@ -397,7 +397,7 @@ public class ClientHandler implements Runnable, IClientHandler {
                         + ":"
                         + scoreAchieve
         );
-
+        opponentClient.sendMessage(Constants.RESPONSE_GET_ENEMY_SCORE_THIS_ROUND + ":" + scoreAchieve);
         this.score+=scoreAchieve;
         if(send) {
 
