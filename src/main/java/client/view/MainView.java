@@ -260,33 +260,59 @@ public class MainView extends Application {
     private void showMatchHistory() {
         try {
             // Gọi phương thức lấy lịch sử đấu từ clientControl
-            boolean x = clientControl.sendMatchHistoryRequest();
-            List<Map<String, Object>> matchHistory = clientControl.receiveMatchHistory();
-            if (matchHistory != null && !matchHistory.isEmpty()) {
-                // Hiển thị lịch sử đấu
-                Stage historyStage = new Stage();
-                historyStage.initModality(Modality.APPLICATION_MODAL);
-                historyStage.initStyle(StageStyle.UTILITY);
-                historyStage.setTitle("Match History");
+//            boolean x = clientControl.sendMatchHistoryRequest();
+//            if(x) {
+            try{
 
-                VBox historyBox = new VBox();
-                historyBox.setSpacing(10);
-                historyBox.setPadding(new Insets(10));
+                List<Map<String, Object>> matchHistory = clientControl.receiveMatchHistory();
+                if (matchHistory != null && !matchHistory.isEmpty()) {
+                    // Hiển thị lịch sử đấu
+                    Stage historyStage = new Stage();
+                    historyStage.initModality(Modality.APPLICATION_MODAL);
+                    historyStage.initStyle(StageStyle.UTILITY);
+                    historyStage.setTitle("Match History");
 
-                for (Map<String, Object> match : matchHistory) {
-                    String matchInfo = "Match ID: " + match.get("matchId")
-                            + ", Score: " + match.get("playerScore")
-                            + " vs " + match.get("opponentScore")
-                            + ", Result: " + match.get("result");
-//                    Label matchLabel = new Label(matchInfo);
-//                    historyBox.getChildren().add(matchLabel);
+                    VBox historyBox = new VBox();
+                    historyBox.setSpacing(10);
+                    historyBox.setPadding(new Insets(10));
+
+                    for (Map<String, Object> match : matchHistory) {
+                        // Match basic details
+                        String matchInfo = "Match ID: " + match.get("matchId")
+                                + ", Player Score: " + match.get("player1Score") + " vs " + match.get("player2Score")
+                                + ", Result: " + match.get("result")
+                                + ", Start Time: " + match.get("startTime")
+                                + ", End Time: " + match.get("endTime");
+
+                        Label matchLabel = new Label(matchInfo);
+                        historyBox.getChildren().add(matchLabel);
+
+                        // Adding rounds information
+                        if (match.containsKey("rounds")) {
+                            List<Map<String, Object>> rounds = (List<Map<String, Object>>) match.get("rounds");
+
+                            for (Map<String, Object> round : rounds) {
+                                String roundInfo = "    Round " + round.get("roundNumber") + ": "
+                                        + "Player 1 Choice: " + round.get("player1Choice")
+                                        + ", Player 2 Choice: " + round.get("player2Choice")
+                                        + ", Round Score: " + round.get("player1Score") + " vs " + round.get("player2Score");
+                                Label roundLabel = new Label(roundInfo);
+                                roundLabel.setStyle("-fx-padding: 0 0 0 20;"); // Indent rounds for clarity
+                                historyBox.getChildren().add(roundLabel);
+                            }
+                        }
+                    }
+
+                    Scene historyScene = new Scene(historyBox, 400, 500); // Adjusted height for more data
+                    historyStage.setScene(historyScene);
+                    historyStage.show();
+
+                } else {
+//                showAlert("No match history available.");
                 }
-
-                Scene historyScene = new Scene(historyBox, 400, 300);
-                historyStage.setScene(historyScene);
-                historyStage.show();
-            } else {
-                showAlert("No match history available.");
+            }
+            catch (Exception e){
+                e.printStackTrace();
             }
         } catch (Exception e) {
             showAlert("Failed to retrieve match history.");

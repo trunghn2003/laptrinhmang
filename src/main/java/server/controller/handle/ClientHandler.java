@@ -160,7 +160,6 @@ public class ClientHandler implements Runnable, IClientHandler {
         try {
             // Gửi danh sách người chơi online ban đầu
             sendOnlineUsers();
-
             while (true) {
                 Object obj = ois.readObject();
                 if (obj instanceof String) {
@@ -179,10 +178,13 @@ public class ClientHandler implements Runnable, IClientHandler {
                     } else if (message.startsWith(Constants.ACTION_FINISH_GAME)){
                         sendMessage(Constants.RESPONSE_FINISH_GAME);
                     }
-                    else if (message.startsWith(Constants.ACTION_GET_HISTORY)) {
-                        // Nếu nhận được yêu cầu lấy lịch sử đấu
-                        sendMatchHistory(message);
-                    }else {
+//                    else if (message.startsWith(Constants.ACTION_GET_HISTORY)) {
+//                        // Nếu nhận được yêu cầu lấy lịch sử đấu
+////                        sendMatchHistory(message);
+//                        sendHistory();
+//
+//                    }
+                    else {
                         serverView.showMessage("Received unknown message: " + message);
                     }
                 } else {
@@ -203,12 +205,25 @@ public class ClientHandler implements Runnable, IClientHandler {
     private void sendOnlineUsers() {
         try {
             List<User> onlineUsers = userController.getAllUser();
-            oos.writeObject(onlineUsers);
+            List<Map<String, Object>> mathHistory =  this.gameServerController.getMatchHistoryByUsername(user.getUserName());
+            CombinedData dataToSend = new CombinedData(onlineUsers, mathHistory);
+            oos.writeObject(dataToSend);
             oos.flush();
         } catch (IOException e) {
             serverView.showMessage("Error sending online users list: " + e.getMessage());
         }
     }
+
+    public void sendHistory(){
+        List<Map<String, Object>> mathHistory =  this.gameServerController.getMatchHistoryByUsername(user.getUserName());
+        try {
+            oos.writeObject(mathHistory);
+            oos.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     // Phát sóng danh sách người chơi online tới tất cả các client
     private void broadcastOnlineUsers() {
@@ -547,7 +562,7 @@ public class ClientHandler implements Runnable, IClientHandler {
     }
 
     private void sendMatchHistory(String message) {
-        try {
+//        try {
             String[] parts = message.split(":");
 
 
@@ -561,14 +576,14 @@ public class ClientHandler implements Runnable, IClientHandler {
             // Lấy lịch sử đấu từ GameServerController
             List<Map<String, Object>> matchHistory = gameServerController.getMatchHistoryByUsername(username);
 
-            // Gửi dữ liệu lịch sử đấu đến client
-            oos.writeObject(matchHistory);
-            oos.flush();
+
+//            oos.writeObject(matchHistory);
+//            oos.flush();
 
             serverView.showMessage("Sent match history to client: " + user.getUserName());
-        } catch (IOException e) {
-            serverView.showMessage("Error sending match history to client: " + e.getMessage());
-            e.printStackTrace();
-        }
+//        } catch (IOException e) {
+//            serverView.showMessage("Error sending match history to client: " + e.getMessage());
+//            e.printStackTrace();
+//        }
     }
 }

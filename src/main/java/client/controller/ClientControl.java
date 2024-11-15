@@ -14,7 +14,7 @@ import java.util.Map;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
-
+import  server.controller.handle.CombinedData;
 public class ClientControl {
     Dotenv dotenv = Dotenv.load();
     private Socket mySocket;
@@ -141,10 +141,12 @@ public class ClientControl {
                 currentUser = user;
                 System.out.println(user);
                 // Nhận danh sách người chơi online
-                Object userList = receiveData();
-                if (userList instanceof java.util.List) {
+                Object receivedData = receiveData();
+                if (receivedData instanceof CombinedData) {
+                    CombinedData data = (CombinedData) receivedData;
+                    List<User> users = data.getOnlineUsers();
                     @SuppressWarnings("unchecked")
-                    java.util.List<User> users = (java.util.List<User>) userList;
+//                    java.util.List<User> users = (java.util.List<User>) userList;
                     ResponseResult result = new ResponseResult(true, "Login successful.");
                     result.setData(users);
                     return result;
@@ -258,17 +260,32 @@ public boolean sendMatchHistoryRequest() {
     // Receive and process match history response from the server
     public List<Map<String, Object>> receiveMatchHistory() {
         // Receive response from the server
-        Object response = receiveData();
-        if (response instanceof List) {
-            @SuppressWarnings("unchecked")
-            List<Map<String, Object>> matchHistory = (List<Map<String, Object>>) response;
+        Object receivedData = receiveData();
+        if (receivedData instanceof CombinedData) {
+            CombinedData data = (CombinedData) receivedData;
+            List<Map<String, Object>> matchHistory = data.getMatchHistory();
+//        if (response instanceof List) {
+//            @SuppressWarnings("unchecked")
+//            List<?> responseList = (List<?>) response;
+//
+//
+//            if (!responseList.isEmpty() && responseList.get(0) instanceof User) {
+//                return null;
+//            } else {
+//
+//                @SuppressWarnings("unchecked")
+//                List<Map<String, Object>> matchHistory = (List<Map<String, Object>>) response;
+//                return matchHistory;
+//            }
+//        } else {
+//            System.out.println("Phản hồi không hợp lệ hoặc lỗi từ server.");
+//            return null;
+//        }
             return matchHistory;
-        } else {
-            System.out.println("Phản hồi không hợp lệ hoặc lỗi từ server.");
         }
-        return null;  // Return null if the response is invalid
-    }
+        return null;
 
-}
+    }
+    }
 
 
