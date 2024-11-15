@@ -202,7 +202,7 @@ public class GameView {
     public void showGameOverScreen() {
         if(timer != null) timer.stop();
         timer = null;
-        
+
         Font.loadFont(getClass().getResourceAsStream("/fonts/SVN-Bango.otf"), 40);
 
         // result label
@@ -222,15 +222,15 @@ public class GameView {
         resultStack.setTranslateY(-40);
 
         Label gameOverLabel = new Label("Game Over");
-        gameOverLabel.setTranslateY(-110);
+        gameOverLabel.setTranslateY(-100);
 
-        Text scoreLabelStroke = new Text("Total Score: " + gameController.getTotalScore());
+        Text scoreLabelStroke = new Text(gameController.getTotalScore() +" - " + gameController.getEnemyScore());
         scoreLabelStroke.setFont(Font.font("SVN-Bango", 26));
         scoreLabelStroke.setFill(Color.web("#714F20"));
         scoreLabelStroke.setStroke(Color.web("#714F20"));
         scoreLabelStroke.setStrokeWidth(6);
 
-        Text scoreLabel = new Text("Total Score: " + gameController.getTotalScore());
+        Text scoreLabel = new Text(gameController.getTotalScore() +" - " + gameController.getEnemyScore());
         scoreLabel.setFont(Font.font("SVN-Bango", 26));
         scoreLabel.setFill(Color.WHITE);
 
@@ -239,15 +239,22 @@ public class GameView {
         scoreStack.setAlignment(Pos.CENTER);
         scoreStack.setTranslateY(-40);
 
-        // Thêm hiệu ứng DropShadow cho nút
+        // Tạo nút "View Rounds"
+        Button viewRoundsButton = new Button("View Rounds");
+        viewRoundsButton.setOnAction(e -> openReview());
+        viewRoundsButton.setTranslateY(-20);
+
+        // Thêm hiệu ứng DropShadow cho nút và các thành phần khác
         DropShadow buttonShadow = new DropShadow();
         buttonShadow.setOffsetY(6.0);
         buttonShadow.setColor(Color.web("#9B6B27"));
         buttonShadow.setRadius(1);
         resultStack.setEffect(buttonShadow);
         scoreStack.setEffect(buttonShadow);
+        viewRoundsButton.setEffect(buttonShadow);
+        viewRoundsButton.setId("view-rounds-btn");
 
-        VBox spacer = new VBox(280);
+        VBox spacer = new VBox(180); // Giảm spacing để chừa chỗ cho nút mới
 
         // Style cho từng Label
         String baseStyle = "-fx-font-weight: bold; -fx-text-fill: white;";
@@ -256,7 +263,13 @@ public class GameView {
         // Tạo VBox để chứa các Label theo thứ tự dọc
         VBox labelsBox = new VBox(10); // spacing 10 pixels
         labelsBox.setAlignment(Pos.CENTER);
-        labelsBox.getChildren().addAll(gameOverLabel, resultStack, scoreStack, spacer);
+        labelsBox.getChildren().addAll(
+                gameOverLabel,
+                resultStack,
+                scoreStack,
+                viewRoundsButton, // Thêm nút mới vào đây
+                spacer
+        );
 
         // Tạo ImageView để hiển thị hình ảnh
         ImageView backgroundImage = new ImageView(new Image("/assets/machine.png"));
@@ -299,8 +312,6 @@ public class GameView {
 
         root.setBottom(buttonBox);
     }
-
-
 
     private void handleColorButton(Button button) {
         String color = (String) button.getUserData(); // Get the color from user data
@@ -483,6 +494,11 @@ public class GameView {
         );
         timer.setCycleCount(Timeline.INDEFINITE); // Lặp lại vô hạn cho đến khi dừng
         timer.play(); // Bắt đầu timer
+    }
+
+    private void openReview() {
+        ReviewMatchModal reviewMatchModal = new ReviewMatchModal((Stage) root.getScene().getWindow(), gameController);
+        reviewMatchModal.show();
     }
 
 
