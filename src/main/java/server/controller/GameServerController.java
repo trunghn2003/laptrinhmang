@@ -102,15 +102,15 @@ public class GameServerController {
 
 
 
-    public void addRound(int matchId, int roundNumber, String player1Choice, String player2Choice, int player1Score, int player2Score) {
-        String query = "INSERT INTO rounds (match_id, round_number, player1_choice, player2_choice, player1_score, player2_score) VALUES (?, ?, ?, ?, ?, ?)";
+    public void addRound(int matchId, int roundNumber, int player1Score, int player2Score) {
+        String query = "INSERT INTO rounds (match_id, round_number,  player1_score, player2_score) VALUES (?, ?, ?, ?)";
         try (PreparedStatement stmt = con.prepareStatement(query)) {
             stmt.setInt(1, matchId);
             stmt.setInt(2, roundNumber);
-            stmt.setString(3, player1Choice);
-            stmt.setString(4, player2Choice);
-            stmt.setInt(5, player1Score);
-            stmt.setInt(6, player2Score);
+//            stmt.setString(3, player1Choice);
+//            stmt.setString(4, player2Choice);
+            stmt.setInt(3, player1Score);
+            stmt.setInt(4, player2Score);
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

@@ -182,7 +182,49 @@ public class ClientHandler implements Runnable, IClientHandler {
                     else if (message.startsWith(Constants.ACTION_GET_HISTORY)) {
                         // Nếu nhận được yêu cầu lấy lịch sử đấu
                         sendMatchHistory(message);
-                    }else {
+                    }
+                    else if (message.startsWith(Constants.SCORE)){
+                        // Chuỗi all_score được khởi tạo từ Constants.SCORE
+                       String all_score = message;
+
+// Tách thông điệp và các điểm số
+                        String[] parts = all_score.split(" ", 2);  // Tách thành hai phần: phần đầu là message, phần sau là các điểm số
+                        String message1 = parts[0];  // Phần đầu tiên là thông điệp
+                        String scoreString = parts.length > 1 ? parts[1] : "";  // Phần thứ hai là chuỗi điểm số
+
+// Tách chuỗi điểm số ra thành một mảng các điểm số
+                        String[] scoreArray = scoreString.split(" ");  // Tách các điểm số cách nhau bởi dấu cách
+
+// Khởi tạo hai ArrayList cho Player 1 và Player 2
+                        ArrayList<Integer> player1Scores = new ArrayList<>();
+                        ArrayList<Integer> player2Scores = new ArrayList<>();
+
+// Chia điểm số vào hai ArrayList
+                        for (int i = 0; i < scoreArray.length; i++) {
+                            int score = Integer.parseInt(scoreArray[i]);  // Chuyển chuỗi điểm thành số nguyên
+                            if (i % 2 == 0) {
+                                player1Scores.add(score);  // Điểm của Player 1 ở các chỉ số chẵn (round 1, 3, 5,...)
+                            } else {
+                                player2Scores.add(score);  // Điểm của Player 2 ở các chỉ số lẻ (round 2, 4, 6,...)
+                            }
+                        }
+
+// In kết quả để kiểm tra
+                        System.out.println("Message: " + message);
+                        System.out.println("Player 1 Scores: " + player1Scores);
+                        System.out.println("Player 2 Scores: " + player2Scores);
+                        for(int i = 0; i < player1Scores.size(); i++){
+                            this.gameServerController.addRound(
+                                    matchId,
+                                    i+1,
+                                    player1Scores.get(i),  // Player's score in this round
+                                    player2Scores.get(i)) ; // Opponent's score in this round
+
+                        }
+
+
+                    }
+                    else {
                         serverView.showMessage("Received unknown message: " + message);
                     }
                 } else {
@@ -402,14 +444,14 @@ public class ClientHandler implements Runnable, IClientHandler {
         if(send) {
 
 
-            this.gameServerController.addRound(
-                    matchId,
-                    round,  // Current round number
-                    String.join(",", myClient.selectedColors),  // Player's color choice
-                    String.join(",", opponentClient.selectedColors),  // Opponent's color choice
-                    myClient.getScore(),  // Player's score in this round
-                    opponentClient.getScore()  // Opponent's score in this round
-            );
+//            this.gameServerController.addRound(
+//                    matchId,
+//                    round,  // Current round number
+//                    String.join(",", myClient.selectedColors),  // Player's color choice
+//                    String.join(",", opponentClient.selectedColors),  // Opponent's color choice
+//                    myClient.getScore(),  // Player's score in this round
+//                    opponentClient.getScore()  // Opponent's score in this round
+//            );
             send = false;
         }
 
