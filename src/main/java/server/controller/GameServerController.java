@@ -109,8 +109,8 @@ public class GameServerController {
             stmt.setInt(2, roundNumber);
 //            stmt.setString(3, player1Choice);
 //            stmt.setString(4, player2Choice);
-            stmt.setInt(3, player2Score);
-            stmt.setInt(4, player1Score);
+            stmt.setInt(3, player1Score);
+            stmt.setInt(4, player2Score);
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
