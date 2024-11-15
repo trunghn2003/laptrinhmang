@@ -30,7 +30,7 @@ public class MainView extends Application {
     private ObservableList<User> userListModel;
     private ListView<User> userList;
     private Button playButton;
-//    private Button historyButton;
+    private Button settingsButton;
     public MainView(ClientControl clientControl, Object userData) {
         this.clientControl = clientControl;
         this.gameController = new GameController(clientControl);
