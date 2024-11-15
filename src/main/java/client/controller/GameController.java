@@ -29,11 +29,10 @@ public class GameController {
         handleEndGame();
 
         this.friendsView = friendsView;
-        if(this.gameView != null) {
-            this.gameView.close();
-        }
-        clientControl.sendMessage(Constants.ACTION_START_GAME);
+
         if(this.gameView != null) this.gameView.close();
+
+        clientControl.sendMessage(Constants.ACTION_START_GAME);
         this.opponent = opponent;
     }
 

@@ -489,6 +489,9 @@ public class ClientHandler implements Runnable, IClientHandler {
         this.opponentClient.myClient = null;
         this.opponentClient.opponentClient = null;
         this.opponentClient = null;
+
+        this.myClientEndMatch = false;
+        this.opponentEndMatch = false;
     }
 
     // Phương thức thoát khỏi trận đấu giữa chừng
