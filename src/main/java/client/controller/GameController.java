@@ -124,5 +124,16 @@ public class GameController {
     public void finishGame() {
         System.out.println("Finish game");
         this.gameView.showGameOverScreen();
+//        for (int x : getAllScoreRound()) {
+//            System.out.println(x);
+//        }
+        String all_score = Constants.SCORE ;
+        for (int x : getAllScoreRound()) {
+           all_score += " " + x;
+        }
+
+        this.clientControl.sendMessage(all_score);
+
+        System.out.println(getAllScoreRound().toString());
     }
 }
