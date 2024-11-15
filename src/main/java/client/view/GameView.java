@@ -148,8 +148,16 @@ public class GameView {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
+        Region spacer2 = new Region();
+        HBox.setHgrow(spacer2, Priority.ALWAYS);
+
+        //Thêm tên đối thủ
+        Label opponentLabel = new Label("Opponent: " + opponent);
+        opponentLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: #453221;");
+        opponentLabel.setAlignment(Pos.CENTER);
+
         // Create topBox to hold scoreBox and timerBox
-        HBox topBox = new HBox(scoreBox,spacer , timerBox);
+        HBox topBox = new HBox(scoreBox,spacer, opponentLabel, spacer2 , timerBox);
         topBox.setAlignment(Pos.CENTER);
         topBox.setSpacing(20); // Space between scoreBox and timerBox
         topBox.setPadding(new Insets(10));
@@ -222,7 +230,7 @@ public class GameView {
         resultStack.setTranslateY(-40);
 
         Label gameOverLabel = new Label("Game Over");
-        gameOverLabel.setTranslateY(-100);
+        gameOverLabel.setTranslateY(-95);
 
         Text scoreLabelStroke = new Text(gameController.getTotalScore() +" - " + gameController.getEnemyScore());
         scoreLabelStroke.setFont(Font.font("SVN-Bango", 26));
@@ -358,7 +366,7 @@ public class GameView {
             // Add a pause after flashing to display the score screen
             PauseTransition pauseAfterFlash = new PauseTransition(Duration.seconds(1.5));
             pauseAfterFlash.setOnFinished(event -> {
-                if (roundCnt <= 1) {
+                if (roundCnt <= 2) {
                     showRoundScoreScreen();  // Method to show score between rounds
                     updateScore();
                     PauseTransition pause = new PauseTransition(Duration.seconds(2));
@@ -395,7 +403,7 @@ public class GameView {
         endRoundLable.setFill(Color.WHITE);
         endRoundLable.setFont(Font.font("SVN-Bango", 30));
 
-        Text endRoundBorderLable = new Text("Round "+ roundCnt + "/ 5 Completed!");
+        Text endRoundBorderLable = new Text("Round "+ roundCnt + "/ 3 Completed!");
         endRoundBorderLable.setFill(Color.web("#714F20"));
         endRoundBorderLable.setStroke(Color.web("#714F20"));
         endRoundBorderLable.setStrokeWidth(6);

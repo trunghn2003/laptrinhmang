@@ -416,7 +416,7 @@ public class ClientHandler implements Runnable, IClientHandler {
 
 
         // Nếu chưa đủ 5 rounds sẽ thực hiện chơi tiếp
-        if(this.round == 2) {
+        if(this.round == 3) {
             actionEndGame();
         } else {
             sendColorsToClient();

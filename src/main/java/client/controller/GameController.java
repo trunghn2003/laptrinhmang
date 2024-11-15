@@ -50,6 +50,10 @@ public class GameController {
         return this.totalScore;
     }
 
+    public String getOpponent() {
+        return this.opponent;
+    }
+
     public ArrayList<String> getColors() {
         return this.colors;
     }
