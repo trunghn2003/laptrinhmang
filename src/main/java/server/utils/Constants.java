@@ -30,12 +30,14 @@ public class Constants {
     public static final String RESPONSE_EXIT_MIDDLE_GAME = "response_exit_middle_game";
     public static final String RESPONSE_MATCH_RESULT = "response_match_result";
     public static final String RESPONSE_FINISH_GAME = "response_finish_game";
-
-
+    public static final String RESPONSE_GET_ENEMY_SCORE_THIS_ROUND = "response_get_enemy_score_this_round";
 
     // Thông báo đăng nhập và đăng ký
     public static final String LOGIN_SUCCESS = "Login successful!";
     public static final String LOGIN_FAILURE = "Login failed";
     public static final String REGISTER_SUCCESS = "Registration successful!";
     public static final String REGISTER_FAILURE = "Registration failed";
+    public static final String ACTION_GET_HISTORY  = "Get History";
+    public static final String SCORE = "SAVE_ROUND" ;
+
 }

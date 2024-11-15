@@ -16,6 +16,7 @@ public class GameController {
     private int score = 0;
     private int totalScore = 0;
     private int enemyScore = 0;
+    private ArrayList<Integer> roundScores = new ArrayList<>();
     private String opponent;
     private FriendsView friendsView;
 
@@ -36,6 +37,9 @@ public class GameController {
         this.opponent = opponent;
     }
 
+    public ArrayList<Integer> getAllScoreRound() {
+        return this.roundScores;
+    }
     public int getEnemyScore() {
         return this.enemyScore;
     }
@@ -83,8 +87,15 @@ public class GameController {
         this.gameResult = Boolean.parseBoolean(parts.get(1));
         this.score = Integer.parseInt(parts.get(2));
 
+        this.roundScores.add(score);
+
         this.totalScore += score;
 
+    }
+
+    public void receivedEnemyScoreRound(String message) {
+        ArrayList<String> parts = new ArrayList<>(Arrays.asList(message.split(":")));
+        this.roundScores.add(Integer.parseInt(parts.get(1)));
     }
 
     // Kết thúc trò chơi giữa chừng
@@ -107,5 +118,22 @@ public class GameController {
         this.matchResult = "";
         this.opponent = "";
         this.enemyScore = 0;
+        this.roundScores.clear();
+    }
+
+    public void finishGame() {
+        System.out.println("Finish game");
+        this.gameView.showGameOverScreen();
+//        for (int x : getAllScoreRound()) {
+//            System.out.println(x);
+//        }
+        String all_score = Constants.SCORE ;
+        for (int x : getAllScoreRound()) {
+           all_score += " " + x;
+        }
+
+        this.clientControl.sendMessage(all_score);
+
+        System.out.println(getAllScoreRound().toString());
     }
 }
