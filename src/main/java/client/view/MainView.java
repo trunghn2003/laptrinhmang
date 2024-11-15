@@ -2,6 +2,7 @@ package client.view;
 
 import client.controller.ClientControl;
 import client.controller.GameController;
+import client.model.ResponseResult;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.effect.DropShadow;
@@ -259,12 +260,12 @@ public class MainView extends Application {
 
     private void showMatchHistory() {
         try {
-            // Gọi phương thức lấy lịch sử đấu từ clientControl
-//            boolean x = clientControl.sendMatchHistoryRequest();
-//            if(x) {
+
             try{
 
-                List<Map<String, Object>> matchHistory = clientControl.receiveMatchHistory();
+//                ResponseResult result = clientControl.receiveMatchHistory();
+                List<Map<String, Object>> matchHistory = clientControl.matchHistory;
+
                 if (matchHistory != null && !matchHistory.isEmpty()) {
                     // Hiển thị lịch sử đấu
                     Stage historyStage = new Stage();

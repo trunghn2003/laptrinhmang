@@ -23,6 +23,8 @@ public class ClientControl {
     private String serverHost = dotenv.get("SERVER_HOST");
     private int serverPort = Integer.parseInt(dotenv.get("SERVER_PORT"));
     private User currentUser;
+    public List<Map<String, Object>> matchHistory;
+
     public ClientControl() {
     }
 
@@ -145,6 +147,7 @@ public class ClientControl {
                 if (receivedData instanceof CombinedData) {
                     CombinedData data = (CombinedData) receivedData;
                     List<User> users = data.getOnlineUsers();
+                    this.matchHistory = data.getMatchHistory();
                     @SuppressWarnings("unchecked")
 //                    java.util.List<User> users = (java.util.List<User>) userList;
                     ResponseResult result = new ResponseResult(true, "Login successful.");
@@ -221,67 +224,19 @@ public class ClientControl {
         return oos;
     }
 
-//    public java.util.List<User> getAllUser() {
-////        User user = new User(username, password, Constants.ACTION_LOGIN);
-////        if (openConnection() == null) {
-////            return new ResponseResult(false, "Cannot connect to server.");
-////        }
-////        if (!sendUser(user)) {
-////            closeConnection();
-////            return new ResponseResult(false, "Error sending data to server.");
-////        }
-//        System.out.println("Get all user");
-//        Object response = receiveData();
-//        System.out.println("get all user: "+response);
-//        if (response instanceof java.util.List) {
-//            @SuppressWarnings("unchecked")
-//            java.util.List<User> users = (java.util.List<User>) response;
-//            return users;
-//        }
-//        return null;
-//    }
-// Send request for match history to the server
-public boolean sendMatchHistoryRequest() {
-    if (currentUser == null) {
-        System.out.println("User chưa đăng nhập.");
-        return false;
-    }
 
-    // Create the request message
-    String message = Constants.ACTION_GET_HISTORY + ":" + currentUser.getUserName();
-    sendMessage(message);
-//    if (!sendMessage(message)) {
-//        System.out.println("Gửi yêu cầu lịch sử đấu thất bại.");
-//        return false;
-//    }
-    return true;  // Request was sent successfully
-}
+
 
     // Receive and process match history response from the server
-    public List<Map<String, Object>> receiveMatchHistory() {
+    public ResponseResult receiveMatchHistory() {
         // Receive response from the server
         Object receivedData = receiveData();
         if (receivedData instanceof CombinedData) {
             CombinedData data = (CombinedData) receivedData;
             List<Map<String, Object>> matchHistory = data.getMatchHistory();
-//        if (response instanceof List) {
-//            @SuppressWarnings("unchecked")
-//            List<?> responseList = (List<?>) response;
-//
-//
-//            if (!responseList.isEmpty() && responseList.get(0) instanceof User) {
-//                return null;
-//            } else {
-//
-//                @SuppressWarnings("unchecked")
-//                List<Map<String, Object>> matchHistory = (List<Map<String, Object>>) response;
-//                return matchHistory;
-//            }
-//        } else {
-//            System.out.println("Phản hồi không hợp lệ hoặc lỗi từ server.");
-//            return null;
-//        }
-            return matchHistory;
+            ResponseResult res = new ResponseResult(true, "thanh cong");
+            res.setData(matchHistory);
+            return  res;
         }
         return null;
 
