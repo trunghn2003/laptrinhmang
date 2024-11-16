@@ -555,12 +555,19 @@ public class ClientHandler implements Runnable, IClientHandler {
                 String username = parts[1];
 
 
-                System.out.println("Action: " + action);
+//                System.out.println("Action: " + action);
                 System.out.println("Username: " + username);
 
             // Lấy lịch sử đấu từ GameServerController
-            List<Map<String, Object>> matchHistory = gameServerController.getMatchHistoryByUsername(username);
+            Map<Integer, Map<String, Object>> matchHistory  = gameServerController.getMatchHistoryByUsername(username);
+            Map<String, Object> responseMap = new HashMap<>();
+            for (Map.Entry<Integer, Map<String, Object>> entry : matchHistory.entrySet()) {
+                responseMap.put(String.valueOf(entry.getKey()), entry.getValue());
+            }
 
+            // Gửi Map qua ObjectOutputStream
+            oos.writeObject(responseMap);
+            oos.flush();
             // Gửi dữ liệu lịch sử đấu đến client
             oos.writeObject(matchHistory);
             oos.flush();
