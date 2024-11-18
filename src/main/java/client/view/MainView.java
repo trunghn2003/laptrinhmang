@@ -2,12 +2,17 @@ package client.view;
 
 import client.controller.ClientControl;
 import client.controller.GameController;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
+import javafx.stage.StageStyle;
 import server.model.User;
 import client.utils.Constants;
 import javafx.application.Application;
@@ -19,7 +24,12 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MainView extends Application {
     private ClientControl clientControl;
@@ -28,6 +38,7 @@ public class MainView extends Application {
     private ListView<User> userList;
     private Button playButton;
     private Button settingsButton;
+    private Button historyButton;
 
     public MainView(ClientControl clientControl, Object userData) {
         this.clientControl = clientControl;
@@ -122,6 +133,11 @@ public class MainView extends Application {
         playButton.setPrefWidth(250);
         playButton.setPrefHeight(60);
 
+        historyButton = new Button("History");
+        historyButton.setPrefWidth(250);
+        historyButton.setPrefHeight(60);
+        historyButton.setOnAction(e -> showMatchHistory());
+
         DropShadow buttonShadow = new DropShadow();
         buttonShadow.setOffsetY(6.0);
         buttonShadow.setColor(Color.web("#A37029"));
@@ -132,7 +148,7 @@ public class MainView extends Application {
             playNow();
         });
 
-        leftColumn.getChildren().addAll(logo, spacer, playButton);
+        leftColumn.getChildren().addAll(logo, spacer, playButton, historyButton);
 
         // Cột 3
         VBox rightColumn = new VBox();
@@ -291,4 +307,90 @@ public class MainView extends Application {
     public Stage getStage() {
         return (Stage) playButton.getScene().getWindow();
     }
-}
+
+    private void showMatchHistory() {
+        boolean requestSent = clientControl.sendMatchHistoryRequest();
+        if (!requestSent) {
+            showAlert("Failed to send match history request.");
+            return;
+        }
+
+        Map<String, Map<String, Object>> matchHistory = clientControl.receiveMatchHistory();
+
+        if (matchHistory.isEmpty()) {
+            System.out.println("Match history is empty.");
+        } else {
+            System.out.println("Match history size: " + matchHistory.size());
+            for (Map.Entry<String, Map<String, Object>> entry : matchHistory.entrySet()) {
+                String matchId = entry.getKey();
+                Map<String, Object> matchDetails = entry.getValue();
+
+                System.out.println("Match ID: " + matchId);
+                System.out.println("Match Details:");
+                for (Map.Entry<String, Object> detailEntry : matchDetails.entrySet()) {
+                    String key = detailEntry.getKey();
+                    Object value = detailEntry.getValue();
+                    System.out.println("  " + key + ": " + value);
+                }
+            }
+        }
+
+        JFrame frame = new JFrame("Match History");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
+
+        // Kiểm tra nếu matchHistory rỗng
+        if (matchHistory.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Match history is empty.", "Info", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        // Tạo model cho bảng
+        DefaultTableModel tableModel = new DefaultTableModel();
+        tableModel.addColumn("Match ID"); // Cột cho Match ID
+
+        // Thêm các cột từ key của matchDetails (vì keys trong Map của matchDetails là dynamic)
+        boolean columnsAdded = false;
+
+        for (Map.Entry<String, Map<String, Object>> entry : matchHistory.entrySet()) {
+            String matchId = entry.getKey();
+            Map<String, Object> matchDetails = entry.getValue();
+
+            if (!columnsAdded) {
+                for (String key : matchDetails.keySet()) {
+                    tableModel.addColumn(key);
+                }
+                columnsAdded = true;
+            }
+
+            // Tạo một hàng dữ liệu
+            Object[] rowData = new Object[matchDetails.size() + 1];
+            rowData[0] = matchId;
+
+            int colIndex = 1;
+            for (Object value : matchDetails.values()) {
+                rowData[colIndex++] = value;
+            }
+
+            tableModel.addRow(rowData);
+        }
+
+        // Tạo JTable từ model
+        JTable table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
+
+        // Thêm bảng vào frame
+        frame.setLayout(new BorderLayout());
+        frame.add(scrollPane, BorderLayout.CENTER);
+
+        // Hiển thị frame
+        frame.setVisible(true);
+    }
+
+
+    }
+
+
+
+
+

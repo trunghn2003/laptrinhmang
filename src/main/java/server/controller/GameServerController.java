@@ -163,8 +163,8 @@ public class GameServerController {
         }
     }
 
-    public List<Map<String, Object>> getMatchHistoryByUsername(String username) {
-        List<Map<String, Object>> matchHistory = new ArrayList<>();
+    public Map<Integer, Map<String, Object>> getMatchHistoryByUsername(String username) {
+        Map<Integer, Map<String, Object>> matchHistory = new HashMap<>();
         String getUserIdQuery = "SELECT id FROM users WHERE username = ?";
         String getMatchesQuery = "SELECT * FROM matches WHERE player1_id = ? OR player2_id = ?";
         String getRoundsQuery = "SELECT * FROM rounds WHERE match_id = ? ORDER BY round_number";
@@ -180,7 +180,7 @@ public class GameServerController {
                     userId = rs.getInt("id");
                 } else {
                     System.out.println("User " + username + " not found.");
-                    return matchHistory; // Trả về danh sách rỗng nếu không tìm thấy người dùng
+                    return matchHistory; // Trả về map rỗng nếu không tìm thấy người dùng
                 }
             }
 
@@ -212,22 +212,24 @@ public class GameServerController {
                     matchData.put("endTime", endTime);
 
                     // Lấy chi tiết các vòng đấu trong trận đấu này
-                    List<Map<String, Object>> rounds = new ArrayList<>();
-                    try (PreparedStatement roundStmt = con.prepareStatement(getRoundsQuery)) {
-                        roundStmt.setInt(1, matchId);
-                        ResultSet roundRs = roundStmt.executeQuery();
-                        while (roundRs.next()) {
-                            Map<String, Object> roundData = new HashMap<>();
-                            roundData.put("roundNumber", roundRs.getInt("round_number"));
-                            roundData.put("player1Choice", roundRs.getString("player1_choice"));
-                            roundData.put("player2Choice", roundRs.getString("player2_choice"));
-                            roundData.put("player1Score", roundRs.getInt("player1_score"));
-                            roundData.put("player2Score", roundRs.getInt("player2_score"));
-                            rounds.add(roundData);
-                        }
-                    }
-                    matchData.put("rounds", rounds); // Thêm thông tin vòng vào trận đấu
-                    matchHistory.add(matchData); // Thêm trận đấu vào lịch sử
+//                    List<Map<String, Object>> rounds = new ArrayList<>();
+//                    try (PreparedStatement roundStmt = con.prepareStatement(getRoundsQuery)) {
+//                        roundStmt.setInt(1, matchId);
+//                        ResultSet roundRs = roundStmt.executeQuery();
+//                        while (roundRs.next()) {
+//                            Map<String, Object> roundData = new HashMap<>();
+//                            roundData.put("roundNumber", roundRs.getInt("round_number"));
+//                            roundData.put("player1Choice", roundRs.getString("player1_choice"));
+//                            roundData.put("player2Choice", roundRs.getString("player2_choice"));
+//                            roundData.put("player1Score", roundRs.getInt("player1_score"));
+//                            roundData.put("player2Score", roundRs.getInt("player2_score"));
+//                            rounds.add(roundData);
+//                        }
+//                    }
+//                    matchData.put("rounds", rounds); // Thêm thông tin vòng vào trận đấu
+
+                    // Thêm trận đấu vào map với matchId làm key
+                    matchHistory.put(matchId, matchData);
                 }
             }
 
@@ -235,8 +237,8 @@ public class GameServerController {
             e.printStackTrace();
         }
 
-
         return matchHistory;
     }
+
 
 }

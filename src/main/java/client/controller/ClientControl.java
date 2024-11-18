@@ -9,6 +9,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -239,35 +240,38 @@ public class ClientControl {
 //        return null;
 //    }
 // Send request for match history to the server
-public boolean sendMatchHistoryRequest() {
-    if (currentUser == null) {
-        System.out.println("User chưa đăng nhập.");
-        return false;
-    }
+    public boolean sendMatchHistoryRequest() {
+        if (currentUser == null) {
+            System.out.println("User chưa đăng nhập.");
+            return false;
+        }
 
-    // Create the request message
-    String message = Constants.ACTION_GET_HISTORY + ":" + currentUser.getUserName();
-    sendMessage(message);
-//    if (!sendMessage(message)) {
-//        System.out.println("Gửi yêu cầu lịch sử đấu thất bại.");
-//        return false;
-//    }
-    return true;  // Request was sent successfully
-}
+        // Create the request message
+        String message = Constants.ACTION_GET_HISTORY + ":" + currentUser.getUserName();
+        sendMessage(message);
+    //    if (!sendMessage(message)) {
+    //        System.out.println("Gửi yêu cầu lịch sử đấu thất bại.");
+    //        return false;
+    //    }
+        return true;  // Request was sent successfully
+    }
 
     // Receive and process match history response from the server
-    public List<Map<String, Object>> receiveMatchHistory() {
-        // Receive response from the server
-        Object response = receiveData();
-        if (response instanceof List) {
+    // Receive and process match history response from the server
+    public Map<String, Map<String, Object>> receiveMatchHistory() {
+        // Nhận dữ liệu từ server
+        Object response =receiveData(); // ois là ObjectInputStream
+        if (response instanceof Map) {
             @SuppressWarnings("unchecked")
-            List<Map<String, Object>> matchHistory = (List<Map<String, Object>>) response;
+            Map<String, Map<String, Object>> matchHistory = (Map<String, Map<String, Object>>) response;
             return matchHistory;
         } else {
-            System.out.println("Phản hồi không hợp lệ hoặc lỗi từ server.");
+            System.out.println("Phản hồi không đúng định dạng.");
+            return Collections.emptyMap();
         }
-        return null;  // Return null if the response is invalid
     }
+
+
 
 }
 
