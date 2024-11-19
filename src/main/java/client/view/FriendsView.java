@@ -21,6 +21,7 @@ import javafx.stage.Stage;
 import server.model.User;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class FriendsView extends Application {
     private ClientControl clientControl;
@@ -157,6 +158,11 @@ public class FriendsView extends Application {
                             Platform.runLater(() -> handleInviteResponse(message));
                         } else if (message.startsWith(Constants.RESPONSE_GAME_START)) {
                             // Gọi handleGameStart trên luồng chính
+                            try {
+                                TimeUnit.SECONDS.sleep(1);
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
                             Platform.runLater(() -> handleGameStart(message));
                         } else if (message.startsWith(Constants.RESPONSE_RANDOM_COLORS)) {
                             Platform.runLater(() -> gameController.receivedColors(message));

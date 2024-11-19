@@ -8,6 +8,8 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
 import kotlin.Pair;
 
+import java.util.concurrent.TimeUnit;
+
 public class LoginController {
     private ClientControl clientControl;
     private LoginView loginView; // Tham chiếu đến LoginView
@@ -26,6 +28,11 @@ public class LoginController {
             double yPos = loginStage.getY();
 
             loginView.close();
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             // Mở giao diện chính
             MainView mainView = new MainView(clientControl, result.getData());
             Stage mainStage = mainView.getStage();

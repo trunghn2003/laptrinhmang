@@ -22,16 +22,16 @@ CREATE TABLE matches (
 );
 
 
-CREATE TABLE rounds (
-                        id INT AUTO_INCREMENT PRIMARY KEY,
-                        match_id INT NOT NULL,
-                        round_number INT NOT NULL,
-                        player1_choice VARCHAR(255),
-                        player2_choice VARCHAR(255),
-                        player1_score INT DEFAULT 0,
-                        player2_score INT DEFAULT 0,
-                        FOREIGN KEY (match_id) REFERENCES matches(id)
-);
+-- CREATE TABLE rounds (
+--                         id INT AUTO_INCREMENT PRIMARY KEY,
+--                         match_id INT NOT NULL,
+--                         round_number INT NOT NULL,
+--                         player1_choice VARCHAR(255),
+--                         player2_choice VARCHAR(255),
+--                         player1_score INT DEFAULT 0,
+--                         player2_score INT DEFAULT 0,
+--                         FOREIGN KEY (match_id) REFERENCES matches(id)
+-- );
 
 ALTER TABLE matches MODIFY COLUMN result VARCHAR(100);
 

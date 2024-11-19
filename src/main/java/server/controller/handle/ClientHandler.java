@@ -399,19 +399,19 @@ public class ClientHandler implements Runnable, IClientHandler {
         );
         opponentClient.sendMessage(Constants.RESPONSE_GET_ENEMY_SCORE_THIS_ROUND + ":" + scoreAchieve);
         this.score+=scoreAchieve;
-        if(send) {
-
-
-            this.gameServerController.addRound(
-                    matchId,
-                    round,  // Current round number
-                    String.join(",", myClient.selectedColors),  // Player's color choice
-                    String.join(",", opponentClient.selectedColors),  // Opponent's color choice
-                    myClient.getScore(),  // Player's score in this round
-                    opponentClient.getScore()  // Opponent's score in this round
-            );
-            send = false;
-        }
+//        if(send) {
+//
+//
+//            this.gameServerController.addRound(
+//                    matchId,
+//                    round,  // Current round number
+//                    String.join(",", myClient.selectedColors),  // Player's color choice
+//                    String.join(",", opponentClient.selectedColors),  // Opponent's color choice
+//                    myClient.getScore(),  // Player's score in this round
+//                    opponentClient.getScore()  // Opponent's score in this round
+//            );
+//            send = false;
+//        }
 
 
 
