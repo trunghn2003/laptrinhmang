@@ -133,10 +133,10 @@ public class MainView extends Application {
         playButton.setPrefWidth(250);
         playButton.setPrefHeight(60);
 
-        historyButton = new Button("History");
-        historyButton.setPrefWidth(250);
-        historyButton.setPrefHeight(60);
-        historyButton.setOnAction(e -> showMatchHistory());
+//        historyButton = new Button("History");
+//        historyButton.setPrefWidth(250);
+//        historyButton.setPrefHeight(60);
+//        historyButton.setOnAction(e -> showMatchHistory());
 
         DropShadow buttonShadow = new DropShadow();
         buttonShadow.setOffsetY(6.0);
@@ -148,7 +148,7 @@ public class MainView extends Application {
             playNow();
         });
 
-        leftColumn.getChildren().addAll(logo, spacer, playButton, historyButton);
+        leftColumn.getChildren().addAll(logo, spacer, playButton);
 
         // Cột 3
         VBox rightColumn = new VBox();

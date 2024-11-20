@@ -399,7 +399,7 @@ public class GameView {
 
 
     private void showRoundScoreScreen() {
-        Text endRoundLable = new Text("Round "+ roundCnt + "/ 5 Completed!");
+        Text endRoundLable = new Text("Round "+ roundCnt + "/ 3 Completed!");
         endRoundLable.setFill(Color.WHITE);
         endRoundLable.setFont(Font.font("SVN-Bango", 30));
 
