@@ -7,13 +7,11 @@ import server.controller.UserServerController;
 import server.model.ResponseResult;
 import server.model.User;
 import server.utils.Constants;
-import server.view.ServerView;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.sql.Connection;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,7 +22,6 @@ public class ClientHandler implements Runnable, IClientHandler {
     private LoginServerController loginController;
     private RegisterServerController registerController;
     private UserServerController userController;
-    private ServerView serverView;
     private AtomicInteger clientIdCounter;
     private User user;
     private ObjectInputStream ois;
@@ -46,12 +43,11 @@ public class ClientHandler implements Runnable, IClientHandler {
     public ClientHandler(Socket socket, LoginServerController loginController,
                          RegisterServerController registerController,
                          UserServerController userController,
-                         ServerView serverView, AtomicInteger clientIdCounter, GameServerController gameServerController) {
+                        AtomicInteger clientIdCounter, GameServerController gameServerController) {
         this.clientSocket = socket;
         this.loginController = loginController;
         this.registerController = registerController;
         this.userController = userController;
-        this.serverView = serverView;
         this.clientIdCounter = clientIdCounter;
         this.gameServerController = gameServerController;
     }
@@ -71,7 +67,7 @@ public class ClientHandler implements Runnable, IClientHandler {
                 handleUserRequest(user, oos);
             }
             else {
-                serverView.showMessage("Invalid object received from client.");
+                // // // // // serverView.showMessage("Invalid object received from client.");
                 oos.writeObject("Invalid object received.");
             }
 
@@ -86,7 +82,7 @@ public class ClientHandler implements Runnable, IClientHandler {
             }
 
         } catch (Exception e) {
-            serverView.showMessage("Error handling client: " + e.getMessage());
+            // // // // // serverView.showMessage("Error handling client: " + e.getMessage());
             e.printStackTrace();
         } finally {
             closeClientSocket();
@@ -111,45 +107,45 @@ public class ClientHandler implements Runnable, IClientHandler {
                     break;
             }
         } catch (Exception e) {
-            serverView.showMessage("Error processing user request: " + e.getMessage());
+            // // // // // serverView.showMessage("Error processing user request: " + e.getMessage());
         }
     }
 
     private void handleLoginRequest(User user, ObjectOutputStream oos) throws Exception {
-        serverView.showMessage("Processing login request for user: " + user.getUserName());
+        // // // // // serverView.showMessage("Processing login request for user: " + user.getUserName());
         ResponseResult result = loginController.authenticate(user);
 
         if (result.isSuccess()) {
             oos.writeObject(Constants.LOGIN_SUCCESS);
             oos.flush();
-            serverView.showMessage("Login successful for user: " + user.getUserName());
+            // // // // // serverView.showMessage("Login successful for user: " + user.getUserName());
         } else {
             oos.writeObject(Constants.LOGIN_FAILURE + ":" + result.getMessage());
             oos.flush();
-            serverView.showMessage("Login failed for user: " + user.getUserName() + " - " + result.getMessage());
+            // // // // // serverView.showMessage("Login failed for user: " + user.getUserName() + " - " + result.getMessage());
             this.user = null; // Hủy người dùng
         }
     }
 
     private void handleRegisterRequest(User user, ObjectOutputStream oos) throws Exception {
-        serverView.showMessage("Processing registration request for user: " + user.getUserName());
+        // // // // // serverView.showMessage("Processing registration request for user: " + user.getUserName());
         ResponseResult result = registerController.register(user);
 
         if (result.isSuccess()) {
             oos.writeObject(Constants.REGISTER_SUCCESS);
             oos.flush();
-            serverView.showMessage("Registration successful for user: " + user.getUserName());
+            // // // // // serverView.showMessage("Registration successful for user: " + user.getUserName());
         } else {
             oos.writeObject(Constants.REGISTER_FAILURE + ":" + result.getMessage());
             oos.flush();
-            serverView.showMessage("Registration failed for user: " + user.getUserName() + " - " + result.getMessage());
+            // // // // // serverView.showMessage("Registration failed for user: " + user.getUserName() + " - " + result.getMessage());
         }
         this.user = null; // Sau khi đăng ký, cần đăng nhập lại
     }
 
     private void handleUnknownRequest(User user, ObjectOutputStream oos) throws Exception {
         String message = "Unknown action type received: " + user.getActionType();
-        serverView.showMessage(message);
+        // // // // // serverView.showMessage(message);
         oos.writeObject(message);
         oos.flush();
         this.user = null;
@@ -183,16 +179,16 @@ public class ClientHandler implements Runnable, IClientHandler {
                         // Nếu nhận được yêu cầu lấy lịch sử đấu
                         sendMatchHistory(message);
                     }else {
-                        serverView.showMessage("Received unknown message: " + message);
+                        // // // // // serverView.showMessage("Received unknown message: " + message);
                     }
                 } else {
-                    serverView.showMessage("Received unknown object from client.");
+                    // // // // // serverView.showMessage("Received unknown object from client.");
                 }
             }
         } catch (IOException e) {
-            serverView.showMessage("Client disconnected: " + user.getUserName());
+            // // // // // serverView.showMessage("Client disconnected: " + user.getUserName());
         } catch (Exception e) {
-            serverView.showMessage("Error in listenForMessages: " + e.getMessage());
+            // // // // // serverView.showMessage("Error in listenForMessages: " + e.getMessage());
             e.printStackTrace();
         } finally {
             closeClientSocket();
@@ -206,7 +202,7 @@ public class ClientHandler implements Runnable, IClientHandler {
             oos.writeObject(onlineUsers);
             oos.flush();
         } catch (IOException e) {
-            serverView.showMessage("Error sending online users list: " + e.getMessage());
+            // // // // // serverView.showMessage("Error sending online users list: " + e.getMessage());
         }
     }
 
@@ -219,46 +215,46 @@ public class ClientHandler implements Runnable, IClientHandler {
 
     private void handleInvite(String message) {
         System.out.println("Handling invite with message: " + message);
-        serverView.showMessage("Handling invite with message: " + message);
+        // // // // // serverView.showMessage("Handling invite with message: " + message);
 
         String[] parts = message.split(":");
         if (parts.length >= 2) {
             String recipientUsername = parts[1];
 
             System.out.println("Invite recipient: " + recipientUsername);
-            serverView.showMessage("Invite recipient: " + recipientUsername);
+            // // // // // serverView.showMessage("Invite recipient: " + recipientUsername);
 
             // Kiểm tra xem người nhận có online không
             int recipientStatus = userController.getUserStatus(recipientUsername);
             System.out.println("Recipient status: " + (recipientStatus == 1 ? "Online" : "Offline"));
-            serverView.showMessage("Recipient status: " + (recipientStatus == Constants.STATUS_ONLINE ? "Online" : "Offline"));
+            // // // // // serverView.showMessage("Recipient status: " + (recipientStatus == Constants.STATUS_ONLINE ? "Online" : "Offline"));
 
             if (recipientStatus == Constants.STATUS_ONLINE) {
                 ClientHandler recipientHandler = getClientHandler(recipientUsername);
                 if (recipientHandler != null && !recipientHandler.gameStartedWithOpponent) {
                     recipientHandler.sendMessage(Constants.RESPONSE_INVITE + ":" + user.getUserName());
-                    serverView.showMessage(user.getUserName() + " has sent an invite to " + recipientUsername);
+                    // // // // // serverView.showMessage(user.getUserName() + " has sent an invite to " + recipientUsername);
                     System.out.println(user.getUserName() + " has sent an invite to " + recipientUsername);
                 } else {
                     sendMessage("INVITE_ERROR:" + recipientUsername + " is not available or game already started.");
                     System.out.println("Error: ClientHandler for " + recipientUsername + " not found or game already started.");
-                    serverView.showMessage("Error: ClientHandler for " + recipientUsername + " not found or game already started.");
+                    // // // // // serverView.showMessage("Error: ClientHandler for " + recipientUsername + " not found or game already started.");
                 }
             } else {
                 sendMessage("INVITE_ERROR:" + recipientUsername + " is not available.");
                 System.out.println("Error: " + recipientUsername + " is not online.");
-                serverView.showMessage("Error: " + recipientUsername + " is not online.");
+                // // // // // serverView.showMessage("Error: " + recipientUsername + " is not online.");
             }
         } else {
             System.out.println("Error: Invalid message format.");
-            serverView.showMessage("Error: Invalid message format.");
+            // // // // // serverView.showMessage("Error: Invalid message format.");
         }
     }
 
     // Phương thức xử lý phản hồi lời mời
     private void handleInviteResponse(String message) {
         System.out.println("Handling invite response with message: " + message);
-        serverView.showMessage("Handling invite response with message: " + message);
+        // // // // // serverView.showMessage("Handling invite response with message: " + message);
 
         String[] parts = message.split(":");
         if (parts.length >= 3) {
@@ -266,7 +262,7 @@ public class ClientHandler implements Runnable, IClientHandler {
             String response = parts[2];
 
             System.out.println("Invite response from " + user.getUserName() + ": " + response);
-            serverView.showMessage("Invite response from " + user.getUserName() + ": " + response);
+            // // // // // serverView.showMessage("Invite response from " + user.getUserName() + ": " + response);
 
             ClientHandler senderHandler = getClientHandler(senderUsername);
             if (senderHandler != null) {
@@ -281,13 +277,13 @@ public class ClientHandler implements Runnable, IClientHandler {
                         senderHandler.matchId = matchId;
 
                         System.out.println("Updated status to PLAYING for both " + user.getUserName() + " and " + senderUsername);
-                        serverView.showMessage("Updated status to PLAYING for both " + user.getUserName() + " and " + senderUsername);
+                        // // // // // serverView.showMessage("Updated status to PLAYING for both " + user.getUserName() + " and " + senderUsername);
 
                         senderHandler.sendMessage(Constants.RESPONSE_GAME_START + ":" + user.getUserName());
                         sendMessage(Constants.RESPONSE_GAME_START + ":" + senderUsername);
 
                         System.out.println("Game started between " + user.getUserName() + " and " + senderUsername);
-                        serverView.showMessage("Game started between " + user.getUserName() + " and " + senderUsername);
+                        // // // // // serverView.showMessage("Game started between " + user.getUserName() + " and " + senderUsername);
 
                         gameStartedWithOpponent = true;
                         senderHandler.gameStartedWithOpponent = true;
@@ -309,16 +305,16 @@ public class ClientHandler implements Runnable, IClientHandler {
                     }
                 } else {
                     System.out.println(user.getUserName() + " has declined the invite from " + senderUsername);
-                    serverView.showMessage(user.getUserName() + " has declined the invite from " + senderUsername);
+                    // // // // // serverView.showMessage(user.getUserName() + " has declined the invite from " + senderUsername);
                 }
             } else {
                 System.out.println("Error: ClientHandler for " + senderUsername + " not found.");
-                serverView.showMessage("Error: ClientHandler for " + senderUsername + " not found.");
+                // // // // // serverView.showMessage("Error: ClientHandler for " + senderUsername + " not found.");
                 sendMessage("INVITE_ERROR:" + senderUsername + " is not available.");
             }
         } else {
             System.out.println("Error: Invalid invite response format.");
-            serverView.showMessage("Error: Invalid invite response format.");
+            // // // // // serverView.showMessage("Error: Invalid invite response format.");
         }
     }
 
@@ -329,7 +325,7 @@ public class ClientHandler implements Runnable, IClientHandler {
             oos.writeObject(message);
             oos.flush();
         } catch (IOException e) {
-            serverView.showMessage("Error sending message to client: " + e.getMessage());
+            // // // // // serverView.showMessage("Error sending message to client: " + e.getMessage());
         }
     }
 
@@ -366,14 +362,14 @@ public class ClientHandler implements Runnable, IClientHandler {
     public void sendColorsToClient() {
 
         System.out.println("Random 3 colors for " + user.getUserName());
-        serverView.showMessage("Random 3 colors for " + user.getUserName());
+        // // // // // serverView.showMessage("Random 3 colors for " + user.getUserName());
 
         String randomColors = random3Color(); //Thực hiện chọn 3 màu ngẫu nhiên
 
         sendMessage(Constants.RESPONSE_RANDOM_COLORS + ":" + randomColors + ":" + this.round); // Gửi 3 màu ngẫu nhiên tới client
 
         System.out.println("Sending colors to client: " + user.getUserName());
-        serverView.showMessage("Sending colors to client: " + user.getUserName());
+        // // // // // serverView.showMessage("Sending colors to client: " + user.getUserName());
 
         this.round++; // Tăng số round lên 1
 
@@ -465,7 +461,7 @@ public class ClientHandler implements Runnable, IClientHandler {
 
             broadcastOnlineUsers();
         } catch (Exception e) {
-            serverView.showMessage("Error exiting mid-game: " + e.getMessage());
+            // // // // // serverView.showMessage("Error exiting mid-game: " + e.getMessage());
         }
     }
 
@@ -532,7 +528,7 @@ public class ClientHandler implements Runnable, IClientHandler {
         try {
             if (clientSocket != null && !clientSocket.isClosed()) {
                 clientSocket.close();
-                serverView.showMessage("Connection closed with client: " + (user != null ? user.getUserName() : "unknown"));
+                // // // // // serverView.showMessage("Connection closed with client: " + (user != null ? user.getUserName() : "unknown"));
             }
             if (user != null) {
                 // Cập nhật trạng thái người dùng thành offline
@@ -542,7 +538,7 @@ public class ClientHandler implements Runnable, IClientHandler {
                 broadcastOnlineUsers();
             }
         } catch (Exception e) {
-            serverView.showMessage("Error closing client connection: " + e.getMessage());
+            // // // // // serverView.showMessage("Error closing client connection: " + e.getMessage());
         }
     }
 
@@ -572,9 +568,9 @@ public class ClientHandler implements Runnable, IClientHandler {
             oos.writeObject(matchHistory);
             oos.flush();
 
-            serverView.showMessage("Sent match history to client: " + user.getUserName());
+            // // // // // serverView.showMessage("Sent match history to client: " + user.getUserName());
         } catch (IOException e) {
-            serverView.showMessage("Error sending match history to client: " + e.getMessage());
+            // // // // // serverView.showMessage("Error sending match history to client: " + e.getMessage());
             e.printStackTrace();
         }
     }

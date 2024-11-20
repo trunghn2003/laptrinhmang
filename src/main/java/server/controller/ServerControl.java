@@ -2,7 +2,6 @@ package server.controller;
 
 import server.controller.handle.ClientHandler;
 import server.controller.handle.IClientHandler;
-import server.view.ServerView;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -22,11 +21,11 @@ public class ServerControl {
     private RegisterServerController registerController;
     private UserServerController userController;
     private GameServerController gameController;
-    private ServerView serverView;
+//    private // serverView // serverView;
     private AtomicInteger clientIdCounter = new AtomicInteger(1);
 
-    public ServerControl(ServerView serverView) throws Exception {
-        this.serverView = serverView;
+    public ServerControl() throws Exception {
+//        this.// // serverView = // serverView;
         this.dotenv = Dotenv.load();
         this.serverPort = Integer.parseInt(dotenv.get("SERVER_PORT"));
         getDBConnection(dotenv.get("DB_DATABASE"), dotenv.get("DB_USERNAME"), dotenv.get("DB_PASSWORD"));
@@ -43,9 +42,9 @@ public class ServerControl {
         try {
             Class.forName(dbClass);
             con = DriverManager.getConnection(dbUrl, username, password);
-            serverView.showMessage("Database connected.");
+            // serverView.showMessage("Database connected.");
         } catch (Exception e) {
-            serverView.showMessage("Error connecting to database: " + e.getMessage());
+            // serverView.showMessage("Error connecting to database: " + e.getMessage());
             throw new Exception("Database connection error", e);
         }
     }
@@ -53,10 +52,10 @@ public class ServerControl {
     private void openServer(int portNumber) throws Exception {
         try {
             myServer = new ServerSocket(portNumber);
-            serverView.showMessage("Server started on port " + portNumber);
+            // serverView.showMessage("Server started on port " + portNumber);
             listenForClients();
         } catch (IOException e) {
-            serverView.showMessage("Error starting server: " + e.getMessage());
+            // serverView.showMessage("Error starting server: " + e.getMessage());
             throw new Exception("Server start error", e);
         }
     }
@@ -65,14 +64,14 @@ public class ServerControl {
         while (true) {
             try {
                 Socket clientSocket = myServer.accept();
-                serverView.showMessage("Client connected: " + clientSocket.getInetAddress());
+                // serverView.showMessage("Client connected: " + clientSocket.getInetAddress());
                 IClientHandler clientHandler = new ClientHandler(
-                        clientSocket, loginController, registerController, userController, serverView, clientIdCounter, gameController
+                        clientSocket, loginController, registerController, userController, clientIdCounter, gameController
                 );
                 new Thread((Runnable) clientHandler).start();
 
             } catch (IOException e) {
-                serverView.showMessage("Error accepting client connection: " + e.getMessage());
+                // serverView.showMessage("Error accepting client connection: " + e.getMessage());
             }
         }
     }
@@ -81,10 +80,10 @@ public class ServerControl {
         try {
             if (myServer != null && !myServer.isClosed()) {
                 myServer.close();
-                serverView.showMessage("Server stopped.");
+                // serverView.showMessage("Server stopped.");
             }
         } catch (IOException e) {
-            serverView.showMessage("Error stopping server: " + e.getMessage());
+            // serverView.showMessage("Error stopping server: " + e.getMessage());
         }
     }
 }

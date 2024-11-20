@@ -1,12 +1,14 @@
 package server;
 
-import server.view.ServerView;
-
-import javax.swing.*;
+import server.controller.ServerControl;
 
 public class ServerRun {
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new ServerView());
+        try {
+            ServerControl serverControl = new ServerControl();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
     }
 }
