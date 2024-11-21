@@ -1,0 +1,73 @@
+/* styles.css */
+@font-face {
+    font-family: "SVN-Bango";
+    src: url("/fonts/SVN-Bango.otf");
+}
+
+.root {
+    -fx-font-family: "SVN-Bango";
+    -fx-background-image: url("/assets/login-bg.png");
+    -fx-background-size: cover; /* This makes the image cover the entire area */
+    -fx-background-position: center; /* Centers the image */
+    -fx-background-repeat: no-repeat; /* Prevents the image from repeating */
+}
+
+.label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #fff;
+    -fx-font-family: "";
+    -fx-font-weight: 600;
+}
+
+#title-label {
+    -fx-font-size: 48px;
+    -fx-text-fill: #fff;
+    /* Thêm stroke */
+    -fx-stroke: #714F20; /* Màu stroke */
+    -fx-stroke-width: 4; /* Độ dày stroke */
+
+    /* Thêm drop shadow */
+    -fx-effect: drop shadow(gaussian, black, 10, 0, 0, 4);
+}
+
+.text-field, .password-field {
+    -fx-font-family: "";
+    -fx-background-radius: 25;
+    -fx-padding: 16;
+    -fx-font-size: 16px;
+    -fx-border-radius: 25;
+    -fx-border-color: #634831;
+    -fx-background-color: #453221;
+    -fx-text-fill: #fff;
+}
+
+.button {
+    -fx-background-color: #E29A36;
+    -fx-text-fill: white;
+    -fx-padding: 8 15;
+    -fx-background-radius: 25;
+    -fx-font-size: 18px;
+    -fx-border-color: #A37029;
+    -fx-border-width: 2px; /* Độ rộng viền */
+    -fx-border-radius: 25;
+    -fx-transition: background-color 0.5s ease;
+}
+
+.button:hover {
+    -fx-background-color: #C77A2B;
+}
+
+.hyperlink {
+    -fx-text-fill: #CF9C40;
+    -fx-font-family: "";
+}
+
+.hyperlink:hover {
+    -fx-text-fill: #E47200;
+    -fx-font-weight: 600;
+}
+
+.text-field, .password-field, .button {
+    -fx-max-width: 250px;
+    -fx-min-width: 250px;
+}

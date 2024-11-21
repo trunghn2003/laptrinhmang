@@ -9,7 +9,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
 import io.github.cdimascio.dotenv.Dotenv;
 
 
@@ -84,6 +87,8 @@ public class ClientControl {
     public synchronized Object receiveData() {
         try {
             Object o = ois.readObject();
+            System.out.println("Data received from server: " + o);
+            System.out.println("Received data type: " + o.getClass().getName());
             return o;
         } catch (IOException | ClassNotFoundException ex) {
             ex.printStackTrace();
@@ -214,6 +219,60 @@ public class ClientControl {
     public ObjectOutputStream getObjectOutputStream() {
         return oos;
     }
+
+//    public java.util.List<User> getAllUser() {
+////        User user = new User(username, password, Constants.ACTION_LOGIN);
+////        if (openConnection() == null) {
+////            return new ResponseResult(false, "Cannot connect to server.");
+////        }
+////        if (!sendUser(user)) {
+////            closeConnection();
+////            return new ResponseResult(false, "Error sending data to server.");
+////        }
+//        System.out.println("Get all user");
+//        Object response = receiveData();
+//        System.out.println("get all user: "+response);
+//        if (response instanceof java.util.List) {
+//            @SuppressWarnings("unchecked")
+//            java.util.List<User> users = (java.util.List<User>) response;
+//            return users;
+//        }
+//        return null;
+//    }
+// Send request for match history to the server
+    public boolean sendMatchHistoryRequest() {
+        if (currentUser == null) {
+            System.out.println("User chưa đăng nhập.");
+            return false;
+        }
+
+        // Create the request message
+        String message = Constants.ACTION_GET_HISTORY + ":" + currentUser.getUserName();
+        sendMessage(message);
+    //    if (!sendMessage(message)) {
+    //        System.out.println("Gửi yêu cầu lịch sử đấu thất bại.");
+    //        return false;
+    //    }
+        return true;  // Request was sent successfully
+    }
+
+    // Receive and process match history response from the server
+    // Receive and process match history response from the server
+    public Map<String, Map<String, Object>> receiveMatchHistory() {
+        // Nhận dữ liệu từ server
+        Object response =receiveData(); // ois là ObjectInputStream
+        if (response instanceof Map) {
+            @SuppressWarnings("unchecked")
+            Map<String, Map<String, Object>> matchHistory = (Map<String, Map<String, Object>>) response;
+            return matchHistory;
+        } else {
+            System.out.println("Phản hồi không đúng định dạng.");
+            return Collections.emptyMap();
+        }
+    }
+
+
+
 }
 
 

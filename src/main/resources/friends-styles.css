@@ -1,0 +1,64 @@
+@font-face {
+    font-family: "SVN-Bango";
+    src: url("/fonts/SVN-Bango.otf");
+}
+
+.root {
+    -fx-font-family: "SVN-Bango";
+    -fx-background-image: url("/assets/friends-bg.png");
+    -fx-background-size: cover; /* This makes the image cover the entire area */
+    -fx-background-position: center; /* Centers the image */
+    -fx-background-repeat: no-repeat; /* Prevents the image from repeating */
+}
+
+#centerPanel {
+    -fx-background-color: #453221;
+    -fx-background-radius: 25;
+    -fx-padding: 16;
+    -fx-border-radius: 25;
+    -fx-border-color: #634831;
+    -fx-text-fill: #fff;
+}
+
+.list-view .list-cell:odd {
+    -fx-background-color: #453221;
+}
+
+.list-view .list-cell:even {
+    -fx-background-color: #453221;
+}
+
+.list-view .list-cell:odd:hover {
+    -fx-background-color: #5A3C29;
+}
+
+.list-view .list-cell:even:hover {
+    -fx-background-color: #5A3C29;
+}
+
+.list-view {
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+    -fx-border-style: none;
+    -fx-padding: 0;
+}
+
+#statusLbl {
+    -fx-font-size: 10px;
+    -fx-font-family: "";
+    -fx-font-weight: bold;
+}
+
+.button {
+    -fx-background-color: #E29A36;
+    -fx-text-fill: white;
+    -fx-padding: 4 10;
+    -fx-background-radius: 25;
+    -fx-font-size: 10px;
+    -fx-border-color: #A37029;
+    -fx-border-width: 2px; /* Độ rộng viền */
+    -fx-border-radius: 25;
+    -fx-transition: background-color 0.5s ease;
+}

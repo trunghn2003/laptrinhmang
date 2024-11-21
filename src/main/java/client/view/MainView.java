@@ -2,189 +2,395 @@ package client.view;
 
 import client.controller.ClientControl;
 import client.controller.GameController;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.stage.Modality;
+import javafx.stage.StageStyle;
 import server.model.User;
 import client.utils.Constants;
+import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-public class MainView extends JFrame {
+public class MainView extends Application {
     private ClientControl clientControl;
     private GameController gameController;
-    private DefaultListModel<User> userListModel;
-    private JList<User> userList;  // JList giờ sẽ chứa đối tượng User, không chỉ tên người dùng
-    private JButton inviteButton;
+    private ObservableList<User> userListModel;
+    private ListView<User> userList;
+    private Button playButton;
+    private Button settingsButton;
+    private Button historyButton;
 
     public MainView(ClientControl clientControl, Object userData) {
         this.clientControl = clientControl;
         this.gameController = new GameController(clientControl);
+        this.userListModel = FXCollections.observableArrayList();
+        updateUserList((List<User>) userData);
         setupUI();
-        updateUserList((List<User>) userData);  // Cập nhật danh sách người chơi ban đầu
-        listenFromServer();  // Bắt đầu lắng nghe các tin nhắn từ server
     }
 
     // Tạo giao diện chính
     private void setupUI() {
-        setTitle("Online Players");
-        setSize(400, 600);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        Stage stage = new Stage();
+        stage.setTitle("Đoán Màu");
 
-        userListModel = new DefaultListModel<>();
-        userList = new JList<>(userListModel);
+        BorderPane root = new BorderPane();
 
-        // Sử dụng renderer tùy chỉnh để hiển thị tên và trạng thái người chơi
-        userList.setCellRenderer(new UserListCellRenderer());
+        // Tạo nút cài đặt
+        settingsButton = new Button();
+        ImageView settingsIcon = new ImageView(new Image("/assets/setting-btn.png"));
+        settingsIcon.setFitWidth(35);
+        settingsIcon.setFitHeight(35);
+        settingsButton.setGraphic(settingsIcon);
+        settingsButton.getStyleClass().add("settings-button");
 
-        JScrollPane userScrollPane = new JScrollPane(userList);
+        // Tạo container cho nút cài đặt
+        StackPane topRight = new StackPane(settingsButton);
+        StackPane.setAlignment(settingsButton, Pos.BOTTOM_RIGHT);
+        StackPane.setMargin(settingsButton, new Insets(10, 10, 0, 0));
 
-        inviteButton = new JButton("Invite to Play");
-        inviteButton.addActionListener(e -> {
-            User selectedUser = userList.getSelectedValue();  // Lấy đối tượng User thay vì chỉ tên người dùng
-            if (selectedUser != null) {
-                sendInvite(selectedUser.getUserName());  // Gửi lời mời tới người chơi được chọn
-            } else {
-                JOptionPane.showMessageDialog(null, "Please select a player to invite.");
-            }
+        // Thêm style cho nút
+        settingsButton.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-cursor: hand;"
+        );
+
+        // Thêm hiệu ứng hover
+        settingsButton.setOnMouseEntered(e -> {
+            settingsButton.setStyle(
+                    "-fx-background-color: rgba(255,255,255,0.1);" +
+                            "-fx-cursor: hand;"
+            );
         });
 
-        add(userScrollPane, BorderLayout.CENTER);
-        add(inviteButton, BorderLayout.SOUTH);
+        settingsButton.setOnMouseExited(e -> {
+            settingsButton.setStyle(
+                    "-fx-background-color: transparent;" +
+                            "-fx-cursor: hand;"
+            );
+        });
 
-        setVisible(true);
+        // Xử lý sự kiện click
+        settingsButton.setOnAction(e -> {
+            openSettings();
+        });
+
+        // Đặt nút cài đặt vào vị trí top của BorderPane
+        root.setTop(topRight);
+
+        // Cột 1 và 2 gộp thành 1
+        VBox leftColumn = new VBox();
+        leftColumn.setSpacing(20);
+        leftColumn.setAlignment(javafx.geometry.Pos.CENTER);
+
+        // Thêm logo
+        Image logoImage = new Image("/assets/home-logo.png");
+        ImageView logo = new ImageView(logoImage);
+        logo.setFitWidth(420);
+        logo.setPreserveRatio(true);
+        logo.setTranslateY(-40);
+
+        Region spacer = new Region();
+        spacer.setPrefHeight(100);
+
+        // Tạo Text với hiệu ứng bóng đổ
+        Text text = new Text("Play Now");
+        text.setFill(Color.WHITE);
+        text.setStyle("-fx-font-size: 18px;");
+
+        // Thêm stroke cho Text
+        text.setStroke(Color.web("#9B6B27"));
+        text.setStrokeWidth(1);
+
+        DropShadow ds = new DropShadow();
+        ds.setOffsetY(2.0);
+        ds.setColor(Color.web("#A37029"));
+        ds.setRadius(0);
+        text.setEffect(ds);
+
+        // Thêm nút
+        playButton = new Button();
+        playButton.setGraphic(text);
+        playButton.setPrefWidth(250);
+        playButton.setPrefHeight(60);
+
+//        historyButton = new Button("History");
+//        historyButton.setPrefWidth(250);
+//        historyButton.setPrefHeight(60);
+//        historyButton.setOnAction(e -> showMatchHistory());
+
+        DropShadow buttonShadow = new DropShadow();
+        buttonShadow.setOffsetY(6.0);
+        buttonShadow.setColor(Color.web("#A37029"));
+        buttonShadow.setRadius(1);
+        playButton.setEffect(buttonShadow);
+
+        playButton.setOnAction(e -> {
+            playNow();
+        });
+
+        leftColumn.getChildren().addAll(logo, spacer, playButton);
+
+        // Cột 3
+        VBox rightColumn = new VBox();
+        rightColumn.setSpacing(20);
+
+        Image leaderboardHeader = new Image("/assets/leaderboard.png");
+        ImageView leaderboardHeaderImage = new ImageView(leaderboardHeader);
+        leaderboardHeaderImage.setFitWidth(270);
+        leaderboardHeaderImage.setPreserveRatio(true);
+
+        userList = new ListView<>(userListModel);
+        userList.setCellFactory(param -> new UserListCellRenderer());
+        userList.setPrefWidth(300);
+        userList.setBackground(new Background(new BackgroundFill(Color.web("#ADD8E6"), CornerRadii.EMPTY, Insets.EMPTY)));
+
+        rightColumn.getChildren().addAll(leaderboardHeaderImage, userList);
+        rightColumn.setStyle("-fx-background-color: #453221;");
+        rightColumn.setPrefWidth(300);
+        rightColumn.setPadding(new Insets(30, 20, 10, 20));
+        rightColumn.setId("rightColumn");
+
+        // Thêm các cột vào root
+        HBox hbox = new HBox();
+        Region leftSpacer = new Region();
+        Region rightSpacer = new Region();
+        Region centerSpacer = new Region();
+        HBox.setHgrow(leftSpacer, Priority.ALWAYS);
+        HBox.setHgrow(rightSpacer, Priority.ALWAYS);
+        HBox.setHgrow(centerSpacer, Priority.ALWAYS);
+
+        hbox.getChildren().addAll(leftColumn, centerSpacer, rightColumn);
+        hbox.setSpacing(20);
+        hbox.setStyle("-fx-padding: 20;");
+        root.setCenter(hbox);
+
+        Scene scene = new Scene(root, 800, 600);
+        scene.getStylesheets().add(getClass().getResource("/home-styles.css").toExternalForm());
+        stage.setScene(scene);
+        stage.show();
     }
 
-    // Cập nhật danh sách người chơi
+    private void openSettings() {
+        SettingsModal settingsModal = new SettingsModal((Stage) playButton.getScene().getWindow(), clientControl);
+        settingsModal.show();
+    }
+
+    // Hiển thị thông báo
+    private void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        // Chỉ để thực hiện ứng dụng JavaFX, không sử dụng trong MainView
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    // Renderer tùy chỉnh để hiển thị tên và trạng thái người dùng
+    private class UserListCellRenderer extends ListCell<User> {
+        @Override
+        protected void updateItem(User user, boolean empty) {
+            super.updateItem(user, empty);
+            if (empty || user == null) {
+                setText(null);
+                setGraphic(null);
+            } else {
+                // Create an HBox to contain avatar, name, spacer, and score
+                HBox hbox = new HBox();
+                //Thêm padding y cho hbox
+                hbox.setPadding(new Insets(5, 0, 5, 0));
+                hbox.setSpacing(5); // Spacing between elements
+                hbox.setAlignment(Pos.CENTER_LEFT); // Center vertically, align left horizontally
+
+                ImageView avatar = new ImageView(new Image("/assets/avatar/avt1.png")); // Path to avatar
+                avatar.setFitWidth(40); // Set width for avatar
+                avatar.setFitHeight(40); // Set height for avatar
+
+                //Space
+                Region space = new Region();
+                space.setPrefWidth(5);
+
+                // Create Label for the username
+                Label userInfo = new Label(user.getUserName());
+                userInfo.setStyle("-fx-text-fill: white; -fx-font-family: '';-fx-font-weight: bold;"); // Set text color
+
+                // Create a spacer Region
+                Region spacer = new Region();
+                HBox.setHgrow(spacer, Priority.ALWAYS); // Make spacer grow horizontally
+
+                // Tạo HBox để chứa score và icon
+                HBox scoreBox = new HBox(5); // spacing 5 pixels
+                scoreBox.setAlignment(Pos.CENTER);
+
+                // Label cho điểm số
+                Label scoreInfo = new Label(String.valueOf(user.getScore()));
+                scoreInfo.setStyle("-fx-text-fill: #FFAF40;");
+
+                // Tạo ImageView cho icon point
+                ImageView pointIcon = new ImageView(new Image("/assets/coin.png")); // Thay đường dẫn icon của bạn
+                pointIcon.setFitWidth(20); // Điều chỉnh kích thước icon
+                pointIcon.setFitHeight(20);
+
+                // Thêm score và icon vào scoreBox
+                scoreBox.getChildren().addAll(scoreInfo, pointIcon);
+
+
+                // Add avatar, username, spacer, and score to HBox
+                hbox.getChildren().addAll(avatar, space, userInfo, spacer, scoreBox);
+
+                // Set background color for HBox (optional)
+                hbox.setStyle("-fx-background-color: #453221;");
+
+                //set background when hover
+                hbox.setOnMouseEntered(e -> {
+                    hbox.setStyle("-fx-background-color: #5A3C29;");
+                });
+
+                hbox.setOnMouseExited(e -> {
+                    hbox.setStyle("-fx-background-color: #453221;");
+                });
+
+                // Set the HBox as the graphic for this cell
+                setGraphic(hbox);
+            }
+        }
+    }
+
     public void updateUserList(List<User> users) {
         userListModel.clear();
+        System.out.println("Updating user list with " + users.size() + " users.");
+        // Sắp xếp danh sách người chơi theo số điểm
+        users.sort((u1, u2) -> Integer.compare(u2.getScore(), u1.getScore())); // Sắp xếp giảm dần
         for (User user : users) {
-            if(!user.getUserName().equals(clientControl.getCurrentUser().getUserName())) {
-                userListModel.addElement(user);
-            }
+            userListModel.add(user);
         }
     }
 
-    // Gửi lời mời chơi
-    private void sendInvite(String recipient) {
-        String message = Constants.ACTION_INVITE + ":" + recipient;
-        clientControl.sendMessage(message);
+    //Play now
+    public void playNow() {
+        Stage stage = (Stage) playButton.getScene().getWindow();
+        double xPos = stage.getX();
+        double yPos = stage.getY();
+        stage.hide();
+        FriendsView friendsView = new FriendsView(clientControl,userListModel);
+        Stage friendsStage = friendsView.getStage();
+        friendsStage.setX(xPos);
+        friendsStage.setY(yPos);
     }
 
-    // Lắng nghe từ server
-    private void listenFromServer() {
-        new Thread(() -> {
-            try {
-                while (true) {
-                    Object obj = clientControl.receiveData();
-                    if (obj instanceof String) {
-                        String message = (String) obj;
-                        System.out.println("in mainView: " + message);
-                        if (message.startsWith(Constants.RESPONSE_INVITE)) {
-                            handleInvite(message);
-                        } else if (message.startsWith(Constants.RESPONSE_INVITE_RESPONSE)) {
-                            handleInviteResponse(message);
-                        } else if (message.startsWith(Constants.RESPONSE_GAME_START)) {
-                            handleGameStart(message);
-                        } else if (message.startsWith(Constants.RESPONSE_RANDOM_COLORS)) {
-                            gameController.receivedColors(message);
-                        } else if (message.startsWith(Constants.RESPONSE_GAME_RESULT)) {
-                            gameController.receiveGameResult(message);
-                        } else if (message.startsWith(Constants.RESPONSE_EXIT_MIDDLE_GAME)) {
-                            System.out.println("EXIT MID GAME");
-                        } else if (message.startsWith(Constants.RESPONSE_MATCH_RESULT)) {
-                            gameController.receivedMatchResult(message);
-                        } else {
-                            // Xử lý các tin nhắn khác
-                        }
-                    } else if (obj instanceof List) {
-                        // Cập nhật danh sách người chơi online
-                        @SuppressWarnings("unchecked")
-                        List<User> users = (List<User>) obj;
-                        updateUserList(users);
-                    }
+    //get stage
+    public Stage getStage() {
+        return (Stage) playButton.getScene().getWindow();
+    }
+
+    private void showMatchHistory() {
+        boolean requestSent = clientControl.sendMatchHistoryRequest();
+        if (!requestSent) {
+            showAlert("Failed to send match history request.");
+            return;
+        }
+
+        Map<String, Map<String, Object>> matchHistory = clientControl.receiveMatchHistory();
+
+        if (matchHistory.isEmpty()) {
+            System.out.println("Match history is empty.");
+        } else {
+            System.out.println("Match history size: " + matchHistory.size());
+            for (Map.Entry<String, Map<String, Object>> entry : matchHistory.entrySet()) {
+                String matchId = entry.getKey();
+                Map<String, Object> matchDetails = entry.getValue();
+
+                System.out.println("Match ID: " + matchId);
+                System.out.println("Match Details:");
+                for (Map.Entry<String, Object> detailEntry : matchDetails.entrySet()) {
+                    String key = detailEntry.getKey();
+                    Object value = detailEntry.getValue();
+                    System.out.println("  " + key + ": " + value);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
-        }).start();
-    }
-
-    // Xử lý khi nhận được lời mời chơi từ người khác
-    private void handleInvite(String message) {
-        String[] parts = message.split(":");
-
-        if (parts.length >= 3) {
-            String recipient = parts[1]; // Tên người nhận (người gửi phản hồi)
-            String response = parts[2];  // Phản hồi (ACCEPT hoặc DECLINE)
-
-            // Xử lý phản hồi dựa trên nội dung
-            if (response.equalsIgnoreCase("ACCEPT")) {
-                JOptionPane.showMessageDialog(null, recipient + " has accepted your invitation. The game will start!");
-//                gameController.startGame(recipient); // Bắt đầu trò chơi
-            } else if (response.equalsIgnoreCase("DECLINE")) {
-                JOptionPane.showMessageDialog(null, recipient + " has declined your invitation.");
-            }
-        } else {
-            // Log lỗi nếu thông điệp không đủ phần tử sau khi tách
-            String sender = message.split(":")[1];
-            int response = JOptionPane.showConfirmDialog(null, sender + " invites you to a game. Do you accept?", "Game Invitation", JOptionPane.YES_NO_OPTION);
-            String responseMessage = Constants.ACTION_INVITE_RESPONSE + ":" + sender + ":" + (response == JOptionPane.YES_OPTION ? "ACCEPT" : "DECLINE");
-            clientControl.sendMessage(responseMessage);
         }
-    }
 
-    // Xử lý phản hồi lời mời
-    private void handleInviteResponse(String message) {
-        String[] parts = message.split(":");
-        String recipient = parts[1];
-        String response = parts[2];
-        if (response.equals("ACCEPT")) {
-            JOptionPane.showMessageDialog(null, recipient + " has accepted your invitation. The game will start!");
-            gameController.startGame(recipient);
-        } else {
-            JOptionPane.showMessageDialog(null, recipient + " has declined your invitation.");
+        JFrame frame = new JFrame("Match History");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
+
+        // Kiểm tra nếu matchHistory rỗng
+        if (matchHistory.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Match history is empty.", "Info", JOptionPane.INFORMATION_MESSAGE);
+            return;
         }
-    }
 
-    // Xử lý khi trò chơi bắt đầu
-    private void handleGameStart(String message) {
-        String opponent = message.split(":")[1];
-        JOptionPane.showMessageDialog(null, "Starting game with " + opponent + "!");
-        gameController.startGame(opponent);
-//        this.setVisible(false);
-    }
-}
+        // Tạo model cho bảng
+        DefaultTableModel tableModel = new DefaultTableModel();
+        tableModel.addColumn("Match ID"); // Cột cho Match ID
 
-// Renderer tùy chỉnh để hiển thị tên và trạng thái người dùng
-class UserListCellRenderer extends DefaultListCellRenderer {
-    @Override
-    public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        // Thêm các cột từ key của matchDetails (vì keys trong Map của matchDetails là dynamic)
+        boolean columnsAdded = false;
 
-        if (value instanceof User) {
-            User user = (User) value;
-            // Hiển thị tên người dùng và trạng thái
-            String statusText = user.getStatus() == 1 ? "Online" : user.getStatus() == 2 ? "Playing" : "Offline";
-            label.setText("<html><b>" + user.getUserName() + "</b> (" + statusText + ")</html>");
+        for (Map.Entry<String, Map<String, Object>> entry : matchHistory.entrySet()) {
+            String matchId = entry.getKey();
+            Map<String, Object> matchDetails = entry.getValue();
 
-            // Tùy chỉnh màu sắc dựa trên trạng thái người dùng
-            if (user.getStatus() == 1) {
-                label.setForeground(new Color(0, 128, 0));  // Xanh lá cho Online
-            } else if (user.getStatus() == 2) {
-                label.setForeground(new Color(0, 0, 255));  // Xanh dương cho Playing
-            } else {
-                label.setForeground(new Color(128, 128, 128));  // Xám cho Offline
+            if (!columnsAdded) {
+                for (String key : matchDetails.keySet()) {
+                    tableModel.addColumn(key);
+                }
+                columnsAdded = true;
             }
 
-            // Thêm khoảng cách giữa các mục
-            label.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+            // Tạo một hàng dữ liệu
+            Object[] rowData = new Object[matchDetails.size() + 1];
+            rowData[0] = matchId;
+
+            int colIndex = 1;
+            for (Object value : matchDetails.values()) {
+                rowData[colIndex++] = value;
+            }
+
+            tableModel.addRow(rowData);
         }
 
-        if (isSelected) {
-            label.setBackground(new Color(200, 230, 255));  // Màu nền khi được chọn
-        }
+        // Tạo JTable từ model
+        JTable table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
 
-        return label;
+        // Thêm bảng vào frame
+        frame.setLayout(new BorderLayout());
+        frame.add(scrollPane, BorderLayout.CENTER);
+
+        // Hiển thị frame
+        frame.setVisible(true);
     }
-}
+
+
+    }
+
+
+
+
 
