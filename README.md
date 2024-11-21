@@ -7,6 +7,6 @@
 5. Run ServerRun, then run ClientRun
 
  **Client Diagram** 
-![Client Diagram](/ClientDiagram.jpg)
+![Client Diagram](/ClientSide.jpg)
 **Server Diagram**
 ![Server Diagram](./ServerSide.jpg)
