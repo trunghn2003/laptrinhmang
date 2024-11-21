@@ -1,6 +1,5 @@
 CREATE TABLE users (
                        id INT AUTO_INCREMENT PRIMARY KEY,
-                       name VARCHAR(255) ,
                        username VARCHAR(255) NOT NULL UNIQUE,
                        password VARCHAR(255) NOT NULL,
                        score INT,
@@ -22,22 +21,9 @@ CREATE TABLE matches (
 );
 
 
-CREATE TABLE rounds (
-                        id INT AUTO_INCREMENT PRIMARY KEY,
-                        match_id INT NOT NULL,
-                        round_number INT NOT NULL,
-                        player1_choice VARCHAR(255),
-                        player2_choice VARCHAR(255),
-                        player1_score INT DEFAULT 0,
-                        player2_score INT DEFAULT 0,
-                        FOREIGN KEY (match_id) REFERENCES matches(id)
-);
-
 ALTER TABLE matches MODIFY COLUMN result VARCHAR(100);
 
 ALTER TABLE users
 ADD COLUMN wins INT DEFAULT 0,
 ADD COLUMN losses INT DEFAULT 0,
 ADD COLUMN draws INT DEFAULT 0;
-
-
