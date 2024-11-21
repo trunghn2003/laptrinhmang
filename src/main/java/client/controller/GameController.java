@@ -1,7 +1,6 @@
 package client.controller;
 
 import client.utils.Constants;
-import client.view.FriendsView;
 import client.view.GameView;
 
 import java.util.ArrayList;
@@ -14,44 +13,35 @@ public class GameController {
     private boolean gameResult = false;
     private String matchResult = "";
     private int score = 0;
+    private int enemyCurrentRoundScore = 0;
     private int totalScore = 0;
     private int enemyScore = 0;
-    private ArrayList<Integer> roundScores = new ArrayList<>();
-    private String opponent;
-    private FriendsView friendsView;
 
     public GameController(ClientControl clientControl) {
         this.clientControl = clientControl;
     }
 
-    public void startGame(String opponent, FriendsView friendsView) {
-
-        handleEndGame();
-
-        this.friendsView = friendsView;
-        if(this.gameView != null) {
-            this.gameView.close();
-        }
+    public void startGame(String opponent) {
+        this.gameView = new GameView(this);
+        gameView.setOpponent(opponent);
+        gameView.setVisible(true);
         clientControl.sendMessage(Constants.ACTION_START_GAME);
-        if(this.gameView != null) this.gameView.close();
-        this.opponent = opponent;
     }
 
-    public ArrayList<Integer> getAllScoreRound() {
-        return this.roundScores;
-    }
-    public int getEnemyScore() {
-        return this.enemyScore;
-    }
     public int getScore() {
         return this.score;
     }
-    public int getTotalScore() {
-        return this.totalScore;
+
+    public int getEnemyCurrentRoundScore() {
+        return this.enemyCurrentRoundScore;
     }
 
-    public String getOpponent() {
-        return this.opponent;
+    public int getEnemyScore() {
+        return this.enemyScore;
+    }
+
+    public int getTotalScore() {
+        return this.totalScore;
     }
 
     public ArrayList<String> getColors() {
@@ -64,19 +54,11 @@ public class GameController {
 
     //Phương thức nhận màu ngẫu nhiên từ server
     public void receivedColors(String message) {
-        System.out.println("Received colors: " + message);
         ArrayList<String> parts = new ArrayList<>(Arrays.asList(message.split(":")));
         ArrayList<String> receivedColors = new ArrayList<>(Arrays.asList(parts.get(1).split(",")));
 
-        int currentRound = Integer.parseInt(parts.get(2));
-
         colors.clear();
         colors.addAll(receivedColors);
-
-        if(currentRound == 0) {
-            this.gameView = new GameView(this, this.friendsView);
-            gameView.setOpponent(opponent);
-        }
 
     }
 
@@ -91,15 +73,10 @@ public class GameController {
         this.gameResult = Boolean.parseBoolean(parts.get(1));
         this.score = Integer.parseInt(parts.get(2));
 
-        this.roundScores.add(score);
+        this.enemyCurrentRoundScore = Integer.parseInt(parts.get(3));
 
         this.totalScore += score;
 
-    }
-
-    public void receivedEnemyScoreRound(String message) {
-        ArrayList<String> parts = new ArrayList<>(Arrays.asList(message.split(":")));
-        this.roundScores.add(Integer.parseInt(parts.get(1)));
     }
 
     // Kết thúc trò chơi giữa chừng
@@ -112,7 +89,6 @@ public class GameController {
         ArrayList<String> parts = new ArrayList<>(Arrays.asList(message.split(":")));
         this.matchResult = parts.get(1);
         this.enemyScore = Integer.parseInt(parts.get(2));
-        clientControl.sendMessage(Constants.ACTION_FINISH_GAME);
     }
 
     public void handleEndGame() {
@@ -120,13 +96,5 @@ public class GameController {
         this.score = 0;
         this.totalScore = 0;
         this.matchResult = "";
-        this.opponent = "";
-        this.enemyScore = 0;
-        this.roundScores.clear();
-    }
-
-    public void finishGame() {
-        System.out.println("Finish game");
-        this.gameView.showGameOverScreen();
     }
 }
